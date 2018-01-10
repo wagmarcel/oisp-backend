@@ -42,7 +42,7 @@ public class ServiceConfigTest {
         String topic = "metrics";
 
         Mockito.when(vcapReaderServices.getUserProvidedServiceCredentialsByName(ServiceConfig.KAFKA_UPS_NAME))
-                .thenReturn(new JSONObject("{" + ServiceConfig.KAFKA_UPS_TOPIC + ": " + topic + "}"));
+                .thenReturn(new JSONObject("{" + ServiceConfig.KAFKA_UPS_TOPICS + ": " + "{" + ServiceConfig.KAFKA_OBSERVATIONS_TOPIC + ": " +topic + "} }"));
         serviceConfig.init();
         Assert.assertEquals(serviceConfig.getKafkaTopicName(), topic);
     }
@@ -85,7 +85,7 @@ public class ServiceConfigTest {
     @Test(expected = VcapEnvironmentException.class)
     public void Throws_error_when_response_not_contain_key() throws VcapEnvironmentException, JSONException {
         Mockito.when(vcapReaderServices.getVcapServiceCredentialsByType(ServiceConfig.KAFKA_SERVICE_NAME))
-                .thenReturn(new JSONObject("{" + ServiceConfig.KAFKA_UPS_TOPIC + ": test}"));
+                .thenReturn(new JSONObject("{" + ServiceConfig.KAFKA_UPS_TOPICS + ": " + "{" + ServiceConfig.KAFKA_OBSERVATIONS_TOPIC + ": test} }"));;
         serviceConfig.init();
         serviceConfig.getKafkaUri();
     }
