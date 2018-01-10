@@ -34,11 +34,12 @@ public class ServiceConfig implements ServiceConfigProvider {
     public static final String KAFKA_SERVICE_NAME = "kafka";
     public static final String KAFKA_SERVICE_URI = "uri";
     public static final String KAFKA_UPS_NAME = "kafka-ups";
-    public static final String KAFKA_UPS_TOPIC = "topic";
+    public static final String KAFKA_UPS_TOPICS = "topics";
     public static final String KAFKA_UPS_ENABLED = "enabled";
     public static final String KAFKA_UPS_PARTITIONS = "partitions";
     public static final String KAFKA_UPS_REPLICATION = "replication";
     public static final String KAFKA_UPS_TIMEOUT_MS = "timeout_ms";
+    public static final String KAFKA_OBSERVATIONS_TOPIC = "observations";
 
     public static final String ZOOKEEPER_BROKER_NAME = "zookeeper";
     public static final String ZOOKEEPER_BROKER_URI = "zk.cluster";
@@ -101,7 +102,11 @@ public class ServiceConfig implements ServiceConfigProvider {
 
     @Override
     public String getKafkaTopicName() throws VcapEnvironmentException {
-        return getFieldValueFromJson(kafkaSettings, KAFKA_UPS_NAME, KAFKA_UPS_TOPIC, String.class);
+     	try {
+            return getFieldValueFromJson(kafkaSettings.getJSONObject(KAFKA_UPS_TOPICS), KAFKA_UPS_TOPICS, KAFKA_OBSERVATIONS_TOPIC, String.class);
+        } catch (JSONException e) {
+            throw new VcapEnvironmentException("Cannot get kafka topic name", e);
+        }
     }
 
     @Override
