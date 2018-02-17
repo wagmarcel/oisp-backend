@@ -69,8 +69,8 @@ pmd {
 
 mainClassName = "com.intel.databackend.Application"
 sourceCompatibility = 1.8
-ext.cdhVersion = "cdh5.5.1"
-ext.hbaseVersion = "1.0.0-$cdhVersion"
+ext.cdhVersion = "cdh5.7.0"
+ext.hbaseVersion = "1.2.0-$cdhVersion"
 ext.hadoopVersion = "2.6.0-$cdhVersion"
 
 
@@ -115,7 +115,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-log4j:1.2.5.RELEASE")
 
     compile("org.apache.hbase:hbase:$hbaseVersion")
-    compile("org.apache.hbase:hbase-client:$hbaseVersion")
+    compile("org.apache.hbase:hbase-shaded-client:$hbaseVersion")
     compile("org.apache.hbase:hbase-common:$hbaseVersion")
 
     compile("org.apache.hadoop:hadoop-common:$hadoopVersion")
