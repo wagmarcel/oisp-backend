@@ -89,7 +89,7 @@ public class AggregationCalculator {
                     sum += value;
                     sumOfSquares += value * value;
                 } catch (NumberFormatException ex) {
-                    logger.warn("Observation value - {} is not a double.", observation.getValue());
+                    logger.warn("Observation getValue - {} is not a double.", observation.getValue());
                 }
             }
             aggregationResult.setMin(min);

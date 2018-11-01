@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.tsdb.hbase;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -25,7 +25,7 @@ final class DataFormatter {
     private static final String GPS_Y_COLUMN = "locY";
     private static final String GPS_Z_COLUMN = "locZ";
 
-    private static final String KEY_DELIMITER = "\0";
+    private static final String KEY_DELIMITER = "\\.";
 
     private DataFormatter() {
 
@@ -51,6 +51,11 @@ final class DataFormatter {
     public static Long getTimeFromKey(String key) {
         String[] parts = key.split(KEY_DELIMITER);
         return Long.parseLong(parts[2].trim());
+    }
+
+    public static String getMetricFromKey(String key) {
+        String[] parts = key.split(KEY_DELIMITER);
+        return new String(parts[0] + "." + parts[1]);
     }
 
     public static String getAttrNameFromCell(Cell cell) {

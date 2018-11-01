@@ -1,4 +1,4 @@
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.tsdb.hbase;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;

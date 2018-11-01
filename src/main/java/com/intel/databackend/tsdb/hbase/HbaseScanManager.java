@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.tsdb.hbase;
 
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+
+import java.util.Set;
 
 
 class HbaseScanManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(HbaseScanManager.class);
     private Scan scan;
-    private final String accountId;
-    private final String componentId;
+    private final String rowPrefix;
 
     private static final long MAX_DATA_PER_SCAN = 1000;
     private final PageFilter defaultPageFilter;
 
-    public HbaseScanManager(String accountId, String componentId) {
-        this.accountId = accountId;
-        this.componentId = componentId;
+    public HbaseScanManager(String rowPrefix) {
+        this.rowPrefix = rowPrefix;
         defaultPageFilter = new PageFilter(MAX_DATA_PER_SCAN);
     }
 
@@ -52,15 +50,13 @@ class HbaseScanManager {
     }
 
     public byte[] createRow(long timestamp) {
-        StringBuilder sb = new StringBuilder(accountId).append('\0')
-                .append(componentId).append('\0')
-                .append(DataFormatter.zeroPrefixedTimestamp(timestamp));
-        return Bytes.toBytes(sb.toString());
+        String sb = rowPrefix + '.' + DataFormatter.zeroPrefixedTimestamp(timestamp);
+        return Bytes.toBytes(sb);
     }
 
-    public HbaseScanManager askForData(Boolean gps, String[] attributes) {
-        scan.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN);
-        askForAdditionalInformation(gps, attributes);
+    public HbaseScanManager askForData(Set<String> attributes) {
+        scan.addColumn(com.intel.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, com.intel.databackend.tsdb.hbase.Columns.BYTES_DATA_COLUMN);
+        askForAdditionalInformation(attributes);
         return this;
     }
 
@@ -92,26 +88,15 @@ class HbaseScanManager {
         return filter.getPageSize() > MAX_DATA_PER_SCAN;
     }
 
-    private void askForAdditionalInformation(Boolean gps, String[] attributes) {
+    private void askForAdditionalInformation(Set<String> attributes) {
         if (attributes != null) {
             askForAttributes(attributes);
         }
-
-        if (gps != null && gps) {
-            askForLocation();
-        }
     }
 
-    private void askForAttributes(String[] attributes) {
+    private void askForAttributes(Set<String> attributes) {
         for (String a : attributes) {
-            scan.addColumn(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.ATTRIBUTE_COLUMN_PREFIX + a));
-        }
-    }
-
-    private void askForLocation() {
-        logger.debug("Retrieving also GPS location");
-        for (int i = 0; i < Columns.GPS_COLUMN_SIZE; i++) {
-            scan.addColumn(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(DataFormatter.gpsValueToString(i)));
+            scan.addColumn(com.intel.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(com.intel.databackend.tsdb.hbase.Columns.ATTRIBUTE_COLUMN_PREFIX + a));
         }
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.datasources;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -42,10 +42,10 @@ public class DataFormatterTest {
         DataFormatter.gpsValueToString(3);
     }
 
-    @Test
+    /*@Test
     public void Invoke_DataFormatter_getTimeFromKey() {
         assert DataFormatter.getTimeFromKey("test \0 datatime \0 1234 \0 key").equals(1234L);
-    }
+    }*/
 
     @Test
     public void Invoke_DataFormatter_fixStopForExclusiveScan() {

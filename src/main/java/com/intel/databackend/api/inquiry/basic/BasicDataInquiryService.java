@@ -27,7 +27,7 @@ import com.intel.databackend.api.inquiry.basic.validators.PlainDataTypeValidator
 import com.intel.databackend.api.inquiry.samples.SampleAggregationDataRetriever;
 import com.intel.databackend.api.inquiry.samples.SampleDataRetriever;
 import com.intel.databackend.api.inquiry.samples.SamplePlainDataRetriever;
-import com.intel.databackend.datasources.hbase.DataDao;
+import com.intel.databackend.datasources.DataDao;
 import com.intel.databackend.datastructures.Component;
 import com.intel.databackend.datastructures.ComponentDataType;
 import com.intel.databackend.datastructures.requests.DataInquiryRequest;

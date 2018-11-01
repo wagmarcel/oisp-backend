@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.tsdb.hbase;
 
 import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.apache.hadoop.hbase.filter.PageFilter;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class HbaseScanManagerTest {
@@ -30,7 +32,7 @@ public class HbaseScanManagerTest {
 
     @Before
     public void SetUp() {
-        hbaseScanManager = new HbaseScanManager("accountId", "cid");
+        hbaseScanManager = new HbaseScanManager( "accountId.cid");
         hbaseScanManager.create(99L, 100L);
     }
 
@@ -64,8 +66,10 @@ public class HbaseScanManagerTest {
     public void Invoke_askForData() {
         String paramAge = "age";
         String paramCity = "city";
-
-        hbaseScanManager.askForData(true, new String[]{paramAge, paramCity});
+        Set<String> testset = new HashSet<String>();
+        testset.add(paramAge);
+        testset.add(paramCity);
+        hbaseScanManager.askForData(testset);
         assert hbaseScanManager.getScan().hasFamilies();
         assert hbaseScanManager.getScan().getFamilies().length == 1;
         assert new String(hbaseScanManager.getScan().getFamilies()[0]).equals(Columns.COLUMN_FAMILY);
