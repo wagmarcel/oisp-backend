@@ -16,7 +16,7 @@
 
 package com.intel.databackend.api.inquiry.advanced;
 
-import com.intel.databackend.datasources.hbase.DataDao;
+import com.intel.databackend.datasources.DataDao;
 import com.intel.databackend.datastructures.AdvancedComponent;
 import com.intel.databackend.datastructures.DeviceData;
 import com.intel.databackend.datastructures.Observation;
@@ -73,7 +73,7 @@ public class AdvancedDataInquiryServiceTest {
     @Test
     public void Invoke_RequestDataProvidedCountOnlyFalse_ReturnsData() throws Exception {
         //ARRANGE
-        Observation observation = new Observation(accountId, "cid", 1L, "value");
+        Observation observation = new Observation(accountId, "cid", 1L, "getValue");
         Observation[] observations = new Observation[1];
         observations[0] = observation;
         String[] stringAttributes = new String[0];
@@ -123,7 +123,7 @@ public class AdvancedDataInquiryServiceTest {
     @Test
     public void Invoke_RequestDataProvidedCountOnly_SetsAccountIdInData() throws Exception {
         //ARRANGE
-        Observation observation = new Observation(accountId, "cid", 1L, "value");
+        Observation observation = new Observation(accountId, "cid", 1L, "getValue");
         Observation[] observations = new Observation[1];
         observations[0] = observation;
         String[] stringAttributes = new String[0];

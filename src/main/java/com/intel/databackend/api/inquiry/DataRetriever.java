@@ -17,7 +17,7 @@
 package com.intel.databackend.api.inquiry;
 
 import com.intel.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
-import com.intel.databackend.datasources.hbase.DataDao;
+import com.intel.databackend.datasources.DataDao;
 import com.intel.databackend.datastructures.ComponentDataType;
 import com.intel.databackend.datastructures.Observation;
 import org.slf4j.Logger;

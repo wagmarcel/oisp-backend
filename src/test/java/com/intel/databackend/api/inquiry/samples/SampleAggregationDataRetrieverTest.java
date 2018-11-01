@@ -95,7 +95,7 @@ public class SampleAggregationDataRetrieverTest {
             assertEquals(String.valueOf(3 * i + 1), result.get(i).get(0));
             assertEquals(String.valueOf(30.0 * i + 10), result.get(i).get(1));
         }
-        //number of data points in this test is not divisible by 3 and the last value 
+        //number of data points in this test is not divisible by 3 and the last getValue
         //is the only one in its bucket and is not averaged with anything.
         assertEquals(String.valueOf(999), result.get(result.size() - 1).get(0));
         assertEquals(String.valueOf(9990.0), result.get(result.size() - 1).get(1));

@@ -17,7 +17,7 @@
 package com.intel.databackend.api;
 
 import com.intel.databackend.api.kafka.KafkaService;
-import com.intel.databackend.datasources.hbase.DataDao;
+import com.intel.databackend.datasources.DataDao;
 import com.intel.databackend.datastructures.Observation;
 import com.intel.databackend.datastructures.requests.DataSubmissionRequest;
 import com.intel.databackend.datastructures.responses.DataSubmissionResponse;

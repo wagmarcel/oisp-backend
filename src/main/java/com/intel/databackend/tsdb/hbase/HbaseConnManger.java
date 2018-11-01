@@ -1,4 +1,4 @@
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.tsdb.hbase;
 
 import com.intel.databackend.config.ServiceConfigProvider;
 import com.intel.databackend.exceptions.VcapEnvironmentException;

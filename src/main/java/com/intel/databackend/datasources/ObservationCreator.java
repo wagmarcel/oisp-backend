@@ -1,13 +1,13 @@
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.datasources;
 
 import com.intel.databackend.datastructures.Observation;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
+import com.intel.databackend.tsdb.TsdbObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Copyright (c) 2015 Intel Corporation
@@ -26,17 +26,19 @@ import java.util.HashMap;
  */
 class ObservationCreator {
 
+    public static final short GPS_COLUMN_SIZE = 3;
     private Observation observation;
+    private TsdbObject tsdbObject;
     private static final Logger logger = LoggerFactory.getLogger(ObservationCreator.class);
     private final String accountId;
     private final String componentId;
-    private Result result;
     private Boolean hasGps;
-    private String[] attributes;
+    private Map<String, String> attributes;
 
-    ObservationCreator(String accountId, String componentId) {
-        this.accountId = accountId;
-        this.componentId = componentId;
+    ObservationCreator(TsdbObject tsdbObject) {
+        this.accountId = DataFormatter.getAccountFromKey(tsdbObject.getMetric().toString());
+        this.componentId = DataFormatter.getComponentFromKey(tsdbObject.getMetric().toString());
+        this.tsdbObject = tsdbObject;
     }
 
     public ObservationCreator withGps(boolean hasGps) {
@@ -44,27 +46,24 @@ class ObservationCreator {
         return this;
     }
 
-    public ObservationCreator withAttributes(String... attributes) {
+    public ObservationCreator withAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
         return this;
     }
 
-    public Observation create(Result result) {
+    public Observation create() {
         observation = new Observation();
-        this.result = result;
         addBasicInformation();
         addAdditionalInformation();
-        logger.error("========================Observation");
+        logger.info("========================Observation");
         return observation;
     }
 
     private void addBasicInformation() {
-        String key = Bytes.toString(result.getRow());
-        String value = Bytes.toString(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
         observation.setCid(componentId);
         observation.setAid(accountId);
-        observation.setOn(DataFormatter.getTimeFromKey(key)); //0L;
-        observation.setValue(value);
+        observation.setOn(tsdbObject.getTimestamp()); //0L;
+        observation.setValue((String) tsdbObject.getValue().get());
         observation.setAttributes(new HashMap<String, String>());
     }
 
@@ -77,20 +76,16 @@ class ObservationCreator {
         }
     }
 
-    private void addAttributesData(String[] attributes) {
-        for (String a : attributes) {
-            String attribute = Bytes.toString(result.getValue(Columns.BYTES_COLUMN_FAMILY,
-                    Bytes.toBytes(Columns.ATTRIBUTE_COLUMN_PREFIX + a)));
-            observation.getAttributes().put(a, attribute);
-        }
+    private void addAttributesData(Map<String, String> attributes) {
+        observation.setAttributes(attributes);
     }
 
     private void addLocationData() {
         try {
-            String[] coordinate = new String[Columns.GPS_COLUMN_SIZE];
+            String[] coordinate = new String[GPS_COLUMN_SIZE];
             observation.setLoc(new ArrayList<Double>());
-            for (int i = 0; i < Columns.GPS_COLUMN_SIZE; i++) {
-                coordinate[i] = Bytes.toString(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(DataFormatter.gpsValueToString(i))));
+            for (int i = 0; i < GPS_COLUMN_SIZE; i++) {
+                coordinate[i] = attributes.get(DataFormatter.gpsValueToString(i));
                 if (coordinate[i] != null) {
                     observation.getLoc().add(Double.parseDouble(coordinate[i]));
                 }

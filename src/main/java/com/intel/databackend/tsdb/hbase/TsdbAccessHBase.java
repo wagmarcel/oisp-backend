@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.tsdb.hbase;
 
-import com.intel.databackend.datastructures.Observation;
+import com.intel.databackend.tsdb.TsdbObject;
+import com.intel.databackend.tsdb.TsdbAccess;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -27,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -35,10 +37,11 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.*;
 
+@Primary
 @Repository
-public class DataHbaseDao implements DataDao {
+public class TsdbAccessHBase implements TsdbAccess {
 
-    private static final Logger logger = LoggerFactory.getLogger(DataHbaseDao.class);
+    private static final Logger logger = LoggerFactory.getLogger(TsdbAccessHBase.class);
     private final String tableName;
     private final byte[] tableNameBytes;
     private static final String DEVICE_MEASUREMENT = "_DEVICE_MEASUREMENT";
@@ -65,7 +68,7 @@ public class DataHbaseDao implements DataDao {
     }
 
     @Autowired
-    public DataHbaseDao(@Value("${vcap.application.name:local}") String hbasePrefix) {
+    public TsdbAccessHBase(@Value("${vcap.application.name:local}") String hbasePrefix) {
         logger.info("Creating HBase. Zookeeper: ");
 
         this.tableName = hbasePrefix.toUpperCase() + DEVICE_MEASUREMENT;
@@ -98,15 +101,14 @@ public class DataHbaseDao implements DataDao {
     }
 
     @Override
-    public boolean put(final Observation[] observations) {
+    public boolean put(List<TsdbObject> tsdbObjects) {
 
         try (Table table = getHbaseTable()) {
 
             List<Put> puts = new ArrayList<Put>();
-            for (Observation obs : observations) {
+            for (TsdbObject obs : tsdbObjects) {
                 puts.add(getPutForObservation(obs));
             }
-
             table.put(puts);
         } catch (IOException ex) {
             return false;
@@ -115,75 +117,23 @@ public class DataHbaseDao implements DataDao {
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributes) {
-        logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
+    public boolean put(TsdbObject tsdbObjects) {
 
-        Scan scan = new HbaseScanManager(accountId, componentId).create(start, stop).askForData(gps, attributes).getScan();
-        return getObservations(accountId, componentId, gps, attributes, scan);
+        List<TsdbObject> puts = new ArrayList<TsdbObject>();
+        puts.add(tsdbObjects);
+        return put(puts);
     }
 
-    @Override
-    public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps,
-                              String[] attributes, boolean forward, int limit) {
-        logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {} with limit: {}",
-                accountId, componentId, start, stop, gps, limit);
-        HbaseScanManager scanManager = new HbaseScanManager(accountId, componentId);
-        if (forward) {
-            scanManager.create(start, stop);
-        } else {
-            scanManager.create(stop, start).setReversed();
-        }
-        scanManager.askForData(gps, attributes);
 
-        logger.debug("Scanning with limit: {}", limit);
-        Scan scan = scanManager.setCaching(limit)
-                .setFilter(new PageFilter(limit))
-                .getScan();
-        return getObservations(accountId, componentId, gps, attributes, scan);
+    byte[] getRowKey(TsdbObject tsdbObject) {
+        return Bytes.toBytes(tsdbObject.getMetric() + "." + DataFormatter.zeroPrefixedTimestamp(tsdbObject.getTimestamp()));
     }
 
-    @Override
-    public String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException {
 
-        logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {}", accountId, componentId, start, stop);
-
-        Scan scan = new HbaseScanManager(accountId, componentId)
-                .create(start, stop)
-                .setFilter(new ColumnPrefixFilter(Columns.BYTES_ATTRIBUTE_COLUMN_PREFIX))
-                .getScan();
-
-        Set<String> attributeNames = retrieveAttributeNames(scan);
-        return attributeNames.toArray(new String[attributeNames.size()]);
-    }
-
-    private Observation[] getObservations(final String accountId, final String componentId, final Boolean gps,
-                                          final String[] attributes, Scan scan) {
-        try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
-            List<Observation> observations = new ArrayList<>();
-            for (Result result : scanner) {
-                Observation observation = new ObservationCreator(accountId, componentId)
-                        .withGps(gps)
-                        .withAttributes(attributes)
-                        .create(result);
-                observations.add(observation);
-            }
-            return observations.toArray(new Observation[observations.size()]);
-        } catch (IOException ex) {
-            logger.error("Unable to find observation in hbase", ex);
-            return null;
-        }
-    }
-
-    private Put getPutForObservation(Observation o) {
-        Put put = new Put(Bytes.toBytes(o.getAid() + '\0' + o.getCid() + '\0' + DataFormatter.zeroPrefixedTimestamp(o.getOn())));
-        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes(o.getValue()));
-        if (o.getLoc() != null) {
-            for (int i = 0; i < o.getLoc().size() && i < Columns.GPS_COLUMN_SIZE; i++) {
-                put.addColumn(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(DataFormatter.gpsValueToString(i)),
-                        Bytes.toBytes(o.getLoc().get(i).toString()));
-            }
-        }
-        Map<String, String> attributes = o.getAttributes();
+    private Put getPutForObservation(TsdbObject tsdbObject) {
+        Put put = new Put(getRowKey(tsdbObject));
+        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) tsdbObject.getValue().get()));
+        Map<String, String> attributes = tsdbObject.getAttributes();
         if (attributes != null) {
             for (String k : attributes.keySet()) {
                 put.addColumn(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.ATTRIBUTE_COLUMN_PREFIX + k),
@@ -191,6 +141,62 @@ public class DataHbaseDao implements DataDao {
             }
         }
         return put;
+    }
+
+    @Override
+    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
+        logger.debug("Scanning HBase: row: {} start: {} stop: {}", tsdbObject.getMetric(), start, stop);
+        Set<String> attributesSet = tsdbObject.getAttributes().keySet();
+        Scan scan = new HbaseScanManager(tsdbObject.getMetric()).create(start, stop).askForData(attributesSet).getScan();
+        return getObservations(scan);
+    }
+
+
+    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit) {
+        logger.debug("Scanning HBase: row {} start: {} stop: {} with limit: {}",
+                tsdbObject.getMetric(), start, stop, limit);
+        HbaseScanManager scanManager = new HbaseScanManager(tsdbObject.getMetric());
+        if (forward) {
+            scanManager.create(start, stop);
+        } else {
+            scanManager.create(stop, start).setReversed();
+        }
+        scanManager.askForData(tsdbObject.getAttributes().keySet());
+
+        logger.debug("Scanning with limit: {}", limit);
+        Scan scan = scanManager.setCaching(limit)
+                .setFilter(new PageFilter(limit))
+                .getScan();
+        return getObservations(scan);
+    }
+
+
+    private TsdbObject[] getObservations(Scan scan) {
+        try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
+            List<TsdbObject> observations = new ArrayList<>();
+            for (Result result : scanner) {
+                TsdbObject observation = new TsdbObjectCreator()
+                        .create(result);
+                observations.add(observation);
+            }
+            return observations.toArray(new TsdbObject[observations.size()]);
+        } catch (IOException ex) {
+            logger.error("Unable to find observation in hbase", ex);
+            return null;
+        }
+    }
+
+    public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
+
+        logger.debug("Scanning HBase: getMetric: {} start: {} stop: {}", tsdbObject.getMetric(), start, stop);
+
+        Scan scan = new HbaseScanManager(tsdbObject.getMetric())
+                .create(start, stop)
+                .setFilter(new ColumnPrefixFilter(Columns.BYTES_ATTRIBUTE_COLUMN_PREFIX))
+                .getScan();
+
+        Set<String> attributeNames = retrieveAttributeNames(scan);
+        return attributeNames.toArray(new String[attributeNames.size()]);
     }
 
     private Set<String> retrieveAttributeNames(Scan scan) throws IOException {

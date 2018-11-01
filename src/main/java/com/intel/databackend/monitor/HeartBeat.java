@@ -38,7 +38,7 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
 
     @Autowired
     public HeartBeat(KafkaProducer<String, String> kafkaProducer) {
-        logger.error("================= HeartBeat");
+        logger.info("================= HeartBeat");
         this.kafkaProducer = kafkaProducer;
     }
 
@@ -48,11 +48,11 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
         ThreadPoolTaskScheduler s = new ThreadPoolTaskScheduler();
         s.setThreadNamePrefix("HeatBeat");
         s.initialize();
-        logger.error("================= Ready1");
+        logger.info("================= Ready1");
 
         createTopic();
  
-        logger.error("================= Ready2");
+        logger.info("================= Ready2");
 
         try {
             Integer period = serviceConfigProvider.getKafkaHeartbeatInterval();
