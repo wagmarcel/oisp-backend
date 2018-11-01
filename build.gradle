@@ -71,6 +71,15 @@ pmd {
     sourceSets = [sourceSets.main]
 }
 
+task runJar() << {
+  javaexec { 
+    main="-jar";
+    args = [
+            "./build/libs/databackend.jar"
+           ]
+  } 
+}
+
 mainClassName = "com.intel.databackend.Application"
 sourceCompatibility = 1.8
 ext.cdhVersion = "cdh5.13.1"

@@ -17,6 +17,9 @@
 package com.intel.databackend.datasources.hbase;
 
 import com.intel.databackend.datastructures.Observation;
+import com.intel.databackend.tsdb.TsdbAccess;
+import com.intel.databackend.tsdb.TsdbObject;
+import com.intel.databackend.tsdb.TsdbValueString;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -45,8 +48,7 @@ public class DataHbaseDao implements DataDao {
 
     private Connection connection;
     @Autowired
-    private HbaseConnManger hbaseConnManger;
-
+    private HbaseConnManger2 hbaseConnManger;
     private Connection getHbaseConnection() throws IOException {
         try {
             if (connection == null || connection.isClosed()) {
@@ -60,6 +62,8 @@ public class DataHbaseDao implements DataDao {
         }
     }
 
+    @Autowired
+    private TsdbAccess tsdbAccess;
     private Table getHbaseTable() throws IOException {
         return getHbaseConnection().getTable(TableName.valueOf(tableNameBytes));
     }
@@ -102,12 +106,12 @@ public class DataHbaseDao implements DataDao {
 
         try (Table table = getHbaseTable()) {
 
-            List<Put> puts = new ArrayList<Put>();
+            List<TsdbObject> puts = new ArrayList<TsdbObject>();
             for (Observation obs : observations) {
                 puts.add(getPutForObservation(obs));
             }
 
-            table.put(puts);
+            tsdbAccess.put(puts);
         } catch (IOException ex) {
             return false;
         }
@@ -174,20 +178,36 @@ public class DataHbaseDao implements DataDao {
         }
     }
 
-    private Put getPutForObservation(Observation o) {
-        Put put = new Put(Bytes.toBytes(o.getAid() + '\0' + o.getCid() + '\0' + DataFormatter.zeroPrefixedTimestamp(o.getOn())));
-        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes(o.getValue()));
+    private TsdbObject getPutForObservation(Observation o) {
+        TsdbObject put = new TsdbObject();
+        byte[] metric = Bytes.toBytes(o.getAid() + "\0" + Bytes.toBytes(o.getCid()) + "\0" + DataFormatter.zeroPrefixedTimestamp(o.getOn()));
+        put.setMetric(metric);
+        long timestamp = o.getOn();
+        put.setTimestamp(timestamp);
+        TsdbValueString value = new TsdbValueString();
+        value.setValue(o.getValue());
+        put.setValue(value);
         if (o.getLoc() != null) {
             for (int i = 0; i < o.getLoc().size() && i < Columns.GPS_COLUMN_SIZE; i++) {
-                put.addColumn(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(DataFormatter.gpsValueToString(i)),
-                        Bytes.toBytes(o.getLoc().get(i).toString()));
+                    String gps_attribute_name = null;
+                switch(i) {
+                    case 0:
+                        gps_attribute_name = "LATITUDE";
+                        break;
+                    case 1:
+                        gps_attribute_name = "LONGITUDE";
+                        break;
+                    case 2:
+                        gps_attribute_name = "HEIGHT";
+                        break;
+                }
+                put.setAttribute(gps_attribute_name, DataFormatter.gpsValueToString(i));
             }
         }
         Map<String, String> attributes = o.getAttributes();
         if (attributes != null) {
             for (String k : attributes.keySet()) {
-                put.addColumn(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.ATTRIBUTE_COLUMN_PREFIX + k),
-                        Bytes.toBytes(attributes.get(k)));
+                put.setAttribute(k, attributes.get(k));
             }
         }
         return put;
