@@ -180,7 +180,7 @@ public class DataHbaseDao implements DataDao {
 
     private TsdbObject getPutForObservation(Observation o) {
         TsdbObject put = new TsdbObject();
-        byte[] metric = Bytes.toBytes(o.getAid() + "\0" + Bytes.toBytes(o.getCid()) + "\0" + DataFormatter.zeroPrefixedTimestamp(o.getOn()));
+        byte[] metric = Bytes.toBytes(o.getAid() + "\0" + o.getCid() + "\0" + DataFormatter.zeroPrefixedTimestamp(o.getOn()));
         put.setMetric(metric);
         long timestamp = o.getOn();
         put.setTimestamp(timestamp);
