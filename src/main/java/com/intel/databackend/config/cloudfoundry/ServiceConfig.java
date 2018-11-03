@@ -54,6 +54,9 @@ public class ServiceConfig implements ServiceConfigProvider {
     public static final String KRB_REALM = "krealm";
     public static final String KRB_KDC = "kdc";
 
+    public static final String BACKEND_UPS_NAME = "backend-ups";
+    public static final String BACKEND_TSDB_NAME = "tsdb";
+
     public static final String LOCAL_PLAN = "local";
 
     @Autowired
@@ -63,6 +66,7 @@ public class ServiceConfig implements ServiceConfigProvider {
     private JSONObject zookeeperService;
     private JSONObject zookeeperCredentials;
     private JSONObject kerberosCredentials;
+    private JSONObject backendService;
 
     public ServiceConfig() {
     }
@@ -74,6 +78,7 @@ public class ServiceConfig implements ServiceConfigProvider {
         zookeeperService = vcapReaderServices.getVcapServiceByType(ZOOKEEPER_BROKER_NAME);
         zookeeperCredentials = vcapReaderServices.getVcapServiceCredentialsByType(ZOOKEEPER_BROKER_NAME);
         kerberosCredentials = vcapReaderServices.getVcapServiceCredentialsByType(KERBEROS_SERVICE_NAME);
+        backendService = vcapReaderServices.getUserProvidedServiceCredentialsByName(BACKEND_UPS_NAME);
     }
 
     @Override
@@ -146,6 +151,11 @@ public class ServiceConfig implements ServiceConfigProvider {
     @Override
     public Integer getKafkaTimeoutInMs() throws VcapEnvironmentException {
         return getFieldValueFromJson(kafkaSettings, KAFKA_UPS_NAME, KAFKA_UPS_TIMEOUT_MS, Integer.class);
+    }
+
+    @Override
+    public String  getTsdbBackend() throws VcapEnvironmentException{
+        return getFieldValueFromJson(backendService, BACKEND_UPS_NAME, BACKEND_TSDB_NAME, String.class);
     }
 
     @Override

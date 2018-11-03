@@ -37,8 +37,6 @@ public class DataDaoImpl implements DataDao {
     @Autowired
     private TsdbAccess tsdbAccess;
 
-
-
     @Override
     public boolean put(final Observation[] observations) {
 
