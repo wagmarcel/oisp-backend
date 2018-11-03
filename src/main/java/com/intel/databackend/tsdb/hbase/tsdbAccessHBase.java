@@ -21,8 +21,11 @@ import com.intel.databackend.datastructures.Observation;
 import com.intel.databackend.tsdb.TsdbObject;
 import com.intel.databackend.tsdb.TsdbValue;
 import com.intel.databackend.tsdb.TsdbAccess;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
+import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,9 +127,11 @@ public class tsdbAccessHBase implements TsdbAccess {
     }
 
 
-
+    byte[] getRowKey(TsdbObject tsdbObject) {
+        return Bytes.toBytes( tsdbObject.metric() + "." + DataFormatter.zeroPrefixedTimestamp(tsdbObject.timestamp()));
+    }
     private Put getPutForObservation(TsdbObject tsdbObject) {
-        Put put = new Put(tsdbObject.metric());
+        Put put = new Put(getRowKey(tsdbObject));
         put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String)tsdbObject.value().getValue()));
         Map<String, String> attributes = tsdbObject.attributes();
         if (attributes != null) {
@@ -138,5 +143,73 @@ public class tsdbAccessHBase implements TsdbAccess {
         return put;
     }
 
+    @Override
+    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
+        logger.debug("Scanning HBase: row: {} start: {} stop: {}", tsdbObject.metric(), start, stop);
+        Set<String> attributes_set = tsdbObject.attributes().keySet();
+        Scan scan = new HbaseScanManager(tsdbObject.metric()).create(start, stop).askForData(attributes_set).getScan();
+        return getObservations(tsdbObject, scan);
+    }
 
+
+    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit) {
+        logger.debug("Scanning HBase: row {} start: {} stop: {} with limit: {}",
+                tsdbObject.metric(), start, stop, limit);
+        HbaseScanManager scanManager = new HbaseScanManager(tsdbObject.metric());
+        if (forward) {
+            scanManager.create(start, stop);
+        } else {
+            scanManager.create(stop, start).setReversed();
+        }
+        scanManager.askForData(tsdbObject.attributes().keySet());
+
+        logger.debug("Scanning with limit: {}", limit);
+        Scan scan = scanManager.setCaching(limit)
+                .setFilter(new PageFilter(limit))
+                .getScan();
+        return getObservations(tsdbObject, scan);
+    }
+
+
+    private TsdbObject[] getObservations(TsdbObject tsdbObject, Scan scan) {
+        try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
+            List<TsdbObject> observations = new ArrayList<>();
+            for (Result result : scanner) {
+                TsdbObject observation = new TsdbObjectCreator(tsdbObject)
+                        .create(result);
+                observations.add(observation);
+            }
+            return observations.toArray(new TsdbObject[observations.size()]);
+        } catch (IOException ex) {
+            logger.error("Unable to find observation in hbase", ex);
+            return null;
+        }
+    }
+
+    public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
+
+        logger.debug("Scanning HBase: metric: {} start: {} stop: {}", tsdbObject.metric(), start, stop);
+
+        Scan scan = new HbaseScanManager(tsdbObject.metric())
+                .create(start, stop)
+                .setFilter(new ColumnPrefixFilter(Columns.BYTES_ATTRIBUTE_COLUMN_PREFIX))
+                .getScan();
+
+        Set<String> attributeNames = retrieveAttributeNames(scan);
+        return attributeNames.toArray(new String[attributeNames.size()]);
+    }
+
+    private Set<String> retrieveAttributeNames(Scan scan) throws IOException {
+        Set<String> attributes = new HashSet<>();
+        try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
+            for (Result result = scanner.next(); result != null; result = scanner.next()) {
+                List<Cell> cells = result.listCells();
+                for (Cell cell : cells) {
+                    String attrName = DataFormatter.getAttrNameFromCell(cell);
+                    attributes.add(attrName);
+                }
+            }
+        }
+        return attributes;
+    }
 }

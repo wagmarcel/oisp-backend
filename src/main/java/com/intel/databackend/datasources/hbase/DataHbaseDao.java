@@ -104,17 +104,13 @@ public class DataHbaseDao implements DataDao {
     @Override
     public boolean put(final Observation[] observations) {
 
-        try (Table table = getHbaseTable()) {
-
-            List<TsdbObject> puts = new ArrayList<TsdbObject>();
-            for (Observation obs : observations) {
-                puts.add(getPutForObservation(obs));
-            }
-
-            tsdbAccess.put(puts);
-        } catch (IOException ex) {
-            return false;
+        List<TsdbObject> puts = new ArrayList<TsdbObject>();
+        for (Observation obs : observations) {
+            puts.add(getPutForObservation(obs));
         }
+
+        tsdbAccess.put(puts);
+
         return true;
     }
 
@@ -122,8 +118,10 @@ public class DataHbaseDao implements DataDao {
     public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributes) {
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
 
-        Scan scan = new HbaseScanManager(accountId, componentId).create(start, stop).askForData(gps, attributes).getScan();
-        return getObservations(accountId, componentId, gps, attributes, scan);
+        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
+        TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop);
+
+        return getObservations(tsdbObjects);
     }
 
     @Override
@@ -131,56 +129,40 @@ public class DataHbaseDao implements DataDao {
                               String[] attributes, boolean forward, int limit) {
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {} with limit: {}",
                 accountId, componentId, start, stop, gps, limit);
-        HbaseScanManager scanManager = new HbaseScanManager(accountId, componentId);
-        if (forward) {
-            scanManager.create(start, stop);
-        } else {
-            scanManager.create(stop, start).setReversed();
-        }
-        scanManager.askForData(gps, attributes);
+        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
+        TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop, forward, limit);
 
-        logger.debug("Scanning with limit: {}", limit);
-        Scan scan = scanManager.setCaching(limit)
-                .setFilter(new PageFilter(limit))
-                .getScan();
-        return getObservations(accountId, componentId, gps, attributes, scan);
+        return getObservations(tsdbObjects);
     }
 
     @Override
     public String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException {
 
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {}", accountId, componentId, start, stop);
-
-        Scan scan = new HbaseScanManager(accountId, componentId)
-                .create(start, stop)
-                .setFilter(new ColumnPrefixFilter(Columns.BYTES_ATTRIBUTE_COLUMN_PREFIX))
-                .getScan();
-
-        Set<String> attributeNames = retrieveAttributeNames(scan);
-        return attributeNames.toArray(new String[attributeNames.size()]);
+        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
+        return tsdbAccess.scanForAttributeNames(tsdbObject, start, stop);
     }
 
-    private Observation[] getObservations(final String accountId, final String componentId, final Boolean gps,
-                                          final String[] attributes, Scan scan) {
-        try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
-            List<Observation> observations = new ArrayList<>();
-            for (Result result : scanner) {
-                Observation observation = new ObservationCreator(accountId, componentId)
-                        .withGps(gps)
-                        .withAttributes(attributes)
-                        .create(result);
-                observations.add(observation);
-            }
-            return observations.toArray(new Observation[observations.size()]);
-        } catch (IOException ex) {
-            logger.error("Unable to find observation in hbase", ex);
-            return null;
+    private Observation[] getObservations(TsdbObject[] tsdbObjects) {
+        List<Observation> observations = new ArrayList<>();
+        for (TsdbObject tsdbObject : tsdbObjects) {
+            Observation observation = new ObservationCreator(tsdbObject)
+                    .withAttributes(tsdbObject.attributes())
+                    .create();
+            observations.add(observation);
         }
+        return observations.toArray(new Observation[observations.size()]);
+
     }
+
+    private String getMetric(String accountId, String componentId){
+        return accountId + "." + componentId;
+    }
+
 
     private TsdbObject getPutForObservation(Observation o) {
         TsdbObject put = new TsdbObject();
-        byte[] metric = Bytes.toBytes(o.getAid() + "\0" + o.getCid() + "\0" + DataFormatter.zeroPrefixedTimestamp(o.getOn()));
+        String metric = getMetric(o.getAid(), o.getCid());
         put.setMetric(metric);
         long timestamp = o.getOn();
         put.setTimestamp(timestamp);
@@ -189,19 +171,8 @@ public class DataHbaseDao implements DataDao {
         put.setValue(value);
         if (o.getLoc() != null) {
             for (int i = 0; i < o.getLoc().size() && i < Columns.GPS_COLUMN_SIZE; i++) {
-                    String gps_attribute_name = null;
-                switch(i) {
-                    case 0:
-                        gps_attribute_name = "LATITUDE";
-                        break;
-                    case 1:
-                        gps_attribute_name = "LONGITUDE";
-                        break;
-                    case 2:
-                        gps_attribute_name = "HEIGHT";
-                        break;
-                }
-                put.setAttribute(gps_attribute_name, DataFormatter.gpsValueToString(i));
+                String gps_attribute_name = DataFormatter.gpsValueToString(i);
+                put.setAttribute(gps_attribute_name, o.getLoc().get(i).toString());
             }
         }
         Map<String, String> attributes = o.getAttributes();

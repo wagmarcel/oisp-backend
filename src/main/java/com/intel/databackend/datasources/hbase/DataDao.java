@@ -19,6 +19,7 @@ package com.intel.databackend.datasources.hbase;
 import com.intel.databackend.datastructures.Observation;
 
 import java.io.IOException;
+import java.util.Set;
 
 public interface DataDao {
 

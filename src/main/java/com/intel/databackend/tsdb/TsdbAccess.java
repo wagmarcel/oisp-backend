@@ -29,10 +29,9 @@ public interface TsdbAccess {
     boolean put(TsdbObject tsdbObject);
     boolean put(List<TsdbObject> tsdbObjectList);
 
-    //Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributes);
+    TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop);
 
-    //Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributes,
-    //                   boolean forward, int limit);
+    TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit);
 
-    //String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException;
+    String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException;
 }

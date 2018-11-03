@@ -129,6 +129,7 @@ public class AdvancedDataInquiryService implements Service<AdvDataInquiryRequest
         Set<String> allAttributes = new HashSet<>();
         for (String componentId : componentIds) {
             try {
+
                 String[] attributeNames = hbase.scanForAttributeNames(accountId, componentId,
                         dataInquiryRequest.getStartTimestamp(), dataInquiryRequest.getEndTimestamp());
 
