@@ -53,7 +53,7 @@ class HbaseScanManager {
     }
 
     public byte[] createRow(long timestamp) {
-        String sb = rowPrefix.toString() + '\0' + DataFormatter.zeroPrefixedTimestamp(timestamp);
+        String sb = rowPrefix.toString() + '.' + DataFormatter.zeroPrefixedTimestamp(timestamp);
         return Bytes.toBytes(sb);
     }
 

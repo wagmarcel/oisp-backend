@@ -25,7 +25,7 @@ final class DataFormatter {
     private static final String GPS_Y_COLUMN = "locY";
     private static final String GPS_Z_COLUMN = "locZ";
 
-    private static final String KEY_DELIMITER = "\0";
+    private static final String KEY_DELIMITER = ".";
 
     private DataFormatter() {
 

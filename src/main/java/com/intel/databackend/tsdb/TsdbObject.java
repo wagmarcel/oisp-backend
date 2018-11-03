@@ -1,5 +1,6 @@
 package com.intel.databackend.tsdb;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class TsdbObject {
@@ -15,7 +16,9 @@ public class TsdbObject {
         this.attributes = attributes;
     }
 
-    public TsdbObject(){}
+    public TsdbObject(){
+        attributes = new HashMap<String, String>();
+    }
 
     public TsdbObject withMetric(String metric){ this.setMetric(metric); return this;}
 

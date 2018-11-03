@@ -20,12 +20,7 @@ import com.intel.databackend.datastructures.Observation;
 import com.intel.databackend.tsdb.TsdbAccess;
 import com.intel.databackend.tsdb.TsdbObject;
 import com.intel.databackend.tsdb.TsdbValueString;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
-import org.apache.hadoop.hbase.filter.PageFilter;
-import org.apache.hadoop.hbase.util.Bytes;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,64 +37,11 @@ import java.util.*;
 public class DataHbaseDao implements DataDao {
 
     private static final Logger logger = LoggerFactory.getLogger(DataHbaseDao.class);
-    private final String tableName;
-    private final byte[] tableNameBytes;
-    private static final String DEVICE_MEASUREMENT = "_DEVICE_MEASUREMENT";
-
-    private Connection connection;
-    @Autowired
-    private HbaseConnManger2 hbaseConnManger;
-    private Connection getHbaseConnection() throws IOException {
-        try {
-            if (connection == null || connection.isClosed()) {
-                logger.info("Creating connection");
-                connection = hbaseConnManger.create();
-            }
-            return connection;
-        } catch (LoginException e) {
-            logger.error("Unable to login into hbase", e);
-            throw new IOException(e);
-        }
-    }
 
     @Autowired
     private TsdbAccess tsdbAccess;
-    private Table getHbaseTable() throws IOException {
-        return getHbaseConnection().getTable(TableName.valueOf(tableNameBytes));
-    }
 
-    @Autowired
-    public DataHbaseDao(@Value("${vcap.application.name:local}") String hbasePrefix) {
-        logger.info("Creating HBase. Zookeeper: ");
 
-        this.tableName = hbasePrefix.toUpperCase() + DEVICE_MEASUREMENT;
-        this.tableNameBytes = Bytes.toBytes(tableName);
-    }
-
-    @PostConstruct
-    public boolean createTables() throws IOException {
-        Admin admin = null;
-        logger.info("Try to create {} in HBase.", tableName);
-        try {
-            admin = getHbaseConnection().getAdmin();
-            TableManager tableManager = new TableManager(admin, TableName.valueOf(tableNameBytes));
-            return tableManager.createTables();
-        } catch (IOException e) {
-            logger.warn("Initialization of HBase table failed.", e);
-            return false;
-        } finally {
-            if (admin != null) {
-                admin.close();
-            }
-        }
-    }
-
-    @PreDestroy
-    public void closeHbaseConnection() throws IOException {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-        }
-    }
 
     @Override
     public boolean put(final Observation[] observations) {
@@ -184,17 +126,4 @@ public class DataHbaseDao implements DataDao {
         return put;
     }
 
-    private Set<String> retrieveAttributeNames(Scan scan) throws IOException {
-        Set<String> attributes = new HashSet<>();
-        try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
-            for (Result result = scanner.next(); result != null; result = scanner.next()) {
-                List<Cell> cells = result.listCells();
-                for (Cell cell : cells) {
-                    String attrName = DataFormatter.getAttrNameFromCell(cell);
-                    attributes.add(attrName);
-                }
-            }
-        }
-        return attributes;
-    }
 }

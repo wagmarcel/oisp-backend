@@ -23,7 +23,6 @@ import java.util.Set;
 
 public interface DataDao {
 
-    boolean createTables() throws IOException;
 
     boolean put(Observation[] o);
 
