@@ -16,7 +16,7 @@
 
 package com.intel.databackend.api.inquiry.basic;
 
-import com.intel.databackend.datasources.hbase.DataDao;
+import com.intel.databackend.datasources.DataDao;
 import com.intel.databackend.datastructures.ComponentDataType;
 import com.intel.databackend.datastructures.Observation;
 import com.intel.databackend.datastructures.requests.DataInquiryRequest;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.datasources;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;

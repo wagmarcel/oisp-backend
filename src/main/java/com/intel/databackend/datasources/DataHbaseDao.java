@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.datasources;
 
 import com.intel.databackend.datastructures.Observation;
 import com.intel.databackend.tsdb.TsdbAccess;
@@ -24,12 +24,8 @@ import com.intel.databackend.tsdb.TsdbValueString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.*;
 
@@ -112,7 +108,7 @@ public class DataHbaseDao implements DataDao {
         value.setValue(o.getValue());
         put.setValue(value);
         if (o.getLoc() != null) {
-            for (int i = 0; i < o.getLoc().size() && i < Columns.GPS_COLUMN_SIZE; i++) {
+            for (int i = 0; i < o.getLoc().size() && i < ObservationCreator.GPS_COLUMN_SIZE; i++) {
                 String gps_attribute_name = DataFormatter.gpsValueToString(i);
                 put.setAttribute(gps_attribute_name, o.getLoc().get(i).toString());
             }

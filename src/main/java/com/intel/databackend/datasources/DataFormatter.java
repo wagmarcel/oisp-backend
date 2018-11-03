@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.datasources;
 
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.util.Bytes;
 
 final class DataFormatter {
 
@@ -63,10 +61,6 @@ final class DataFormatter {
         return parts[1];
     }
 
-    public static String getAttrNameFromCell(Cell cell) {
-        String[] parts = Bytes.toString(cell.getRowArray()).split(KEY_DELIMITER);
-        return parts[cell.getRowOffset() - 1].split(":")[1];
-    }
 
     public static long fixStopForExclusiveScan(long start, long stop) {
         if (stop > start && Long.MAX_VALUE - stop > 1.0) {

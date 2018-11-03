@@ -1,4 +1,4 @@
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.datasources;
 
 import com.intel.databackend.datastructures.Observation;
 import com.intel.databackend.tsdb.TsdbObject;
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Copyright (c) 2015 Intel Corporation
@@ -27,6 +26,7 @@ import java.util.Set;
  */
 class ObservationCreator {
 
+    public static final short GPS_COLUMN_SIZE = 3;
     private Observation observation;
     private TsdbObject tsdbObject;
     private static final Logger logger = LoggerFactory.getLogger(ObservationCreator.class);
@@ -60,8 +60,6 @@ class ObservationCreator {
     }
 
     private void addBasicInformation() {
-        //String key = Bytes.toString(result.getRow());
-        //String value = Bytes.toString(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
         observation.setCid(componentId);
         observation.setAid(accountId);
         observation.setOn(tsdbObject.timestamp()); //0L;
@@ -84,9 +82,9 @@ class ObservationCreator {
 
     private void addLocationData() {
         try {
-            String[] coordinate = new String[Columns.GPS_COLUMN_SIZE];
+            String[] coordinate = new String[GPS_COLUMN_SIZE];
             observation.setLoc(new ArrayList<Double>());
-            for (int i = 0; i < Columns.GPS_COLUMN_SIZE; i++) {
+            for (int i = 0; i < GPS_COLUMN_SIZE; i++) {
                 coordinate[i] = attributes.get(DataFormatter.gpsValueToString(i));
                 if (coordinate[i] != null) {
                     observation.getLoc().add(Double.parseDouble(coordinate[i]));

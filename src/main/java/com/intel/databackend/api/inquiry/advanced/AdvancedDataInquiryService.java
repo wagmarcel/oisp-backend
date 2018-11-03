@@ -23,7 +23,7 @@ import com.intel.databackend.api.inquiry.advanced.componentsbuilder.AdvancedComp
 import com.intel.databackend.api.inquiry.advanced.componentsbuilder.ComponentsBuilderParams;
 import com.intel.databackend.api.inquiry.advanced.filters.AdvancedObservationFilterSelector;
 import com.intel.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
-import com.intel.databackend.datasources.hbase.DataDao;
+import com.intel.databackend.datasources.DataDao;
 import com.intel.databackend.datastructures.AdvancedComponent;
 import com.intel.databackend.datastructures.ComponentDataType;
 import com.intel.databackend.datastructures.DeviceData;

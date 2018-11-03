@@ -16,7 +16,7 @@
 
 package com.intel.databackend.config;
 
-import com.intel.databackend.datasources.hbase.KerberosProperties;
+import com.intel.databackend.tsdb.hbase.KerberosProperties;
 import com.intel.databackend.exceptions.VcapEnvironmentException;
 
 public interface ServiceConfigProvider {

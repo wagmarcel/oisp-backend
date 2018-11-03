@@ -1,7 +1,6 @@
 package com.intel.databackend.tsdb.hbase;
 
 import com.intel.databackend.config.ServiceConfigProvider;
-import com.intel.databackend.datasources.hbase.KerberosProperties;
 import com.intel.databackend.exceptions.VcapEnvironmentException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;

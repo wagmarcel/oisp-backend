@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources.hbase;
+package com.intel.databackend.datasources;
 
 import com.intel.databackend.datastructures.Observation;
 

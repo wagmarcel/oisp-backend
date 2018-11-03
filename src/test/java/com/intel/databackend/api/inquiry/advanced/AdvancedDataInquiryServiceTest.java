@@ -16,7 +16,7 @@
 
 package com.intel.databackend.api.inquiry.advanced;
 
-import com.intel.databackend.datasources.hbase.DataDao;
+import com.intel.databackend.datasources.DataDao;
 import com.intel.databackend.datastructures.AdvancedComponent;
 import com.intel.databackend.datastructures.DeviceData;
 import com.intel.databackend.datastructures.Observation;

@@ -18,7 +18,7 @@ package com.intel.databackend.config.cloudfoundry;
 
 import com.intel.databackend.config.ServiceConfigProvider;
 import com.intel.databackend.config.cloudfoundry.utils.VcapReader;
-import com.intel.databackend.datasources.hbase.KerberosProperties;
+import com.intel.databackend.tsdb.hbase.KerberosProperties;
 import com.intel.databackend.exceptions.VcapEnvironmentException;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;

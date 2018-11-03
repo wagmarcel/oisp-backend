@@ -16,7 +16,6 @@
 
 package com.intel.databackend.tsdb.hbase;
 
-import com.intel.databackend.datasources.hbase.*;
 import com.intel.databackend.datastructures.Observation;
 import com.intel.databackend.tsdb.TsdbObject;
 import com.intel.databackend.tsdb.TsdbValue;
