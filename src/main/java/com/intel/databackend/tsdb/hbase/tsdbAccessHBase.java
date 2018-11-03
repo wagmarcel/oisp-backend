@@ -109,7 +109,6 @@ public class tsdbAccessHBase implements TsdbAccess {
             for (TsdbObject obs : tsdbObjects) {
                 puts.add(getPutForObservation(obs));
             }
-            logger.error("Marcel: sending data with value " + tsdbObjects.get(0).value().getValue());
             table.put(puts);
         } catch (IOException ex) {
             return false;
@@ -129,9 +128,11 @@ public class tsdbAccessHBase implements TsdbAccess {
     byte[] getRowKey(TsdbObject tsdbObject) {
         return Bytes.toBytes( tsdbObject.metric() + "." + DataFormatter.zeroPrefixedTimestamp(tsdbObject.timestamp()));
     }
+
+
     private Put getPutForObservation(TsdbObject tsdbObject) {
         Put put = new Put(getRowKey(tsdbObject));
-        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String)tsdbObject.value().getValue()));
+        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String)tsdbObject.value().get()));
         Map<String, String> attributes = tsdbObject.attributes();
         if (attributes != null) {
             for (String k : attributes.keySet()) {

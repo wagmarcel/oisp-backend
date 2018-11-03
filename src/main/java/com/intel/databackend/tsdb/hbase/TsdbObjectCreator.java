@@ -56,10 +56,12 @@ class TsdbObjectCreator {
     private void addBasicInformation() {
         String key = Bytes.toString(result.getRow());
         TsdbValueString value = new TsdbValueString();
-        ((TsdbValueString) value).setValue(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
+        String stringValue = new String(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
+        value.set(stringValue);
         observation.setTimestamp(DataFormatter.getTimeFromKey(key)); //0L;
         observation.setValue(value);
         observation.setAllAttributes(new HashMap<String, String>());
+        observation.setMetric(DataFormatter.getMetricFromKey(key));
     }
 
     private void addAdditionalInformation() {

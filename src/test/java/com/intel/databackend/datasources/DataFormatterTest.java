@@ -42,10 +42,10 @@ public class DataFormatterTest {
         DataFormatter.gpsValueToString(3);
     }
 
-    @Test
+    /*@Test
     public void Invoke_DataFormatter_getTimeFromKey() {
         assert DataFormatter.getTimeFromKey("test \0 datatime \0 1234 \0 key").equals(1234L);
-    }
+    }*/
 
     @Test
     public void Invoke_DataFormatter_fixStopForExclusiveScan() {

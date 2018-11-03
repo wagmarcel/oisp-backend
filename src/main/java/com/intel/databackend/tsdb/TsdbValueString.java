@@ -3,12 +3,12 @@ package com.intel.databackend.tsdb;
 public class TsdbValueString extends TsdbValue {
     String value;
     @Override
-    public String getValue() {
+    public String get() {
         return value;
     }
 
     @Override
-    public void setValue(Object o) {
+    public void set(Object o) {
         value = (String)o;
     }
 }

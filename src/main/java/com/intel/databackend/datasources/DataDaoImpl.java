@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.util.*;
 
 @Repository
-public class DataHbaseDao implements DataDao {
+public class DataDaoImpl implements DataDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(DataHbaseDao.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataDaoImpl.class);
 
     @Autowired
     private TsdbAccess tsdbAccess;
@@ -105,7 +105,7 @@ public class DataHbaseDao implements DataDao {
         long timestamp = o.getOn();
         put.setTimestamp(timestamp);
         TsdbValueString value = new TsdbValueString();
-        value.setValue(o.getValue());
+        value.set(o.getValue());
         put.setValue(value);
         if (o.getLoc() != null) {
             for (int i = 0; i < o.getLoc().size() && i < ObservationCreator.GPS_COLUMN_SIZE; i++) {

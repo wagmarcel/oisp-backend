@@ -55,7 +55,7 @@ class ObservationCreator {
         observation = new Observation();
         addBasicInformation();
         addAdditionalInformation();
-        logger.error("========================Observation");
+        logger.info("========================Observation");
         return observation;
     }
 
@@ -63,7 +63,7 @@ class ObservationCreator {
         observation.setCid(componentId);
         observation.setAid(accountId);
         observation.setOn(tsdbObject.timestamp()); //0L;
-        observation.setValue(tsdbObject.value().toString());
+        observation.setValue((String)tsdbObject.value().get());
         observation.setAttributes(new HashMap<String, String>());
     }
 
