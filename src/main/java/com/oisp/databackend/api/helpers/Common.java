@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.helpers;
+package com.oisp.databackend.api.helpers;
 
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

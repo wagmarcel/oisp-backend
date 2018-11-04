@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced;
+package com.oisp.databackend.api.inquiry.advanced;
 
-import com.intel.databackend.api.Service;
-import com.intel.databackend.api.inquiry.DataRetrieveParams;
-import com.intel.databackend.api.inquiry.DataRetriever;
-import com.intel.databackend.api.inquiry.advanced.componentsbuilder.AdvancedComponentsBuilder;
-import com.intel.databackend.api.inquiry.advanced.componentsbuilder.ComponentsBuilderParams;
-import com.intel.databackend.api.inquiry.advanced.filters.AdvancedObservationFilterSelector;
-import com.intel.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
-import com.intel.databackend.datasources.DataDao;
-import com.intel.databackend.datastructures.AdvancedComponent;
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.DeviceData;
-import com.intel.databackend.datastructures.requests.AdvDataInquiryRequest;
-import com.intel.databackend.datastructures.responses.AdvDataInquiryResponse;
-import com.intel.databackend.exceptions.DataInquiryException;
+import com.oisp.databackend.api.Service;
+import com.oisp.databackend.api.inquiry.DataRetrieveParams;
+import com.oisp.databackend.api.inquiry.DataRetriever;
+import com.oisp.databackend.api.inquiry.advanced.componentsbuilder.AdvancedComponentsBuilder;
+import com.oisp.databackend.api.inquiry.advanced.componentsbuilder.ComponentsBuilderParams;
+import com.oisp.databackend.api.inquiry.advanced.filters.AdvancedObservationFilterSelector;
+import com.oisp.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
+import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datastructures.AdvancedComponent;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.DeviceData;
+import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
+import com.oisp.databackend.datastructures.responses.AdvDataInquiryResponse;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -79,7 +78,7 @@ public class AdvancedDataInquiryService implements Service<AdvDataInquiryRequest
     }
 
     @Override
-    public AdvDataInquiryResponse invoke() throws DataInquiryException {
+    public AdvDataInquiryResponse invoke() {
         ResponseBuilder responseBuilder = new ResponseBuilder(dataInquiryRequest, accountId);
         List<DeviceData> devicesData = new ArrayList<>(dataInquiryRequest.getDeviceDataList());
         Map<String, ComponentDataType> componentsMetadata = fetchComponentDataType(devicesData);

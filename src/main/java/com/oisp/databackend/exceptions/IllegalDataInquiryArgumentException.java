@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.exceptions;
+package com.oisp.databackend.exceptions;
 
 
 public class IllegalDataInquiryArgumentException extends DataInquiryException {

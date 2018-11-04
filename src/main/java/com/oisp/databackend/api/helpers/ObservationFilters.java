@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.helpers;
+package com.oisp.databackend.api.helpers;
 
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class ObservationFilters {
     private static final Logger logger = LoggerFactory.getLogger(ObservationFilters.class);
 
     public Observation[] filterByMeasurementAttrs(Observation[] obs, Map<String, List<String>> measurementAttributeFilter) {
-        logger.debug("Filtering by measure attributes");
+        logger.debug("Filtering by measure getAttributes");
         List<Observation> filtered = new ArrayList<>();
         for (Observation o : obs) {
             boolean omit = false;
@@ -50,8 +50,8 @@ public class ObservationFilters {
     }
 
     public Observation[] filterByValue(Observation[] obs, Map<String, List<String>> valueFilter, ComponentDataType componentDataType) {
-        logger.debug("Filtering by value ");
-        List<String> acceptedValues = valueFilter.get("value");
+        logger.debug("Filtering by getValue ");
+        List<String> acceptedValues = valueFilter.get("getValue");
         logger.debug("Accepted values: {}", acceptedValues);
         List<Observation> filtered = new ArrayList<>();
         for (Observation o : obs) {
@@ -76,11 +76,11 @@ public class ObservationFilters {
                         break;
                     }
                 } catch (NumberFormatException e) {
-                    logger.warn("Parsing accepted value - {} to double failed.", val);
+                    logger.warn("Parsing accepted getValue - {} to double failed.", val);
                 }
             }
         } catch (NumberFormatException e) {
-            logger.warn("Parsing stored value - {} to double failed.", o.getValue());
+            logger.warn("Parsing stored getValue - {} to double failed.", o.getValue());
             addWhenStringEqual(acceptedValues, filtered, o);
         }
     }

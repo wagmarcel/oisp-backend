@@ -1,13 +1,12 @@
-package com.intel.databackend.tsdb.hbase;
+package com.oisp.databackend.tsdb.hbase;
 
-import com.intel.databackend.tsdb.TsdbObject;
-import com.intel.databackend.tsdb.TsdbValueString;
+import com.oisp.databackend.tsdb.TsdbObject;
+import com.oisp.databackend.tsdb.TsdbValueString;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -30,12 +29,11 @@ class TsdbObjectCreator {
 
     private TsdbObject observation;
     private static final Logger logger = LoggerFactory.getLogger(TsdbObjectCreator.class);
-    private String metric;
     private Result result;
     private Set<String> attributes;
 
-    TsdbObjectCreator(TsdbObject tsdbObject) {
-        this.metric = tsdbObject.metric();
+    TsdbObjectCreator() {
+
     }
 
 
@@ -75,7 +73,7 @@ class TsdbObjectCreator {
         for (String a : attributes) {
             String attribute = Bytes.toString(result.getValue(Columns.BYTES_COLUMN_FAMILY,
                     Bytes.toBytes(Columns.ATTRIBUTE_COLUMN_PREFIX + a)));
-            observation.attributes().put(a, attribute);
+            observation.getAttributes().put(a, attribute);
         }
     }
 

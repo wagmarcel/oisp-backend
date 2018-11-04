@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.exceptions;
+package com.oisp.databackend.exceptions;
 
-import com.intel.databackend.datastructures.ErrorElement;
-import com.intel.databackend.datastructures.responses.ErrorResponse;
+import com.oisp.databackend.datastructures.ErrorElement;
+import com.oisp.databackend.datastructures.responses.ErrorResponse;
 import org.springframework.http.HttpStatus;
 
 

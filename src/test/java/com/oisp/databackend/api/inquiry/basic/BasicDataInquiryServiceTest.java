@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.basic;
+package com.oisp.databackend.api.inquiry.basic;
 
-import com.intel.databackend.datasources.DataDao;
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.datastructures.requests.DataInquiryRequest;
-import com.intel.databackend.datastructures.responses.DataInquiryResponse;
-import com.intel.databackend.exceptions.DataInquiryException;
+import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
+import com.oisp.databackend.datastructures.responses.DataInquiryResponse;
+import com.oisp.databackend.exceptions.DataInquiryException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -49,7 +49,7 @@ public class BasicDataInquiryServiceTest {
         request = new DataInquiryRequest();
     }
 
-    private void MockTwoObservations() throws Exception {
+    private void MockTwoObservations() {
         Observation[] observations = new Observation[2];
         observations[0] = new Observation("1", componentId, 2L, "4");
         observations[1] = new Observation("2", componentId, 4L, "6");

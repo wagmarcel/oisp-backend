@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datastructures.responses;
+package com.oisp.databackend.datastructures.responses;
 
 import com.cedarsoftware.util.io.JsonWriter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.intel.databackend.datastructures.DeviceData;
+import com.oisp.databackend.datastructures.DeviceData;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.intel.databackend.tsdb;
+package com.oisp.databackend.tsdb;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,27 +9,54 @@ public class TsdbObject {
     private long timestamp;
     private Map<String, String> attributes;
 
-    public TsdbObject(String metric, TsdbValue value, long timestamp, Map<String, String> attributes){
+    public TsdbObject(String metric, TsdbValue value, long timestamp, Map<String, String> attributes) {
         this.metric = metric;
         this.value  = value;
         this.timestamp = timestamp;
         this.attributes = attributes;
     }
 
-    public TsdbObject(){
+    public TsdbObject() {
         attributes = new HashMap<String, String>();
     }
 
-    public TsdbObject withMetric(String metric){ this.setMetric(metric); return this;}
+    public TsdbObject withMetric(String metric) {
+        this.setMetric(metric); return this;
+    }
 
-    public void setMetric(String metric){this.metric = metric;}
-    public void setValue(TsdbValue value){this.value = value;}
-    public void setTimestamp(long timestamp){this.timestamp = timestamp;}
-    public void setAttribute( String attribute_k, String attribute_v) {attributes.put(attribute_k, attribute_v);}
-    public void setAllAttributes(Map<String, String> attributes) {this.attributes = attributes;}
+    public void setMetric(String metric) {
+        this.metric = metric;
+    }
 
-    public String metric(){return metric;}
-    public TsdbValue value(){return value;}
-    public long timestamp(){return timestamp;}
-    public Map<String, String> attributes(){return attributes;}
+    public void setValue(TsdbValue value) {
+        this.value = value;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public void setAttribute(String attributeK, String attributeV) {
+        attributes.put(attributeK, attributeV);
+    }
+
+    public void setAllAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+    public String getMetric() {
+        return metric;
+    }
+
+    public TsdbValue getValue() {
+        return value;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
 }

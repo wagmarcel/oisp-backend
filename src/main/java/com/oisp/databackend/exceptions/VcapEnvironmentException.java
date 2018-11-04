@@ -1,4 +1,4 @@
-package com.intel.databackend.exceptions;
+package com.oisp.databackend.exceptions;
 
 /**
  * Copyright (c) 2015 Intel Corporation

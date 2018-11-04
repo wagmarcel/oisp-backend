@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.helpers;
+package com.oisp.databackend.api.helpers;
 
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.Observation;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 import java.util.Comparator;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources;
+package com.oisp.databackend.datasources;
 
 
 final class DataFormatter {

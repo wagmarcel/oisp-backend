@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datastructures.requests;
+package com.oisp.databackend.datastructures.requests;
 
 import com.cedarsoftware.util.io.JsonWriter;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.intel.databackend.datastructures.DeviceSearchCriterium;
+import com.oisp.databackend.datastructures.DeviceSearchCriterium;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

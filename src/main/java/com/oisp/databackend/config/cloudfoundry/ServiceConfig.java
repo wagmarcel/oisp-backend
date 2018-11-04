@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.config.cloudfoundry;
+package com.oisp.databackend.config.cloudfoundry;
 
-import com.intel.databackend.config.ServiceConfigProvider;
-import com.intel.databackend.config.cloudfoundry.utils.VcapReader;
-import com.intel.databackend.tsdb.hbase.KerberosProperties;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.config.cloudfoundry.utils.VcapReader;
+import com.oisp.databackend.tsdb.hbase.KerberosProperties;
+import com.oisp.databackend.exceptions.VcapEnvironmentException;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -65,7 +65,6 @@ public class ServiceConfig implements ServiceConfigProvider {
     private JSONObject zookeeperService;
     private JSONObject zookeeperCredentials;
     private JSONObject kerberosCredentials;
-    private JSONObject backendService;
 
     public ServiceConfig() {
     }

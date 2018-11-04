@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.kafka;
+package com.oisp.databackend.api.kafka;
 
-import com.intel.databackend.config.ServiceConfigProvider;
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.datastructures.Observation;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class KafkaConfigTest {
     private KafkaConfig kafkaConfig;
 
     @Before
-    public void initMocks() throws Exception {
+    public void initMocks() {
         MockitoAnnotations.initMocks(this);
 
     }

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.samples;
+package com.oisp.databackend.api.inquiry.samples;
 
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.Observation;
 
 import java.util.List;
 

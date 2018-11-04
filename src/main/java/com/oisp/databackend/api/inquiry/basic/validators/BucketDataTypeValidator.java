@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.basic.validators;
+package com.oisp.databackend.api.inquiry.basic.validators;
 
-import com.intel.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.ComponentDataType;
 
 import java.util.Map;
 

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.config.cloudfoundry;
+package com.oisp.databackend.config.cloudfoundry;
 
-import com.intel.databackend.config.cloudfoundry.utils.VcapReader;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.config.cloudfoundry.utils.VcapReader;
+import com.oisp.databackend.exceptions.VcapEnvironmentException;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
@@ -75,7 +75,7 @@ public class ServiceConfigTest {
     }
 
     @Test(expected = VcapEnvironmentException.class)
-    public void Throws_error_when_response_is_empty() throws VcapEnvironmentException, JSONException {
+    public void Throws_error_when_response_is_empty() throws VcapEnvironmentException {
         Mockito.when(vcapReaderServices.getVcapServiceCredentialsByType(ServiceConfig.KAFKA_SERVICE_NAME))
                 .thenReturn(null);
         serviceConfig.init();
@@ -85,7 +85,7 @@ public class ServiceConfigTest {
     @Test(expected = VcapEnvironmentException.class)
     public void Throws_error_when_response_not_contain_key() throws VcapEnvironmentException, JSONException {
         Mockito.when(vcapReaderServices.getVcapServiceCredentialsByType(ServiceConfig.KAFKA_SERVICE_NAME))
-                .thenReturn(new JSONObject("{" + ServiceConfig.KAFKA_UPS_TOPICS + ": " + "{" + ServiceConfig.KAFKA_OBSERVATIONS_TOPIC + ": test} }"));;
+                .thenReturn(new JSONObject("{" + ServiceConfig.KAFKA_UPS_TOPICS + ": " + "{" + ServiceConfig.KAFKA_OBSERVATIONS_TOPIC + ": test} }"));
         serviceConfig.init();
         serviceConfig.getKafkaUri();
     }

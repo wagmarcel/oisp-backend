@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced.aggregations;
+package com.oisp.databackend.api.inquiry.advanced.aggregations;
 
-import com.intel.databackend.datastructures.AdvancedComponent;
+import com.oisp.databackend.datastructures.AdvancedComponent;
 
 public class AggregationResult {
 

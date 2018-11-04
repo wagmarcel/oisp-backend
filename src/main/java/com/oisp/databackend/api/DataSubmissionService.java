@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api;
+package com.oisp.databackend.api;
 
-import com.intel.databackend.api.kafka.KafkaService;
-import com.intel.databackend.datasources.DataDao;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.datastructures.requests.DataSubmissionRequest;
-import com.intel.databackend.datastructures.responses.DataSubmissionResponse;
-import com.intel.databackend.exceptions.MissingDataSubmissionArgumentException;
+import com.oisp.databackend.api.kafka.KafkaService;
+import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.requests.DataSubmissionRequest;
+import com.oisp.databackend.datastructures.responses.DataSubmissionResponse;
+import com.oisp.databackend.exceptions.MissingDataSubmissionArgumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 

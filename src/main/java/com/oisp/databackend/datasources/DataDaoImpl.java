@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources;
+package com.oisp.databackend.datasources;
 
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.tsdb.TsdbAccess;
-import com.intel.databackend.tsdb.TsdbObject;
-import com.intel.databackend.tsdb.TsdbValueString;
-import com.intel.databackend.config.cloudfoundry.ServiceConfig;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.tsdb.TsdbAccess;
+import com.oisp.databackend.tsdb.TsdbObject;
+import com.oisp.databackend.tsdb.TsdbValueString;
+import com.oisp.databackend.config.cloudfoundry.ServiceConfig;
 
-import com.intel.databackend.tsdb.dummy.tsdbAccessDummy;
-import com.intel.databackend.tsdb.hbase.tsdbAccessHBase;
+import com.oisp.databackend.tsdb.dummy.TsdbAccessDummy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Repository;
 import org.springframework.core.env.Environment;
@@ -47,11 +45,11 @@ public class DataDaoImpl implements DataDao {
     private TsdbAccess tsdbAccess;
 
     @Autowired
-    public void selectDAOPlugin(TsdbAccess tsdbAccess){
-        String tsdb_name = env.getProperty(ServiceConfig.BACKEND_TSDB_NAME);
-        if (tsdb_name.equals("dummy")){
+    public void selectDAOPlugin(TsdbAccess tsdbAccess) {
+        String tsdbName = env.getProperty(ServiceConfig.BACKEND_TSDB_NAME);
+        if ("dummy".equals(tsdbName)) {
             logger.info("TSDB backend: dummy");
-            this.tsdbAccess = new tsdbAccessDummy();
+            this.tsdbAccess = new TsdbAccessDummy();
         } else {
             logger.info("TSDB backend: hbase");
             this.tsdbAccess = tsdbAccess;
@@ -107,7 +105,7 @@ public class DataDaoImpl implements DataDao {
         List<Observation> observations = new ArrayList<>();
         for (TsdbObject tsdbObject : tsdbObjects) {
             Observation observation = new ObservationCreator(tsdbObject)
-                    .withAttributes(tsdbObject.attributes())
+                    .withAttributes(tsdbObject.getAttributes())
                     .create();
             observations.add(observation);
         }
@@ -115,7 +113,7 @@ public class DataDaoImpl implements DataDao {
 
     }
 
-    private String getMetric(String accountId, String componentId){
+    private String getMetric(String accountId, String componentId) {
         return accountId + "." + componentId;
     }
 
@@ -131,8 +129,8 @@ public class DataDaoImpl implements DataDao {
         put.setValue(value);
         if (o.getLoc() != null) {
             for (int i = 0; i < o.getLoc().size() && i < ObservationCreator.GPS_COLUMN_SIZE; i++) {
-                String gps_attribute_name = DataFormatter.gpsValueToString(i);
-                put.setAttribute(gps_attribute_name, o.getLoc().get(i).toString());
+                String gpsAttributeName = DataFormatter.gpsValueToString(i);
+                put.setAttribute(gpsAttributeName, o.getLoc().get(i).toString());
             }
         }
         Map<String, String> attributes = o.getAttributes();

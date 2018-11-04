@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced.componentsbuilder;
+package com.oisp.databackend.api.inquiry.advanced.componentsbuilder;
 
-import com.intel.databackend.api.helpers.ObservationComparator;
-import com.intel.databackend.datastructures.AdvancedComponent;
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.DeviceData;
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.api.helpers.ObservationComparator;
+import com.oisp.databackend.datastructures.AdvancedComponent;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.DeviceData;
+import com.oisp.databackend.datastructures.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

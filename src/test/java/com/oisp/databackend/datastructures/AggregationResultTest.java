@@ -1,6 +1,6 @@
-package com.intel.databackend.datastructures;
+package com.oisp.databackend.datastructures;
 
-import com.intel.databackend.api.inquiry.advanced.aggregations.AggregationResult;
+import com.oisp.databackend.api.inquiry.advanced.aggregations.AggregationResult;
 import org.junit.Before;
 import org.junit.Test;
 

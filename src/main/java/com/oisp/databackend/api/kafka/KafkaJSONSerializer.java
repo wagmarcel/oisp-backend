@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intel.databackend.api.kafka;
+package com.oisp.databackend.api.kafka;
 
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.Observation;
 import org.apache.kafka.common.serialization.Serializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced;
+package com.oisp.databackend.api.inquiry.advanced;
 
-import com.intel.databackend.datastructures.DeviceData;
-import com.intel.databackend.datastructures.requests.AdvDataInquiryRequest;
-import com.intel.databackend.datastructures.responses.AdvDataInquiryResponse;
+import com.oisp.databackend.datastructures.DeviceData;
+import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
+import com.oisp.databackend.datastructures.responses.AdvDataInquiryResponse;
 
 import java.util.List;
 

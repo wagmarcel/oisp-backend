@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced;
+package com.oisp.databackend.api.inquiry.advanced;
 
-import com.intel.databackend.datasources.DataDao;
-import com.intel.databackend.datastructures.AdvancedComponent;
-import com.intel.databackend.datastructures.DeviceData;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.datastructures.requests.AdvDataInquiryRequest;
-import com.intel.databackend.datastructures.responses.AdvDataInquiryResponse;
+import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datastructures.AdvancedComponent;
+import com.oisp.databackend.datastructures.DeviceData;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
+import com.oisp.databackend.datastructures.responses.AdvDataInquiryResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -73,7 +73,7 @@ public class AdvancedDataInquiryServiceTest {
     @Test
     public void Invoke_RequestDataProvidedCountOnlyFalse_ReturnsData() throws Exception {
         //ARRANGE
-        Observation observation = new Observation(accountId, "cid", 1L, "value");
+        Observation observation = new Observation(accountId, "cid", 1L, "getValue");
         Observation[] observations = new Observation[1];
         observations[0] = observation;
         String[] stringAttributes = new String[0];
@@ -123,7 +123,7 @@ public class AdvancedDataInquiryServiceTest {
     @Test
     public void Invoke_RequestDataProvidedCountOnly_SetsAccountIdInData() throws Exception {
         //ARRANGE
-        Observation observation = new Observation(accountId, "cid", 1L, "value");
+        Observation observation = new Observation(accountId, "cid", 1L, "getValue");
         Observation[] observations = new Observation[1];
         observations[0] = observation;
         String[] stringAttributes = new String[0];

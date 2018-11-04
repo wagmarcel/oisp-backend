@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.config.cloudfoundry.utils;
+package com.oisp.databackend.config.cloudfoundry.utils;
 
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.After;

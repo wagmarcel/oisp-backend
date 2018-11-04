@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced.filters;
+package com.oisp.databackend.api.inquiry.advanced.filters;
 
-import com.intel.databackend.api.helpers.ObservationFilters;
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.datastructures.requests.AdvDataInquiryRequest;
+import com.oisp.databackend.api.helpers.ObservationFilters;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
 
 
 public class AdvancedObservationFilterSelector implements ObservationFilterSelector {
@@ -34,7 +34,7 @@ public class AdvancedObservationFilterSelector implements ObservationFilterSelec
 
     @Override
     public Observation[] filter(Observation[] obs, ComponentDataType componentDataType) {
-        if (dataInquiryRequest.getValueFilter() != null && dataInquiryRequest.getValueFilter().containsKey("value")) {
+        if (dataInquiryRequest.getValueFilter() != null && dataInquiryRequest.getValueFilter().containsKey("getValue")) {
             return observationFilters.filterByValue(obs, dataInquiryRequest.getValueFilter(), componentDataType);
         }
         if (dataInquiryRequest.getMeasurementAttributeFilter() != null) {

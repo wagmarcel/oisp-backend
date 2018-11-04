@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.kafka;
+package com.oisp.databackend.api.kafka;
 
 
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.Observation;
 
 import java.util.List;
 

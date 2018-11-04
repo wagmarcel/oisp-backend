@@ -1,7 +1,7 @@
-package com.intel.databackend.datasources;
+package com.oisp.databackend.datasources;
 
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.tsdb.TsdbObject;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.tsdb.TsdbObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +36,8 @@ class ObservationCreator {
     private Map<String, String> attributes;
 
     ObservationCreator(TsdbObject tsdbObject) {
-        this.accountId = DataFormatter.getAccountFromKey(tsdbObject.metric().toString());
-        this.componentId = DataFormatter.getComponentFromKey(tsdbObject.metric().toString());
+        this.accountId = DataFormatter.getAccountFromKey(tsdbObject.getMetric());
+        this.componentId = DataFormatter.getComponentFromKey(tsdbObject.getMetric());
         this.tsdbObject = tsdbObject;
     }
 
@@ -62,8 +62,8 @@ class ObservationCreator {
     private void addBasicInformation() {
         observation.setCid(componentId);
         observation.setAid(accountId);
-        observation.setOn(tsdbObject.timestamp()); //0L;
-        observation.setValue((String)tsdbObject.value().get());
+        observation.setOn(tsdbObject.getTimestamp()); //0L;
+        observation.setValue((String) tsdbObject.getValue().get());
         observation.setAttributes(new HashMap<String, String>());
     }
 

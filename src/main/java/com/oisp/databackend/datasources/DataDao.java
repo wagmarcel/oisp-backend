@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datasources;
+package com.oisp.databackend.datasources;
 
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.Observation;
 
 import java.io.IOException;
-import java.util.Set;
 
 public interface DataDao {
 

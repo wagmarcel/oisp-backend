@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.tsdb.hbase;
+package com.oisp.databackend.tsdb.hbase;
 
-import com.intel.databackend.tsdb.hbase.DataFormatter;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 
 class HbaseScanManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(HbaseScanManager.class);
     private Scan scan;
     private final String rowPrefix;
 
@@ -53,12 +49,12 @@ class HbaseScanManager {
     }
 
     public byte[] createRow(long timestamp) {
-        String sb = rowPrefix.toString() + '.' + DataFormatter.zeroPrefixedTimestamp(timestamp);
+        String sb = rowPrefix + '.' + DataFormatter.zeroPrefixedTimestamp(timestamp);
         return Bytes.toBytes(sb);
     }
 
-    public HbaseScanManager askForData( Set<String> attributes) {
-        scan.addColumn(com.intel.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, com.intel.databackend.tsdb.hbase.Columns.BYTES_DATA_COLUMN);
+    public HbaseScanManager askForData(Set<String> attributes) {
+        scan.addColumn(com.oisp.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, com.oisp.databackend.tsdb.hbase.Columns.BYTES_DATA_COLUMN);
         askForAdditionalInformation(attributes);
         return this;
     }
@@ -99,14 +95,7 @@ class HbaseScanManager {
 
     private void askForAttributes(Set<String> attributes) {
         for (String a : attributes) {
-            scan.addColumn(com.intel.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(com.intel.databackend.tsdb.hbase.Columns.ATTRIBUTE_COLUMN_PREFIX + a));
-        }
-    }
-
-    private void askForLocation() {
-        logger.debug("Retrieving also GPS location");
-        for (int i = 0; i < com.intel.databackend.tsdb.hbase.Columns.GPS_COLUMN_SIZE; i++) {
-            scan.addColumn(com.intel.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(DataFormatter.gpsValueToString(i)));
+            scan.addColumn(com.oisp.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(com.oisp.databackend.tsdb.hbase.Columns.ATTRIBUTE_COLUMN_PREFIX + a));
         }
     }
 }

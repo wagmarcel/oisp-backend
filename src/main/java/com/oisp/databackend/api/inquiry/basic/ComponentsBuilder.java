@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.basic;
+package com.oisp.databackend.api.inquiry.basic;
 
-import com.intel.databackend.api.inquiry.basic.validators.ComponentsDataTypeValidator;
-import com.intel.databackend.api.inquiry.samples.SampleDataRetriever;
-import com.intel.databackend.datastructures.Component;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.exceptions.ErrorMsg;
-import com.intel.databackend.exceptions.IllegalDataInquiryArgumentException;
+import com.oisp.databackend.api.inquiry.basic.validators.ComponentsDataTypeValidator;
+import com.oisp.databackend.api.inquiry.samples.SampleDataRetriever;
+import com.oisp.databackend.datastructures.Component;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.exceptions.ErrorMsg;
+import com.oisp.databackend.exceptions.IllegalDataInquiryArgumentException;
 
 import java.util.ArrayList;
 import java.util.List;

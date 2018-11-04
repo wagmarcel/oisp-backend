@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced.filters;
+package com.oisp.databackend.api.inquiry.advanced.filters;
 
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.Observation;
 
 
 public class BaseObservationFilterSelector implements ObservationFilterSelector {

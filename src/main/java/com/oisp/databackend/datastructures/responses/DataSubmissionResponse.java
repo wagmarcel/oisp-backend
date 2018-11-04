@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datastructures.responses;
+package com.oisp.databackend.datastructures.responses;
 
 import com.cedarsoftware.util.io.JsonWriter;
 

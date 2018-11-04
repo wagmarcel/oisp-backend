@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datastructures.requests;
+package com.oisp.databackend.datastructures.requests;
 
 import com.cedarsoftware.util.io.JsonWriter;
-import com.intel.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.ComponentDataType;
 
 import java.util.List;
 import java.util.Map;

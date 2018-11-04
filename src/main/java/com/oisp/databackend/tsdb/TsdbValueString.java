@@ -1,7 +1,9 @@
-package com.intel.databackend.tsdb;
+package com.oisp.databackend.tsdb;
 
-public class TsdbValueString extends TsdbValue {
-    String value;
+public class TsdbValueString implements TsdbValue {
+
+    private String value;
+
     @Override
     public String get() {
         return value;
@@ -9,6 +11,6 @@ public class TsdbValueString extends TsdbValue {
 
     @Override
     public void set(Object o) {
-        value = (String)o;
+        value = (String) o;
     }
 }

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api;
+package com.oisp.databackend.api;
 
-import com.intel.databackend.datasources.DataDao;
-import com.intel.databackend.datastructures.ComponentMeasurementTimestamps;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.datastructures.requests.FirstLastTimestampRequest;
-import com.intel.databackend.datastructures.responses.FirstLastTimestampResponse;
+import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datastructures.ComponentMeasurementTimestamps;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.requests.FirstLastTimestampRequest;
+import com.oisp.databackend.datastructures.responses.FirstLastTimestampResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

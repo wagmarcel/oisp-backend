@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.config;
+package com.oisp.databackend.config;
 
-import com.intel.databackend.tsdb.hbase.KerberosProperties;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.tsdb.hbase.KerberosProperties;
+import com.oisp.databackend.exceptions.VcapEnvironmentException;
 
 public interface ServiceConfigProvider {
 

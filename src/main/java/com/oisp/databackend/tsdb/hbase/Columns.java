@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.tsdb.hbase;
+package com.oisp.databackend.tsdb.hbase;
 
 import org.apache.hadoop.hbase.util.Bytes;
 

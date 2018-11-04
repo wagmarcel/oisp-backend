@@ -1,10 +1,10 @@
-package com.intel.databackend.handlers;
+package com.oisp.databackend.handlers;
 
-import com.intel.databackend.datastructures.responses.ErrorResponse;
-import com.intel.databackend.exceptions.DataInquiryException;
-import com.intel.databackend.exceptions.MissingDataSubmissionArgumentException;
-import com.intel.databackend.exceptions.ServiceException;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.datastructures.responses.ErrorResponse;
+import com.oisp.databackend.exceptions.DataInquiryException;
+import com.oisp.databackend.exceptions.MissingDataSubmissionArgumentException;
+import com.oisp.databackend.exceptions.ServiceException;
+import com.oisp.databackend.exceptions.VcapEnvironmentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;

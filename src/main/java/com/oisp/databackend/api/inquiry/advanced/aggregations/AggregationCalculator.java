@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced.aggregations;
+package com.oisp.databackend.api.inquiry.advanced.aggregations;
 
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +89,7 @@ public class AggregationCalculator {
                     sum += value;
                     sumOfSquares += value * value;
                 } catch (NumberFormatException ex) {
-                    logger.warn("Observation value - {} is not a double.", observation.getValue());
+                    logger.warn("Observation getValue - {} is not a double.", observation.getValue());
                 }
             }
             aggregationResult.setMin(min);

@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.handlers;
+package com.oisp.databackend.handlers;
 
-import com.intel.databackend.api.Service;
-import com.intel.databackend.datastructures.requests.AdvDataInquiryRequest;
-import com.intel.databackend.datastructures.requests.DataInquiryRequest;
-import com.intel.databackend.datastructures.requests.DataSubmissionRequest;
-import com.intel.databackend.datastructures.requests.FirstLastTimestampRequest;
-import com.intel.databackend.datastructures.responses.AdvDataInquiryResponse;
-import com.intel.databackend.datastructures.responses.DataInquiryResponse;
-import com.intel.databackend.datastructures.responses.DataSubmissionResponse;
-import com.intel.databackend.datastructures.responses.FirstLastTimestampResponse;
-import com.intel.databackend.exceptions.ServiceException;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
-import com.intel.databackend.handlers.requestvalidator.AdvanceDataRequestValidator;
-import com.intel.databackend.handlers.requestvalidator.DataRequestValidator;
-import com.intel.databackend.handlers.requestvalidator.RequestValidator;
+import com.oisp.databackend.api.Service;
+import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
+import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
+import com.oisp.databackend.datastructures.requests.DataSubmissionRequest;
+import com.oisp.databackend.datastructures.requests.FirstLastTimestampRequest;
+import com.oisp.databackend.datastructures.responses.AdvDataInquiryResponse;
+import com.oisp.databackend.datastructures.responses.DataInquiryResponse;
+import com.oisp.databackend.datastructures.responses.DataSubmissionResponse;
+import com.oisp.databackend.datastructures.responses.FirstLastTimestampResponse;
+import com.oisp.databackend.exceptions.ServiceException;
+import com.oisp.databackend.handlers.requestvalidator.AdvanceDataRequestValidator;
+import com.oisp.databackend.handlers.requestvalidator.DataRequestValidator;
+import com.oisp.databackend.handlers.requestvalidator.RequestValidator;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -92,7 +91,7 @@ public class Data {
     @RequestMapping(value = "/v1/accounts/{accountId}/dataInquiry", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity dataInquiry(@PathVariable String accountId, @RequestBody DataInquiryRequest request)
-            throws ServiceException, VcapEnvironmentException {
+            throws ServiceException {
         logger.info(REQUEST_LOG_ENTRY, accountId);
         logger.debug(DEBUG_LOG, request);
 
@@ -111,7 +110,7 @@ public class Data {
     @RequestMapping(value = "/v1/accounts/{accountId}/dataInquiry/advanced", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity advancedDataInquiry(@PathVariable String accountId, @RequestBody final AdvDataInquiryRequest request) throws ServiceException, VcapEnvironmentException {
+    public ResponseEntity advancedDataInquiry(@PathVariable String accountId, @RequestBody final AdvDataInquiryRequest request) throws ServiceException {
         logger.info(REQUEST_LOG_ENTRY, accountId);
         logger.debug(DEBUG_LOG, request);
 
@@ -131,7 +130,7 @@ public class Data {
     @ResponseBody
     public ResponseEntity firstLastMeasurementTimestamp(@PathVariable String accountId,
                                                  @Valid @RequestBody final FirstLastTimestampRequest request,
-                                                 BindingResult result) throws VcapEnvironmentException, ServiceException, BindException {
+                                                 BindingResult result) throws ServiceException, BindException {
         logger.info(REQUEST_LOG_ENTRY, accountId);
         logger.debug(request.toString());
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.kafka;
+package com.oisp.databackend.api.kafka;
 
-import com.intel.databackend.config.ServiceConfigProvider;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.exceptions.VcapEnvironmentException;
 import kafka.admin.AdminUtils;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkException;
@@ -82,7 +82,7 @@ public class KafkaSenderServiceTest {
     }
 
     @Test
-    public void testCreateTopic_topic_exist() throws VcapEnvironmentException {
+    public void testCreateTopic_topic_exist() {
         kafkaSenderService.createTopic();
         kafkaSenderService.close();
         Mockito.verify(kafkaProducer).close();
@@ -90,7 +90,7 @@ public class KafkaSenderServiceTest {
     }
 
     @Test
-    public void testCreateTopic_topic_not_exist() throws VcapEnvironmentException {
+    public void testCreateTopic_topic_not_exist() {
         Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenReturn(false);
         kafkaSenderService.createTopic();
         kafkaSenderService.close();
@@ -100,7 +100,7 @@ public class KafkaSenderServiceTest {
     }
 
     @Test
-    public void testCreateTopic_error_handling() throws Exception {
+    public void testCreateTopic_error_handling() {
         Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenThrow(new ZkException());
         kafkaSenderService.createTopic();
         kafkaSenderService.close();
@@ -108,7 +108,7 @@ public class KafkaSenderServiceTest {
     }
 
     @Test
-    public void testSend() throws Exception {
+    public void testSend() {
         kafkaSenderService.createTopic();
         kafkaSenderService.send(Arrays.asList(new Observation()));
         Mockito.verify(kafkaProducer).send(Mockito.anyObject(), Mockito.anyObject());

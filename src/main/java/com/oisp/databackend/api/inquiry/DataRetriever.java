@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry;
+package com.oisp.databackend.api.inquiry;
 
-import com.intel.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
-import com.intel.databackend.datasources.DataDao;
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
+import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

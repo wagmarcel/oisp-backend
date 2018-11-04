@@ -1,6 +1,6 @@
-package com.intel.databackend.api;
+package com.oisp.databackend.api;
 
-import com.intel.databackend.exceptions.ServiceException;
+import com.oisp.databackend.exceptions.ServiceException;
 
 /**
  * Copyright (c) 2015 Intel Corporation

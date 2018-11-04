@@ -55,7 +55,7 @@ jacoco {
 }
 
 jacocoCoverage {
-    reportThreshold  0.4, LINE
+    reportThreshold  0.3, LINE
 }
 
 checkstyle {
@@ -73,14 +73,14 @@ pmd {
 
 task runJar() << {
   javaexec { 
-    main="-jar";
+    main="-jar"
     args = [
             "./build/libs/databackend.jar"
            ]
   } 
 }
 
-mainClassName = "com.intel.databackend.Application"
+mainClassName = "com.oisp.databackend.Application"
 sourceCompatibility = 1.8
 ext.cdhVersion = "cdh5.13.1"
 ext.hbaseVersion = "1.2.0-$cdhVersion"

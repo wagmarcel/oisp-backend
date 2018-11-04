@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intel.databackend.api.kafka;
+package com.oisp.databackend.api.kafka;
 
-import com.intel.databackend.config.ServiceConfigProvider;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.exceptions.VcapEnvironmentException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serializer;
@@ -47,7 +47,7 @@ public class KafkaConfig {
     private final Serializer<List<Observation>> valueSerializer = new KafkaJSONSerializer();
 
     @Bean
-    public KafkaProducer<String, List<Observation>> kafkaProducer() throws VcapEnvironmentException {
+    public KafkaProducer<String, List<Observation>> kafkaProducer() {
         try {
             if (serviceConfigProvider.isKafkaEnabled()) {
                 Map<String, Object> producerConfig = new HashMap<>();
@@ -62,7 +62,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaProducer<String, String> kafkaHearbeatProducer() throws VcapEnvironmentException {
+    public KafkaProducer<String, String> kafkaHearbeatProducer() {
         try {
             if (serviceConfigProvider.isKafkaEnabled()) {
                 Properties props = new Properties();

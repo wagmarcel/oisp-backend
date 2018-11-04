@@ -1,7 +1,7 @@
-package com.intel.databackend.tsdb;
+package com.oisp.databackend.tsdb;
 
-public abstract class TsdbValue {
+public interface TsdbValue {
 
-    abstract public Object get();
-    abstract public void set(Object o);
+    Object get();
+    void set(Object o);
 }

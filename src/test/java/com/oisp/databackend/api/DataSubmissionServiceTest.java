@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api;
+package com.oisp.databackend.api;
 
-import com.intel.databackend.api.kafka.KafkaService;
-import com.intel.databackend.datasources.DataDao;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.datastructures.requests.DataSubmissionRequest;
-import com.intel.databackend.datastructures.responses.DataSubmissionResponse;
-import com.intel.databackend.exceptions.MissingDataSubmissionArgumentException;
+import com.oisp.databackend.api.kafka.KafkaService;
+import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.requests.DataSubmissionRequest;
+import com.oisp.databackend.datastructures.responses.DataSubmissionResponse;
+import com.oisp.databackend.exceptions.MissingDataSubmissionArgumentException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -64,7 +64,7 @@ public class DataSubmissionServiceTest {
     @Test
     public void Invoke_RequestDataProvided_SetsAccountIdInData() throws Exception {
         //ARRANGE
-        Observation observation = new Observation("oldAid", "cid", 1L, "value");
+        Observation observation = new Observation("oldAid", "cid", 1L, "getValue");
         List<Observation> data = new ArrayList<>();
         data.add(observation);
         request.setData(data);

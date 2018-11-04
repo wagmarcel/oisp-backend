@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intel.databackend.api.kafka;
+package com.oisp.databackend.api.kafka;
 
-import com.intel.databackend.config.ServiceConfigProvider;
-import com.intel.databackend.datastructures.Observation;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.exceptions.VcapEnvironmentException;
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.admin.RackAwareMode.Safe$;

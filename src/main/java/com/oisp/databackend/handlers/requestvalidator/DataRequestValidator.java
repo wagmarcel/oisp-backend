@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.handlers.requestvalidator;
+package com.oisp.databackend.handlers.requestvalidator;
 
-import com.intel.databackend.datastructures.requests.DataInquiryRequest;
-import com.intel.databackend.exceptions.ErrorMsg;
-import com.intel.databackend.exceptions.IllegalDataInquiryArgumentException;
+import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
+import com.oisp.databackend.exceptions.ErrorMsg;
+import com.oisp.databackend.exceptions.IllegalDataInquiryArgumentException;
 
 
 public class DataRequestValidator implements RequestValidator {

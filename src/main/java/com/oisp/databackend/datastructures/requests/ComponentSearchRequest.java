@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.datastructures.requests;
+package com.oisp.databackend.datastructures.requests;
 
 import com.cedarsoftware.util.io.JsonWriter;
 import com.fasterxml.jackson.annotation.JsonInclude;

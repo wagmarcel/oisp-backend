@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.samples;
+package com.oisp.databackend.api.inquiry.samples;
 
-import com.intel.databackend.api.inquiry.DataRetrieveParams;
-import com.intel.databackend.datastructures.Observation;
+import com.oisp.databackend.api.inquiry.DataRetrieveParams;
+import com.oisp.databackend.datastructures.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class SampleAggregationDataRetriever implements SampleDataRetriever {
 
     @Override
     public List<List<String>> get(Observation[] observations, Long first, Long last) {
-        //group by timestamp bucket and count averages in each bucket.
+        //group by getTimestamp bucket and count averages in each bucket.
         //Stream based solution could be easier to parallelize (and read).
 
         List<List<String>> sampleObservationList = new ArrayList<>();
@@ -61,7 +61,7 @@ public class SampleAggregationDataRetriever implements SampleDataRetriever {
             } else {
                 createSample(sumValue, sumTime, count, sampleObservationList);
 
-                //this is the first value of the next bucket
+                //this is the first getValue of the next bucket
                 previousBucket = curBucket;
                 sumValue = updateSum(0, observation);
                 sumTime = observation.getOn();
@@ -77,7 +77,7 @@ public class SampleAggregationDataRetriever implements SampleDataRetriever {
     private void createSample(double sumValue, long sumTime, long count, List<List<String>> sampleObservationList) {
         double avgValue = sumValue / count;
         long avgTime = sumTime / count;
-        logger.debug("Avgs for bucket for component are: value={} time={} count={}", avgValue, avgTime, count);
+        logger.debug("Avgs for bucket for component are: getValue={} time={} count={}", avgValue, avgTime, count);
         List<String> samples = new ArrayList<>();
         samples.add(String.valueOf(avgTime));
         samples.add(String.valueOf(avgValue));
@@ -89,7 +89,7 @@ public class SampleAggregationDataRetriever implements SampleDataRetriever {
         try {
             sum += Double.parseDouble(o.getValue());
         } catch (NumberFormatException e) {
-            logger.warn("Obs value parsing fault - not a double");
+            logger.warn("Obs getValue parsing fault - not a double");
         }
         return sum;
     }

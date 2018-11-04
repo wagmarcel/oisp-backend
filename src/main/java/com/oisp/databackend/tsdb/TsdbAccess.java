@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.tsdb;
+package com.oisp.databackend.tsdb;
 
-import com.intel.databackend.datastructures.Observation;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public interface TsdbAccess {
 

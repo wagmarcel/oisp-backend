@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.advanced.componentsbuilder;
+package com.oisp.databackend.api.inquiry.advanced.componentsbuilder;
 
-import com.intel.databackend.datastructures.requests.AdvDataInquiryRequest;
+import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
 
 import java.util.Arrays;
 import java.util.List;

@@ -14,34 +14,17 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.tsdb.dummy;
+package com.oisp.databackend.tsdb.dummy;
 
-import com.intel.databackend.tsdb.TsdbAccess;
-import com.intel.databackend.tsdb.TsdbObject;
-import com.intel.databackend.tsdb.hbase.*;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
-import org.apache.hadoop.hbase.filter.PageFilter;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import com.oisp.databackend.tsdb.TsdbAccess;
+import com.oisp.databackend.tsdb.TsdbObject;
+
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.security.auth.login.LoginException;
-import java.io.IOException;
 import java.util.*;
 
 @Repository
-public class tsdbAccessDummy implements TsdbAccess {
-
-    private static final Logger logger = LoggerFactory.getLogger(tsdbAccessDummy.class);
-
+public class TsdbAccessDummy implements TsdbAccess {
 
     @Override
     public boolean put(List<TsdbObject> tsdbObjects) {
@@ -66,7 +49,7 @@ public class tsdbAccessDummy implements TsdbAccess {
     }
 
 
-    public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
+    public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) {
 
         return new String[0];
     }

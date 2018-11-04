@@ -1,7 +1,7 @@
-package com.intel.databackend.tsdb.hbase;
+package com.oisp.databackend.tsdb.hbase;
 
-import com.intel.databackend.config.ServiceConfigProvider;
-import com.intel.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.exceptions.VcapEnvironmentException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;

@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package com.intel.databackend.api.inquiry.basic;
+package com.oisp.databackend.api.inquiry.basic;
 
-import com.intel.databackend.api.Service;
-import com.intel.databackend.api.inquiry.DataRetrieveParams;
-import com.intel.databackend.api.inquiry.DataRetriever;
-import com.intel.databackend.api.inquiry.advanced.filters.BaseObservationFilterSelector;
-import com.intel.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
-import com.intel.databackend.api.inquiry.basic.validators.BucketDataTypeValidator;
-import com.intel.databackend.api.inquiry.basic.validators.ComponentsDataTypeValidator;
-import com.intel.databackend.api.inquiry.basic.validators.PlainDataTypeValidator;
-import com.intel.databackend.api.inquiry.samples.SampleAggregationDataRetriever;
-import com.intel.databackend.api.inquiry.samples.SampleDataRetriever;
-import com.intel.databackend.api.inquiry.samples.SamplePlainDataRetriever;
-import com.intel.databackend.datasources.DataDao;
-import com.intel.databackend.datastructures.Component;
-import com.intel.databackend.datastructures.ComponentDataType;
-import com.intel.databackend.datastructures.requests.DataInquiryRequest;
-import com.intel.databackend.datastructures.responses.DataInquiryResponse;
-import com.intel.databackend.exceptions.DataInquiryException;
-import com.intel.databackend.exceptions.IllegalDataInquiryArgumentException;
+import com.oisp.databackend.api.Service;
+import com.oisp.databackend.api.inquiry.DataRetrieveParams;
+import com.oisp.databackend.api.inquiry.DataRetriever;
+import com.oisp.databackend.api.inquiry.advanced.filters.BaseObservationFilterSelector;
+import com.oisp.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
+import com.oisp.databackend.api.inquiry.basic.validators.BucketDataTypeValidator;
+import com.oisp.databackend.api.inquiry.basic.validators.ComponentsDataTypeValidator;
+import com.oisp.databackend.api.inquiry.basic.validators.PlainDataTypeValidator;
+import com.oisp.databackend.api.inquiry.samples.SampleAggregationDataRetriever;
+import com.oisp.databackend.api.inquiry.samples.SampleDataRetriever;
+import com.oisp.databackend.api.inquiry.samples.SamplePlainDataRetriever;
+import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datastructures.Component;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
+import com.oisp.databackend.datastructures.responses.DataInquiryResponse;
+import com.oisp.databackend.exceptions.DataInquiryException;
+import com.oisp.databackend.exceptions.IllegalDataInquiryArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
