@@ -39,8 +39,6 @@ public interface ServiceConfigProvider {
 
     Integer getKafkaTimeoutInMs() throws VcapEnvironmentException;
 
-    String  getTsdbBackend() throws VcapEnvironmentException;
-
     KerberosProperties getKerberosCredentials() throws VcapEnvironmentException;
 
 }

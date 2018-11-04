@@ -40,6 +40,8 @@ import java.util.*;
 @Repository
 public class tsdbAccessDummy implements TsdbAccess {
 
+    private static final Logger logger = LoggerFactory.getLogger(tsdbAccessDummy.class);
+
 
     @Override
     public boolean put(List<TsdbObject> tsdbObjects) {

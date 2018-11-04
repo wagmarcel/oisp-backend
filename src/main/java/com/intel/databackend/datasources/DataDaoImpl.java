@@ -20,22 +20,46 @@ import com.intel.databackend.datastructures.Observation;
 import com.intel.databackend.tsdb.TsdbAccess;
 import com.intel.databackend.tsdb.TsdbObject;
 import com.intel.databackend.tsdb.TsdbValueString;
+import com.intel.databackend.config.cloudfoundry.ServiceConfig;
 
+import com.intel.databackend.tsdb.dummy.tsdbAccessDummy;
+import com.intel.databackend.tsdb.hbase.tsdbAccessHBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Repository;
+import org.springframework.core.env.Environment;
 
 import java.io.IOException;
 import java.util.*;
 
 @Repository
+@Configuration
 public class DataDaoImpl implements DataDao {
 
     private static final Logger logger = LoggerFactory.getLogger(DataDaoImpl.class);
 
     @Autowired
+    private Environment env;
+
     private TsdbAccess tsdbAccess;
+
+    @Autowired
+    public void selectDAOPlugin(TsdbAccess tsdbAccess){
+        String tsdb_name = env.getProperty(ServiceConfig.BACKEND_TSDB_NAME);
+        if (tsdb_name.equals("dummy")){
+            logger.info("TSDB backend: dummy");
+            this.tsdbAccess = new tsdbAccessDummy();
+        } else {
+            logger.info("TSDB backend: hbase");
+            this.tsdbAccess = tsdbAccess;
+        }
+
+    }
+
+
 
     @Override
     public boolean put(final Observation[] observations) {
