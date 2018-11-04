@@ -47,7 +47,7 @@ public class DataDaoImpl implements DataDao {
     @Autowired
     public void selectDAOPlugin(TsdbAccess tsdbAccess) {
         String tsdbName = env.getProperty(ServiceConfig.BACKEND_TSDB_NAME);
-        if ("dummy".equals(tsdbName)) {
+        if (ServiceConfig.BACKEND_TSDB_NAME_DUMMY.equals(tsdbName)) {
             logger.info("TSDB backend: dummy");
             this.tsdbAccess = new TsdbAccessDummy();
         } else {

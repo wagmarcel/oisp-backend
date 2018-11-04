@@ -55,6 +55,7 @@ public class ServiceConfig implements ServiceConfigProvider {
     public static final String KRB_KDC = "kdc";
 
     public static final String BACKEND_TSDB_NAME = "BACKEND_TSDB";
+    public static final String BACKEND_TSDB_NAME_DUMMY = "dummy";
 
     public static final String LOCAL_PLAN = "local";
 
