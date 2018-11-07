@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-group = 'com.intel'
+group = 'com.oisp'
 
 buildscript {
     ext {
@@ -71,7 +71,7 @@ pmd {
     sourceSets = [sourceSets.main]
 }
 
-mainClassName = "com.intel.databackend.Application"
+mainClassName = "com.oisp.databackend.Application"
 sourceCompatibility = 1.8
 ext.cdhVersion = "cdh5.13.1"
 ext.hbaseVersion = "1.2.0-$cdhVersion"
