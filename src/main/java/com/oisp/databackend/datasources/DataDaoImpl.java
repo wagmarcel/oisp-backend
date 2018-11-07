@@ -24,6 +24,8 @@ import com.oisp.databackend.tsdb.TsdbValueString;
 
 import com.oisp.databackend.tsdb.dummy.TsdbAccessDummy;
 import com.oisp.databackend.config.simple.SimpleConfig;
+import com.oisp.databackend.tsdb.opentsdb.OpenTsdbDescriptor;
+import com.oisp.databackend.tsdb.opentsdb.TsdbAccessOpenTSDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +49,11 @@ public class DataDaoImpl implements DataDao {
         if (SimpleConfig.BACKEND_TSDB_NAME_DUMMY.equals(tsdbName)) {
             logger.info("TSDB backend: dummy");
             this.tsdbAccess = new TsdbAccessDummy();
-        } else {
+        } else if (SimpleConfig.BACKEND_TSDB_NAME_OPEN_TSDB.equals(tsdbName)) {
+            logger.info("TSDB backend: OpenTSDBd");
+            this.tsdbAccess = new TsdbAccessOpenTSDB(SimpleConfig.getTSDBDescriptor(tsdbName));
+        }
+        else {
             logger.info("TSDB backend: hbase");
             this.tsdbAccess = tsdbAccess;
         }
