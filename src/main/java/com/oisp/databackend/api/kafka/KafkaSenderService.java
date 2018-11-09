@@ -15,9 +15,8 @@
  */
 package com.oisp.databackend.api.kafka;
 
-import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.admin.RackAwareMode.Safe$;
@@ -49,7 +48,7 @@ public class KafkaSenderService implements KafkaService {
     private String topic;
 
     @Autowired
-    private ServiceConfigProvider serviceConfigProvider;
+    private OispConfig oispConfig;
 
     @Autowired
     public KafkaSenderService(KafkaProducer<String, List<Observation>> kafkaProducer) {
@@ -63,11 +62,11 @@ public class KafkaSenderService implements KafkaService {
             String brokerURI = null;
             ZkUtils zkUtils = null;
             try {
-                topic = serviceConfigProvider.getKafkaObservationsTopicName();
-                Integer partitions = serviceConfigProvider.getKafkaPartitionsFactor();
-                Integer replicationFactor = serviceConfigProvider.getKafkaReplicationFactor();
-                Integer timeoutInMs = serviceConfigProvider.getKafkaTimeoutInMs();
-                brokerURI = serviceConfigProvider.getZookeeperUri();
+                topic = oispConfig.getBackendConfig().getKafkaConfig().getTopicsObservations();
+                Integer partitions = oispConfig.getBackendConfig().getKafkaConfig().getPartitions();
+                Integer replicationFactor = oispConfig.getBackendConfig().getKafkaConfig().getReplication();
+                Integer timeoutInMs = oispConfig.getBackendConfig().getKafkaConfig().getTimeoutMs();
+                brokerURI = oispConfig.getBackendConfig().getZookeeperConfig().getZkCluster();
                 zkClient = new ZkClient(brokerURI, timeoutInMs, timeoutInMs, ZKStringSerializer$.MODULE$);
                 // Security for Kafka was added in Kafka 0.9.0.0
                 boolean isSecureKafkaCluster = false;
@@ -81,7 +80,7 @@ public class KafkaSenderService implements KafkaService {
                 } else {
                     logger.info("Topic: {} exist and will be use for pushing messages", topic);
                 }
-            } catch (ZkException | VcapEnvironmentException e) {
+            } catch (ZkException e) {
                 logger.error("error during topic creation! Topic: {}, Broker URI: {}. KafkaSenderService will be unavailable!",
                         topic, brokerURI, e);
                 kafkaProducer = null;
