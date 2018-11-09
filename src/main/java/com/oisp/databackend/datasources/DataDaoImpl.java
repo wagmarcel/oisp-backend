@@ -46,7 +46,7 @@ public class DataDaoImpl implements DataDao {
 
     @Autowired
     public void selectDAOPlugin(TsdbAccess tsdbAccess) {
-        String tsdbName = oispConfigManager.getSimpleConfig().getTsdbName();
+        String tsdbName = oispConfigManager.getSimpleConfig().getBackendConfig().getTsdbName();
         if (OispConfigManager.OISP_BACKEND_TSDB_NAME_DUMMY.equals(tsdbName)) {
             logger.info("TSDB backend: dummy");
             this.tsdbAccess = new TsdbAccessDummy();

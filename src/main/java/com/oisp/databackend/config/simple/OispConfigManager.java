@@ -1,7 +1,6 @@
 package com.oisp.databackend.config.simple;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.springframework.stereotype.Service;
@@ -15,8 +14,6 @@ public final class OispConfigManager {
 
     private static final String OISP_BACKEND_CONFIG = "OISP_BACKEND_CONFIG";
     private static final String KAFKA_CONFIG = "kafka.config";
-    private static final String TSDB_NAME = "tsdb.name";
-    public static final String OISP_ZOOKEEPER_URI = "OISP_ZOOKEEPER_URI";
     private OispConfig simpleConfig;
 
     public OispConfigManager() {
@@ -31,34 +28,44 @@ public final class OispConfigManager {
             throw new ConfigEnvironmentException("Could not find environment variable " + OISP_BACKEND_CONFIG);
         }
 
-        JsonNode backendNode = null;
+        BackendConfig backendConfig = null;
         try {
-            backendNode = objectMapper.readTree(rawBackendConfig);
+            backendConfig = objectMapper.readValue(rawBackendConfig, BackendConfig.class);
         } catch (IOException e) {
             throw new ConfigEnvironmentException("Could not parse content of " + OISP_BACKEND_CONFIG, e);
         }
 
-        String kafkaConfigVar = backendNode.get(KAFKA_CONFIG).asText();
-        if (kafkaConfigVar == null) {
-            throw new ConfigEnvironmentException("Could not find Kafka Config var in " + KAFKA_CONFIG + " field.");
-        }
-
-        String rawKafkaConfig = System.getenv(kafkaConfigVar);
+        String rawKafkaConfig = System.getenv(backendConfig.getKafkaConfig());
         if (rawKafkaConfig == null) {
-            throw new ConfigEnvironmentException("Could not find environment variable " + kafkaConfigVar);
+            throw new ConfigEnvironmentException("Could not find Kafka configuration in " + rawBackendConfig );
         }
 
-        JsonNode kafkaNode = null;
+        KafkaConfig kafkaConfig = null;
         try {
-            kafkaNode = objectMapper.readTree(rawKafkaConfig);
+            kafkaConfig = objectMapper.readValue(rawKafkaConfig, KafkaConfig.class);
         } catch (IOException e) {
-            throw new ConfigEnvironmentException("Could not parse content of variable " + kafkaConfigVar, e);
+            throw new ConfigEnvironmentException("Could not parse content of " + rawKafkaConfig, e);
         }
+
+        String rawZookeeperConfig = System.getenv(backendConfig.getZookeeperConfig());
+        if (rawZookeeperConfig == null) {
+            throw new ConfigEnvironmentException("Could not find Zookeeper configuration in " + rawBackendConfig );
+        }
+
+        ZookeeperConfig zookeeperConfig = null;
+        try {
+            zookeeperConfig = objectMapper.readValue(rawZookeeperConfig, ZookeeperConfig.class);
+        } catch (IOException e) {
+            throw new ConfigEnvironmentException("Could not parse content of " + rawZookeeperConfig, e);
+        }
+
+
 
         // now setup simpleConfig object
         simpleConfig = new OispConfig();
-        simpleConfig.setTsdbName(backendNode.get(TSDB_NAME).asText());
-
+        simpleConfig.setBackendConfig(backendConfig);
+        simpleConfig.setKafkaConfig(kafkaConfig);
+        simpleConfig.setZookeeperConfig(zookeeperConfig);
     }
 
     public OispConfig getSimpleConfig() {
