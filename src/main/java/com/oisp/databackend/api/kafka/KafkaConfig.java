@@ -15,15 +15,13 @@
  */
 package com.oisp.databackend.api.kafka;
 
-import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,45 +35,30 @@ import java.util.Properties;
 @Configuration
 public class KafkaConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaConfig.class);
-
     @Autowired
-    private ServiceConfigProvider serviceConfigProvider;
+    private OispConfig oispConfig;
 
     private final Serializer<String> keySerializer = new StringSerializer();
 
     private final Serializer<List<Observation>> valueSerializer = new KafkaJSONSerializer();
 
     @Bean
-    public KafkaProducer<String, List<Observation>> kafkaProducer() throws VcapEnvironmentException {
-        try {
-            if (serviceConfigProvider.isKafkaEnabled()) {
-                Map<String, Object> producerConfig = new HashMap<>();
-                producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serviceConfigProvider.getKafkaUri());
-                return new KafkaProducer<>(producerConfig, keySerializer, valueSerializer);
-            }
-        } catch (VcapEnvironmentException e) {
-            logger.error("Kafka configuration for observations is not available.", e);
-        }
-        logger.info("Kafka is not available. No data will be ingested into Kafka broker.");
-        return null;
+    public KafkaProducer<String, List<Observation>> kafkaProducer() throws ConfigEnvironmentException {
+
+        Map<String, Object> producerConfig = new HashMap<>();
+        producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, oispConfig.getBackendConfig().getKafkaConfig().getUri());
+        return new KafkaProducer<>(producerConfig, keySerializer, valueSerializer);
     }
 
     @Bean
-    public KafkaProducer<String, String> kafkaHearbeatProducer() throws VcapEnvironmentException {
-        try {
-            if (serviceConfigProvider.isKafkaEnabled()) {
-                Properties props = new Properties();
-                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serviceConfigProvider.getKafkaUri());
-                props.put(ProducerConfig.ACKS_CONFIG, "all");
-                props.put(ProducerConfig.RETRIES_CONFIG, 0);
-                props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-                props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-                return new KafkaProducer<String, String>(props);
-            }
-        } catch (VcapEnvironmentException e) {
-            logger.error("Kafka configuration for hearbeat is not available.", e);
-        }
-        return null;
+    public KafkaProducer<String, String> kafkaHearbeatProducer() throws ConfigEnvironmentException {
+
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, oispConfig.getBackendConfig().getKafkaConfig().getUri());
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.RETRIES_CONFIG, 0);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        return new KafkaProducer<String, String>(props);
     }
 }

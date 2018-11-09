@@ -68,7 +68,7 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Autowired
-    public TsdbAccessHBase(@Value("${vcap.application.name:local}") String hbasePrefix) {
+    public TsdbAccessHBase(@Value("local") String hbasePrefix) {
         logger.info("Creating HBase. Zookeeper: ");
 
         this.tableName = hbasePrefix.toUpperCase() + DEVICE_MEASUREMENT;

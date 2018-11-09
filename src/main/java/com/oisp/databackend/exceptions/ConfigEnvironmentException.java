@@ -15,12 +15,12 @@ package com.oisp.databackend.exceptions;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class VcapEnvironmentException extends Exception {
-    public VcapEnvironmentException(String message) {
+public class ConfigEnvironmentException extends Exception {
+    public ConfigEnvironmentException(String message) {
         super(message);
     }
 
-    public VcapEnvironmentException(String message, Throwable cause) {
+    public ConfigEnvironmentException(String message, Throwable cause) {
         super(message, cause);
     }
 }
