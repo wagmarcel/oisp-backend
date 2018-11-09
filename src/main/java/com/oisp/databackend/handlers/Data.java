@@ -26,7 +26,7 @@ import com.oisp.databackend.datastructures.responses.DataInquiryResponse;
 import com.oisp.databackend.datastructures.responses.DataSubmissionResponse;
 import com.oisp.databackend.datastructures.responses.FirstLastTimestampResponse;
 import com.oisp.databackend.exceptions.ServiceException;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.handlers.requestvalidator.AdvanceDataRequestValidator;
 import com.oisp.databackend.handlers.requestvalidator.DataRequestValidator;
 import com.oisp.databackend.handlers.requestvalidator.RequestValidator;
@@ -92,7 +92,7 @@ public class Data {
     @RequestMapping(value = "/v1/accounts/{accountId}/dataInquiry", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity dataInquiry(@PathVariable String accountId, @RequestBody DataInquiryRequest request)
-            throws ServiceException, VcapEnvironmentException {
+            throws ServiceException, ConfigEnvironmentException {
         logger.info(REQUEST_LOG_ENTRY, accountId);
         logger.debug(DEBUG_LOG, request);
 
@@ -111,7 +111,7 @@ public class Data {
     @RequestMapping(value = "/v1/accounts/{accountId}/dataInquiry/advanced", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity advancedDataInquiry(@PathVariable String accountId, @RequestBody final AdvDataInquiryRequest request) throws ServiceException, VcapEnvironmentException {
+    public ResponseEntity advancedDataInquiry(@PathVariable String accountId, @RequestBody final AdvDataInquiryRequest request) throws ServiceException, ConfigEnvironmentException {
         logger.info(REQUEST_LOG_ENTRY, accountId);
         logger.debug(DEBUG_LOG, request);
 
@@ -131,7 +131,7 @@ public class Data {
     @ResponseBody
     public ResponseEntity firstLastMeasurementTimestamp(@PathVariable String accountId,
                                                  @Valid @RequestBody final FirstLastTimestampRequest request,
-                                                 BindingResult result) throws VcapEnvironmentException, ServiceException, BindException {
+                                                 BindingResult result) throws ConfigEnvironmentException, ServiceException, BindException {
         logger.info(REQUEST_LOG_ENTRY, accountId);
         logger.debug(request.toString());
 

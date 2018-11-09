@@ -17,7 +17,7 @@ package com.oisp.databackend.api.kafka;
 
 import com.oisp.databackend.config.ServiceConfigProvider;
 import com.oisp.databackend.datastructures.Observation;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serializer;
@@ -47,14 +47,14 @@ public class KafkaConfig {
     private final Serializer<List<Observation>> valueSerializer = new KafkaJSONSerializer();
 
     @Bean
-    public KafkaProducer<String, List<Observation>> kafkaProducer() throws VcapEnvironmentException {
+    public KafkaProducer<String, List<Observation>> kafkaProducer() throws ConfigEnvironmentException {
         try {
             if (serviceConfigProvider.isKafkaEnabled()) {
                 Map<String, Object> producerConfig = new HashMap<>();
                 producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serviceConfigProvider.getKafkaUri());
                 return new KafkaProducer<>(producerConfig, keySerializer, valueSerializer);
             }
-        } catch (VcapEnvironmentException e) {
+        } catch (ConfigEnvironmentException e) {
             logger.error("Kafka configuration for observations is not available.", e);
         }
         logger.info("Kafka is not available. No data will be ingested into Kafka broker.");
@@ -62,7 +62,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaProducer<String, String> kafkaHearbeatProducer() throws VcapEnvironmentException {
+    public KafkaProducer<String, String> kafkaHearbeatProducer() throws ConfigEnvironmentException {
         try {
             if (serviceConfigProvider.isKafkaEnabled()) {
                 Properties props = new Properties();
@@ -73,7 +73,7 @@ public class KafkaConfig {
                 props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
                 return new KafkaProducer<String, String>(props);
             }
-        } catch (VcapEnvironmentException e) {
+        } catch (ConfigEnvironmentException e) {
             logger.error("Kafka configuration for hearbeat is not available.", e);
         }
         return null;

@@ -17,7 +17,7 @@ package com.oisp.databackend.api.kafka;
 
 import com.oisp.databackend.config.ServiceConfigProvider;
 import com.oisp.databackend.datastructures.Observation;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.admin.RackAwareMode.Safe$;
@@ -81,7 +81,7 @@ public class KafkaSenderService implements KafkaService {
                 } else {
                     logger.info("Topic: {} exist and will be use for pushing messages", topic);
                 }
-            } catch (ZkException | VcapEnvironmentException e) {
+            } catch (ZkException | ConfigEnvironmentException e) {
                 logger.error("error during topic creation! Topic: {}, Broker URI: {}. KafkaSenderService will be unavailable!",
                         topic, brokerURI, e);
                 kafkaProducer = null;

@@ -18,7 +18,7 @@ package com.oisp.databackend.api.kafka;
 
 import com.oisp.databackend.config.ServiceConfigProvider;
 import com.oisp.databackend.datastructures.Observation;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import kafka.admin.AdminUtils;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkException;
@@ -82,7 +82,7 @@ public class KafkaSenderServiceTest {
     }
 
     @Test
-    public void testCreateTopic_topic_exist() throws VcapEnvironmentException {
+    public void testCreateTopic_topic_exist() throws ConfigEnvironmentException {
         kafkaSenderService.createTopic();
         kafkaSenderService.close();
         Mockito.verify(kafkaProducer).close();
@@ -90,7 +90,7 @@ public class KafkaSenderServiceTest {
     }
 
     @Test
-    public void testCreateTopic_topic_not_exist() throws VcapEnvironmentException {
+    public void testCreateTopic_topic_not_exist() throws ConfigEnvironmentException {
         Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenReturn(false);
         kafkaSenderService.createTopic();
         kafkaSenderService.close();

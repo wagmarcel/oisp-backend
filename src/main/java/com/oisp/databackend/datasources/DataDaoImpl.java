@@ -23,7 +23,7 @@ import com.oisp.databackend.tsdb.TsdbObject;
 import com.oisp.databackend.tsdb.TsdbValueString;
 
 import com.oisp.databackend.tsdb.dummy.TsdbAccessDummy;
-import com.oisp.databackend.config.simple.SimpleConfig;
+import com.oisp.databackend.config.simple.OispConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +42,12 @@ public class DataDaoImpl implements DataDao {
     private TsdbAccess tsdbAccess;
 
     @Autowired
+    private OispConfigManager oispConfigManager;
+
+    @Autowired
     public void selectDAOPlugin(TsdbAccess tsdbAccess) {
-        String tsdbName = SimpleConfig.getTSDBConfig();
-        if (SimpleConfig.BACKEND_TSDB_NAME_DUMMY.equals(tsdbName)) {
+        String tsdbName = oispConfigManager.getSimpleConfig().getTsdbName();
+        if (OispConfigManager.OISP_BACKEND_TSDB_NAME_DUMMY.equals(tsdbName)) {
             logger.info("TSDB backend: dummy");
             this.tsdbAccess = new TsdbAccessDummy();
         } else {

@@ -4,7 +4,7 @@ import com.oisp.databackend.datastructures.responses.ErrorResponse;
 import com.oisp.databackend.exceptions.DataInquiryException;
 import com.oisp.databackend.exceptions.MissingDataSubmissionArgumentException;
 import com.oisp.databackend.exceptions.ServiceException;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -52,8 +52,8 @@ public class ErrorHandler {
         return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(VcapEnvironmentException.class)
-    public ResponseEntity handleError(VcapEnvironmentException ex) {
+    @ExceptionHandler(ConfigEnvironmentException.class)
+    public ResponseEntity handleError(ConfigEnvironmentException ex) {
         logger.error("Unable to parse Cloud Foundry env variables", ex);
         return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
     }

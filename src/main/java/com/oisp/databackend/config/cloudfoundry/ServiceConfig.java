@@ -19,7 +19,7 @@ package com.oisp.databackend.config.cloudfoundry;
 import com.oisp.databackend.config.ServiceConfigProvider;
 import com.oisp.databackend.config.cloudfoundry.utils.VcapReader;
 import com.oisp.databackend.tsdb.hbase.KerberosProperties;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -77,12 +77,12 @@ public class ServiceConfig implements ServiceConfigProvider {
     }
 
     @Override
-    public String getKafkaUri() throws VcapEnvironmentException {
+    public String getKafkaUri() throws ConfigEnvironmentException {
         return getFieldValueFromJson(kafkaCredentials, KAFKA_SERVICE_NAME, KAFKA_SERVICE_URI, String.class);
     }
 
     @Override
-    public String getZookeeperUri() throws VcapEnvironmentException {
+    public String getZookeeperUri() throws ConfigEnvironmentException {
         /*
           This is dirty workaround for dev's local machines
           On local kafka instance we cannot use '/kafka' postfix in URI
@@ -99,57 +99,57 @@ public class ServiceConfig implements ServiceConfigProvider {
     }
 
     @Override
-    public Boolean isKafkaEnabled() throws VcapEnvironmentException {
+    public Boolean isKafkaEnabled() throws ConfigEnvironmentException {
         return getFieldValueFromJson(kafkaSettings, KAFKA_UPS_NAME, KAFKA_UPS_ENABLED, Boolean.class);
     }
 
     @Override
-    public String getKafkaObservationsTopicName() throws VcapEnvironmentException {
+    public String getKafkaObservationsTopicName() throws ConfigEnvironmentException {
      	try {
             JSONObject kafkaTopics = kafkaSettings.getJSONObject(KAFKA_UPS_TOPICS);
             return getFieldValueFromJson(kafkaTopics, KAFKA_UPS_TOPICS, KAFKA_OBSERVATIONS_TOPIC, String.class);
         } catch (JSONException e) {
-            throw new VcapEnvironmentException("Cannot get kafka observation topic name", e);
+            throw new ConfigEnvironmentException("Cannot get kafka observation topic name", e);
         }
     }
 
     @Override
-    public String getKafkaHeartbeatTopicName() throws VcapEnvironmentException {
+    public String getKafkaHeartbeatTopicName() throws ConfigEnvironmentException {
         try {
             JSONObject kafkaHeartbeat = kafkaSettings.getJSONObject(KAFKA_UPS_TOPICS).getJSONObject(KAFKA_HEARTBEAT);
             return getFieldValueFromJson(kafkaHeartbeat, KAFKA_HEARTBEAT, KAFKA_HEARTBEAT_TOPIC, String.class);
         } catch (JSONException e) {
-            throw new VcapEnvironmentException("Cannot get kafka heartbeat topic name", e);
+            throw new ConfigEnvironmentException("Cannot get kafka heartbeat topic name", e);
         }
     }
 
     @Override
-    public Integer getKafkaHeartbeatInterval() throws VcapEnvironmentException {
+    public Integer getKafkaHeartbeatInterval() throws ConfigEnvironmentException {
         try {
             JSONObject kafkaHeartbeat = kafkaSettings.getJSONObject(KAFKA_UPS_TOPICS).getJSONObject(KAFKA_HEARTBEAT);
             return getFieldValueFromJson(kafkaHeartbeat, KAFKA_HEARTBEAT, KAFKA_HEARTBEAT_INTERVAL, Integer.class);
         } catch (JSONException e) {
-            throw new VcapEnvironmentException("Cannot get kafka heartbeat interval", e);
+            throw new ConfigEnvironmentException("Cannot get kafka heartbeat interval", e);
         }
     }
 
     @Override
-    public Integer getKafkaPartitionsFactor() throws VcapEnvironmentException {
+    public Integer getKafkaPartitionsFactor() throws ConfigEnvironmentException {
         return getFieldValueFromJson(kafkaSettings, KAFKA_UPS_NAME, KAFKA_UPS_PARTITIONS, Integer.class);
     }
 
     @Override
-    public Integer getKafkaReplicationFactor() throws VcapEnvironmentException {
+    public Integer getKafkaReplicationFactor() throws ConfigEnvironmentException {
         return getFieldValueFromJson(kafkaSettings, KAFKA_UPS_NAME, KAFKA_UPS_REPLICATION, Integer.class);
     }
 
     @Override
-    public Integer getKafkaTimeoutInMs() throws VcapEnvironmentException {
+    public Integer getKafkaTimeoutInMs() throws ConfigEnvironmentException {
         return getFieldValueFromJson(kafkaSettings, KAFKA_UPS_NAME, KAFKA_UPS_TIMEOUT_MS, Integer.class);
     }
 
     @Override
-    public KerberosProperties getKerberosCredentials() throws VcapEnvironmentException {
+    public KerberosProperties getKerberosCredentials() throws ConfigEnvironmentException {
         KerberosProperties kerberosProperties = null;
         if (kerberosCredentials != null) {
             kerberosProperties = new KerberosProperties();
@@ -163,7 +163,7 @@ public class ServiceConfig implements ServiceConfigProvider {
 
     @SuppressWarnings("unchecked")
     private <T> T getFieldValueFromJson(JSONObject jsonObj, String type, String field, Class<T> tClass)
-            throws VcapEnvironmentException {
+            throws ConfigEnvironmentException {
         if (jsonObj != null) {
             try {
                 if (tClass.equals(String.class)) {
@@ -176,10 +176,10 @@ public class ServiceConfig implements ServiceConfigProvider {
                     return null;
                 }
             } catch (JSONException e) {
-                throw new VcapEnvironmentException("Unable to parse json config from VCAP env - " + type, e);
+                throw new ConfigEnvironmentException("Unable to parse json config from VCAP env - " + type, e);
             }
         } else {
-            throw new VcapEnvironmentException("Unable to find json config in VCAP env - " + type);
+            throw new ConfigEnvironmentException("Unable to find json config in VCAP env - " + type);
         }
     }
 }

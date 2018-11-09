@@ -17,7 +17,7 @@
 package com.oisp.databackend.config.cloudfoundry;
 
 import com.oisp.databackend.config.cloudfoundry.utils.VcapReader;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
@@ -38,7 +38,7 @@ public class ServiceConfigTest {
     private ServiceConfig serviceConfig;
 
     @Test
-    public void Invoke_getUserProvidedServiceCredentialsByName() throws VcapEnvironmentException, JSONException {
+    public void Invoke_getUserProvidedServiceCredentialsByName() throws ConfigEnvironmentException, JSONException {
         String topic = "metrics";
 
         Mockito.when(vcapReaderServices.getUserProvidedServiceCredentialsByName(ServiceConfig.KAFKA_UPS_NAME))
@@ -48,7 +48,7 @@ public class ServiceConfigTest {
     }
 
     @Test
-    public void Invoke_getKafkaUri() throws VcapEnvironmentException, JSONException {
+    public void Invoke_getKafkaUri() throws ConfigEnvironmentException, JSONException {
         String uri = "localhost";
 
         Mockito.when(vcapReaderServices.getVcapServiceCredentialsByType(ServiceConfig.KAFKA_SERVICE_NAME))
@@ -58,7 +58,7 @@ public class ServiceConfigTest {
     }
 
     @Test
-    public void Invoke_getZookeeperUri() throws VcapEnvironmentException, JSONException {
+    public void Invoke_getZookeeperUri() throws ConfigEnvironmentException, JSONException {
         String uriLocal = "localhost";
 
         Mockito.when(vcapReaderServices.getVcapServiceByType(ServiceConfig.ZOOKEEPER_BROKER_NAME))
@@ -74,16 +74,16 @@ public class ServiceConfigTest {
         Assert.assertEquals(serviceConfig.getZookeeperUri(), uriLocal + "/kafka");
     }
 
-    @Test(expected = VcapEnvironmentException.class)
-    public void Throws_error_when_response_is_empty() throws VcapEnvironmentException, JSONException {
+    @Test(expected = ConfigEnvironmentException.class)
+    public void Throws_error_when_response_is_empty() throws ConfigEnvironmentException, JSONException {
         Mockito.when(vcapReaderServices.getVcapServiceCredentialsByType(ServiceConfig.KAFKA_SERVICE_NAME))
                 .thenReturn(null);
         serviceConfig.init();
         serviceConfig.getKafkaUri();
     }
 
-    @Test(expected = VcapEnvironmentException.class)
-    public void Throws_error_when_response_not_contain_key() throws VcapEnvironmentException, JSONException {
+    @Test(expected = ConfigEnvironmentException.class)
+    public void Throws_error_when_response_not_contain_key() throws ConfigEnvironmentException, JSONException {
         Mockito.when(vcapReaderServices.getVcapServiceCredentialsByType(ServiceConfig.KAFKA_SERVICE_NAME))
                 .thenReturn(new JSONObject("{" + ServiceConfig.KAFKA_UPS_TOPICS + ": " + "{" + ServiceConfig.KAFKA_OBSERVATIONS_TOPIC + ": test} }"));;
         serviceConfig.init();

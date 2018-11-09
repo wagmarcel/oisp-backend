@@ -2,7 +2,7 @@ package com.oisp.databackend.handlers;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import com.oisp.databackend.config.ServiceConfigProvider;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
@@ -57,7 +57,7 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
         try {
             Integer period = serviceConfigProvider.getKafkaHeartbeatInterval();
             s.scheduleAtFixedRate(this, period);
-        } catch (VcapEnvironmentException e) {
+        } catch (ConfigEnvironmentException e) {
             logger.error("Kafka configuration is not available.", e);
         }
 
@@ -93,7 +93,7 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
                 } else {
                     logger.info("Topic: {} exist and will be use for pushing messages", topic);
                 }
-            } catch (ZkException | VcapEnvironmentException e) {
+            } catch (ZkException | ConfigEnvironmentException e) {
                 logger.error("error during topic creation! Topic: {}, Broker URI: {}. KafkaSenderService will be unavailable!",
                         topic, brokerURI, e);
                 kafkaProducer = null;

@@ -17,28 +17,28 @@
 package com.oisp.databackend.config;
 
 import com.oisp.databackend.tsdb.hbase.KerberosProperties;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 
 public interface ServiceConfigProvider {
 
-    String getKafkaUri() throws VcapEnvironmentException;
+    String getKafkaUri() throws ConfigEnvironmentException;
 
-    String getZookeeperUri() throws VcapEnvironmentException;
+    String getZookeeperUri() throws ConfigEnvironmentException;
 
-    Boolean isKafkaEnabled() throws VcapEnvironmentException;
+    Boolean isKafkaEnabled() throws ConfigEnvironmentException;
 
-    String getKafkaObservationsTopicName() throws VcapEnvironmentException;
+    String getKafkaObservationsTopicName() throws ConfigEnvironmentException;
 
-    String getKafkaHeartbeatTopicName() throws VcapEnvironmentException;
+    String getKafkaHeartbeatTopicName() throws ConfigEnvironmentException;
 
-    Integer getKafkaHeartbeatInterval() throws VcapEnvironmentException;
+    Integer getKafkaHeartbeatInterval() throws ConfigEnvironmentException;
 
-    Integer getKafkaPartitionsFactor() throws VcapEnvironmentException;
+    Integer getKafkaPartitionsFactor() throws ConfigEnvironmentException;
 
-    Integer getKafkaReplicationFactor() throws VcapEnvironmentException;
+    Integer getKafkaReplicationFactor() throws ConfigEnvironmentException;
 
-    Integer getKafkaTimeoutInMs() throws VcapEnvironmentException;
+    Integer getKafkaTimeoutInMs() throws ConfigEnvironmentException;
 
-    KerberosProperties getKerberosCredentials() throws VcapEnvironmentException;
+    KerberosProperties getKerberosCredentials() throws ConfigEnvironmentException;
 
 }

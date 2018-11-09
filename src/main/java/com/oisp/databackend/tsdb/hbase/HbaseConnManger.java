@@ -1,7 +1,7 @@
 package com.oisp.databackend.tsdb.hbase;
 
 import com.oisp.databackend.config.ServiceConfigProvider;
-import com.oisp.databackend.exceptions.VcapEnvironmentException;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -61,7 +61,7 @@ class HbaseConnManger {
             } else {
                 return ConnectionFactory.createConnection(hbaseConfiguration);
             }
-        } catch (VcapEnvironmentException e) {
+        } catch (ConfigEnvironmentException e) {
             throw new IOException(e);
         }
 
