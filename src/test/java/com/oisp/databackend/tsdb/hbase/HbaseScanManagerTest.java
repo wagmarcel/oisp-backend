@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.oisp.tsdb.hbase;
+package com.oisp.databackend.tsdb.hbase;
 
-import com.oisp.databackend.tsdb.hbase.Columns;
-import com.oisp.databackend.tsdb.hbase.HbaseScanManager;
 import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.apache.hadoop.hbase.filter.PageFilter;
 import org.junit.Before;

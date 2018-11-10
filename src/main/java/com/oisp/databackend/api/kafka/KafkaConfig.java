@@ -46,7 +46,7 @@ public class KafkaConfig {
     public KafkaProducer<String, List<Observation>> kafkaProducer() throws ConfigEnvironmentException {
 
         Map<String, Object> producerConfig = new HashMap<>();
-        producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, oispConfig.getBackendConfig().getKafkaConfig().getUri());
+       // producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, oispConfig.getBackendConfig().getKafkaConfig().getUri());
         return new KafkaProducer<>(producerConfig, keySerializer, valueSerializer);
     }
 

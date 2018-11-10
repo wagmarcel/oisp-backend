@@ -56,7 +56,7 @@ public class OispConfig {
         }
 
 
-        Class classDef = null;
+        Class<?> classDef = null;
         try {
             classDef = Class.forName(varClass.get(var));
             //myObj = classDef.newInstance();
