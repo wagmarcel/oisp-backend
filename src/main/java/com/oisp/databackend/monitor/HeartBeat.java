@@ -1,8 +1,7 @@
-package com.oisp.databackend.handlers;
+package com.oisp.databackend.monitor;
 
 import com.oisp.databackend.config.oisp.OispConfig;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
@@ -26,7 +25,7 @@ import java.util.Properties;
 @Component
 public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Runnable { 
 
-    private static final Logger logger = LoggerFactory.getLogger(Data.class);
+    private static final Logger logger = LoggerFactory.getLogger(HeartBeat.class);
 
     private KafkaProducer<String, String> kafkaProducer;
 

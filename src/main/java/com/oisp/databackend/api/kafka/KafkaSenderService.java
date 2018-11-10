@@ -17,7 +17,6 @@ package com.oisp.databackend.api.kafka;
 
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
-import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.admin.RackAwareMode.Safe$;

@@ -1,8 +1,8 @@
 package com.oisp.databackend.config.oisp;
 
 public class ZookeeperConfig {
-    String zkCluster;
-    String zkNode;
+    private String zkCluster;
+    private String zkNode;
 
     public void setZkCluster(String zkCluster) {
         this.zkCluster = zkCluster;

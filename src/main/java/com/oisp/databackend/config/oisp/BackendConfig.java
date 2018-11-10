@@ -2,7 +2,6 @@ package com.oisp.databackend.config.oisp;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BackendConfig {
 
@@ -25,6 +24,10 @@ public class BackendConfig {
 
     public ZookeeperConfig getZookeeperConfig() {
         return zookeeperConfig;
+    }
+
+    public KerberosConfig getKerberosConfig() {
+        return kerberosConfig;
     }
 
     public void setTsdbName(String tsdbName) {

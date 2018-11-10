@@ -1,10 +1,10 @@
 package com.oisp.databackend.config.oisp;
 
 public class KerberosConfig {
-    String kdc;
-    String kpassword;
-    String krealm;
-    String kuser;
+    private String kdc;
+    private String kpassword;
+    private String krealm;
+    private String kuser;
 
     public String getKdc() {
         return kdc;
