@@ -7,9 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class BackendConfig {
 
     private String tsdbName;
-    private String kafkaConfigLink;
-    private String zookeeperConfigLink;
-    private String kerberosConfigLink;
 
     @JsonIgnore
     private KafkaConfig kafkaConfig;
@@ -30,18 +27,6 @@ public class BackendConfig {
         return zookeeperConfig;
     }
 
-    public String getKafkaConfigLink() {
-        return kafkaConfigLink;
-    }
-
-    public String getKerberosConfigLink() {
-        return kerberosConfigLink;
-    }
-
-    public String getZookeeperConfigLink() {
-        return zookeeperConfigLink;
-    }
-
     public void setTsdbName(String tsdbName) {
         this.tsdbName = tsdbName;
     }
@@ -58,15 +43,4 @@ public class BackendConfig {
         this.kerberosConfig = kerberosConfig;
     }
 
-    public void setKafkaConfigLink(String kafkaConfigLink) {
-        this.kafkaConfigLink = kafkaConfigLink;
-    }
-
-    public void setKerberosConfigLink(String kerberosConfigLink) {
-        this.kerberosConfigLink = kerberosConfigLink;
-    }
-
-    public void setZookeeperConfigLink(String zookeeperConfigLink) {
-        this.zookeeperConfigLink = zookeeperConfigLink;
-    }
 }

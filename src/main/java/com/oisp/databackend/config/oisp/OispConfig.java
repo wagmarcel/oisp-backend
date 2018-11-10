@@ -82,8 +82,7 @@ public class OispConfig {
             if (node.isTextual() && node.asText().startsWith("@@")) {
                 Object linkObject = getObjectFromVar(node.asText().split("@@")[1]);
                 try {
-                    String fieldName = key.split("Link")[0];
-                    String methodName = "set" + fieldName.substring(0,1).toUpperCase() + fieldName.substring(1);
+                    String methodName = "set" + key.substring(0,1).toUpperCase() + key.substring(1);
                     Method method = classDef.getMethod(methodName, linkObject.getClass());
                     method.invoke(myObj, linkObject);
                 } catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
