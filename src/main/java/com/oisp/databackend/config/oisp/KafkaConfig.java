@@ -1,4 +1,4 @@
-package com.oisp.databackend.config.simple;
+package com.oisp.databackend.config.oisp;
 
 public class KafkaConfig {
     private String uri;

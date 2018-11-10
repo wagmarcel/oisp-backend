@@ -1,7 +1,7 @@
 package com.oisp.databackend.handlers;
 
+import com.oisp.databackend.config.oisp.OispConfig;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import com.oisp.databackend.config.ServiceConfigProvider;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import kafka.admin.AdminUtils;
@@ -33,7 +33,7 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
     private String topic;    
 
     @Autowired
-    private ServiceConfigProvider serviceConfigProvider;
+    private OispConfig oispConfig;
 
 
     @Autowired
@@ -54,12 +54,8 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
  
         logger.info("================= Ready2");
 
-        try {
-            Integer period = serviceConfigProvider.getKafkaHeartbeatInterval();
-            s.scheduleAtFixedRate(this, period);
-        } catch (ConfigEnvironmentException e) {
-            logger.error("Kafka configuration is not available.", e);
-        }
+        Integer period = oispConfig.getBackendConfig().getKafkaConfig().getTopicsHeartbeatInterval();
+        s.scheduleAtFixedRate(this, period);
 
     }
  
@@ -77,11 +73,11 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
             String brokerURI = null;
             ZkUtils zkUtils = null;
             try {
-                topic = serviceConfigProvider.getKafkaHeartbeatTopicName();
-                Integer partitions = serviceConfigProvider.getKafkaPartitionsFactor();
-                Integer replicationFactor = serviceConfigProvider.getKafkaReplicationFactor();
-                Integer timeoutInMs = serviceConfigProvider.getKafkaTimeoutInMs();
-                brokerURI = serviceConfigProvider.getZookeeperUri();
+                topic = oispConfig.getBackendConfig().getKafkaConfig().getTopicsHeartbeatName();
+                Integer partitions = oispConfig.getBackendConfig().getKafkaConfig().getPartitions();
+                Integer replicationFactor = oispConfig.getBackendConfig().getKafkaConfig().getReplication();
+                Integer timeoutInMs = oispConfig.getBackendConfig().getKafkaConfig().getTimeoutMs();
+                brokerURI = oispConfig.getBackendConfig().getZookeeperConfig().getZkCluster();
                 zkClient = new ZkClient(brokerURI, timeoutInMs, timeoutInMs, ZKStringSerializer$.MODULE$);
                 boolean isSecureKafkaCluster = false;
                 zkUtils = new ZkUtils(zkClient, new ZkConnection(brokerURI), isSecureKafkaCluster);
@@ -93,7 +89,7 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
                 } else {
                     logger.info("Topic: {} exist and will be use for pushing messages", topic);
                 }
-            } catch (ZkException | ConfigEnvironmentException e) {
+            } catch (ZkException e) {
                 logger.error("error during topic creation! Topic: {}, Broker URI: {}. KafkaSenderService will be unavailable!",
                         topic, brokerURI, e);
                 kafkaProducer = null;

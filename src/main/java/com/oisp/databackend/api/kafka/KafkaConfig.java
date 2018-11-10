@@ -15,7 +15,7 @@
  */
 package com.oisp.databackend.api.kafka;
 
-import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -40,7 +40,7 @@ public class KafkaConfig {
     private static final Logger logger = LoggerFactory.getLogger(KafkaConfig.class);
 
     @Autowired
-    private ServiceConfigProvider serviceConfigProvider;
+    private OispConfig oispConfig;
 
     private final Serializer<String> keySerializer = new StringSerializer();
 
@@ -48,34 +48,21 @@ public class KafkaConfig {
 
     @Bean
     public KafkaProducer<String, List<Observation>> kafkaProducer() throws ConfigEnvironmentException {
-        try {
-            if (serviceConfigProvider.isKafkaEnabled()) {
-                Map<String, Object> producerConfig = new HashMap<>();
-                producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serviceConfigProvider.getKafkaUri());
-                return new KafkaProducer<>(producerConfig, keySerializer, valueSerializer);
-            }
-        } catch (ConfigEnvironmentException e) {
-            logger.error("Kafka configuration for observations is not available.", e);
-        }
-        logger.info("Kafka is not available. No data will be ingested into Kafka broker.");
-        return null;
+
+        Map<String, Object> producerConfig = new HashMap<>();
+        producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, oispConfig.getBackendConfig().getKafkaConfig().getUri());
+        return new KafkaProducer<>(producerConfig, keySerializer, valueSerializer);
     }
 
     @Bean
     public KafkaProducer<String, String> kafkaHearbeatProducer() throws ConfigEnvironmentException {
-        try {
-            if (serviceConfigProvider.isKafkaEnabled()) {
-                Properties props = new Properties();
-                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serviceConfigProvider.getKafkaUri());
-                props.put(ProducerConfig.ACKS_CONFIG, "all");
-                props.put(ProducerConfig.RETRIES_CONFIG, 0);
-                props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-                props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-                return new KafkaProducer<String, String>(props);
-            }
-        } catch (ConfigEnvironmentException e) {
-            logger.error("Kafka configuration for hearbeat is not available.", e);
-        }
-        return null;
+
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, oispConfig.getBackendConfig().getKafkaConfig().getUri());
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.RETRIES_CONFIG, 0);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        return new KafkaProducer<String, String>(props);
     }
 }

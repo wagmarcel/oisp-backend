@@ -16,7 +16,7 @@
 
 package com.oisp.databackend.api.kafka;
 
-import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import kafka.admin.AdminUtils;
@@ -51,7 +51,7 @@ public class KafkaSenderServiceTest {
     ZkUtils zkUtils;
 
     @Mock
-    private ServiceConfigProvider serviceConfigProvider;
+    private OispConfig serviceConfigProvider;
 
     @Mock
     private KafkaProducer<String, Observation> kafkaProducer;
@@ -69,11 +69,11 @@ public class KafkaSenderServiceTest {
         PowerMockito.mockStatic(AdminUtils.class);
         Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenReturn(true);
 
-        Mockito.when(serviceConfigProvider.getKafkaObservationsTopicName()).thenReturn(TOPIC);
-        Mockito.when(serviceConfigProvider.getKafkaPartitionsFactor()).thenReturn(1);
-        Mockito.when(serviceConfigProvider.getKafkaReplicationFactor()).thenReturn(1);
-        Mockito.when(serviceConfigProvider.getKafkaTimeoutInMs()).thenReturn(10);
-        Mockito.when(serviceConfigProvider.getZookeeperUri()).thenReturn("localhost");
+        Mockito.when(serviceConfigProvider.getKafkaConfig().getTopicsObservations()).thenReturn(TOPIC);
+        Mockito.when(serviceConfigProvider.getKafkaConfig().getPartitions()).thenReturn(1);
+        Mockito.when(serviceConfigProvider.getKafkaConfig().getReplication()).thenReturn(1);
+        Mockito.when(serviceConfigProvider.getKafkaConfig().getTimeoutMs()).thenReturn(10);
+        Mockito.when(serviceConfigProvider.getZookeeperConfig().getZkCluster()).thenReturn("localhost");
     }
 
     @After

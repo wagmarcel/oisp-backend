@@ -17,6 +17,7 @@
 package com.oisp.databackend.api.kafka;
 
 import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.junit.Before;
@@ -37,7 +38,7 @@ import java.util.List;
 public class KafkaConfigTest {
 
     @Mock
-    private ServiceConfigProvider serviceConfigProvider;
+    private OispConfig oispConfig;
 
     @Mock
     private KafkaProducer<String, List<Observation>> kafkaProducer;
@@ -53,8 +54,7 @@ public class KafkaConfigTest {
 
     @Test
     public void testKafkaProducer_isEnabled() throws Exception {
-        Mockito.when(serviceConfigProvider.isKafkaEnabled()).thenReturn(true);
-        Mockito.when(serviceConfigProvider.getKafkaUri()).thenReturn("localhost");
+        Mockito.when(oispConfig.getKafkaConfig().getUri()).thenReturn("localhost");
         PowerMockito.whenNew(KafkaProducer.class).withAnyArguments().thenReturn(kafkaProducer);
 
         KafkaProducer<String, List<Observation>> kf = kafkaConfig.kafkaProducer();
@@ -63,7 +63,6 @@ public class KafkaConfigTest {
 
     @Test
     public void testKafkaProducer_isDisabled() throws Exception {
-        Mockito.when(serviceConfigProvider.isKafkaEnabled()).thenReturn(false);
         KafkaProducer<String, List<Observation>> kf = kafkaConfig.kafkaProducer();
         assert kf == null;
     }
