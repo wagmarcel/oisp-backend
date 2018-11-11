@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class BackendConfig {
 
     private String tsdbName;
+    private String hbaseTablePrefix;
 
     @JsonIgnore
     private KafkaConfig kafkaConfig;
@@ -13,6 +14,8 @@ public class BackendConfig {
     private ZookeeperConfig zookeeperConfig;
     @JsonIgnore
     private KerberosConfig kerberosConfig;
+    @JsonIgnore
+    private HBaseConfig hbaseConfig;
 
     public String getTsdbName() {
         return tsdbName;
@@ -46,4 +49,19 @@ public class BackendConfig {
         this.kerberosConfig = kerberosConfig;
     }
 
+    public String getHbaseTablePrefix() {
+        return hbaseTablePrefix;
+    }
+
+    public void setHbaseTablePrefix(String hbaseTablePrefix) {
+        this.hbaseTablePrefix = hbaseTablePrefix;
+    }
+
+    public HBaseConfig getHbaseConfig() {
+        return hbaseConfig;
+    }
+
+    public void setHbaseConfig(HBaseConfig hbaseConfig) {
+        this.hbaseConfig = hbaseConfig;
+    }
 }

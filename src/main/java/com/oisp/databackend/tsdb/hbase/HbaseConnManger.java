@@ -1,6 +1,8 @@
 package com.oisp.databackend.tsdb.hbase;
 
 import com.oisp.databackend.config.ServiceConfigProvider;
+import com.oisp.databackend.config.oisp.KerberosConfig;
+import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
@@ -18,6 +20,9 @@ import org.trustedanalytics.hadoop.kerberos.KrbLoginManagerFactory;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Copyright (c) 2015 Intel Corporation
@@ -42,33 +47,40 @@ class HbaseConnManger {
     public static final String KERBEROS_AUTHENTICATION = "kerberos";
 
     @Autowired
-    private ServiceConfigProvider serviceConfigProvider;
+    private OispConfig oispConfig;
 
     public Connection create() throws IOException, LoginException {
-        Configuration hbaseConfiguration = Configurations.newInstanceFromEnv().getServiceConfig(ServiceType.HBASE_TYPE).asHadoopConfiguration();
-        try {
-            KerberosProperties kerberosProperties = serviceConfigProvider.getKerberosCredentials();
-            if (isKerberosEnabled(hbaseConfiguration)) {
+        Properties props = oispConfig.getBackendConfig().getHbaseConfig().getHadoopProperties();
+        Configuration hbaseConfiguration =  convertPropertiesToConfiguration(props);
+        KerberosConfig kerberosProperties = oispConfig.getBackendConfig().getKerberosConfig();
+        if (isKerberosEnabled(hbaseConfiguration)) {
 
 
-                KrbLoginManager loginManager = KrbLoginManagerFactory.getInstance()
-                        .getKrbLoginManagerInstance(kerberosProperties.getKdc(), kerberosProperties.getRealm());
-                Subject subject = loginManager.loginWithCredentials(kerberosProperties.getUser(),
-                        kerberosProperties.getPassword().toCharArray());
-                loginManager.loginInHadoop(subject, hbaseConfiguration);
+            KrbLoginManager loginManager = KrbLoginManagerFactory.getInstance()
+                    .getKrbLoginManagerInstance(kerberosProperties.getKdc(), kerberosProperties.getKrealm());
+            Subject subject = loginManager.loginWithCredentials(kerberosProperties.getKuser(),
+                    kerberosProperties.getKpassword().toCharArray());
+            loginManager.loginInHadoop(subject, hbaseConfiguration);
 
-                return ConnectionFactory.createConnection(hbaseConfiguration, getUserFromSubject(hbaseConfiguration, subject));
-            } else {
-                return ConnectionFactory.createConnection(hbaseConfiguration);
-            }
-        } catch (ConfigEnvironmentException e) {
-            throw new IOException(e);
+            return ConnectionFactory.createConnection(hbaseConfiguration, getUserFromSubject(hbaseConfiguration, subject));
+        } else {
+            return ConnectionFactory.createConnection(hbaseConfiguration);
         }
+
 
     }
 
     private static boolean isKerberosEnabled(Configuration configuration) {
         return KERBEROS_AUTHENTICATION.equals(configuration.get(AUTHENTICATION_METHOD));
+    }
+
+    private Configuration convertPropertiesToConfiguration(Properties props){
+
+        Configuration conf = new Configuration();
+        for ( Map.Entry<Object, Object> entry: (Set<Map.Entry<Object, Object>>) props.entrySet() ){
+            conf.set((String) entry.getKey(), (String) entry.getValue());
+        }
+        return conf;
     }
 
     private User getUserFromSubject(Configuration configuration, Subject subject) throws IOException {
