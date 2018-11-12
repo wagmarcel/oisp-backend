@@ -24,13 +24,15 @@ public class OispConfig {
     private static final String OISP_KERBEROS_CONFIG = "OISP_KERBEROS_CONFIG";
     private static final String OISP_HBASE_CONFIG = "OISP_HBASE_CONFIG";
     private static final String OISP_LINK_PREFIX = "@@";
+    private static final String OISP_PROPERTY_PREFIX = "%%";
+    private static final String SET = "set";
 
     private static final Map<String, String> varClass =
             ImmutableMap.of(OISP_BACKEND_CONFIG, "com.oisp.databackend.config.oisp.BackendConfig",
-                            OISP_KAFKA_CONFIG, "com.oisp.databackend.config.oisp.KafkaConfig",
-                            OISP_ZOOKEEPER_CONFIG, "com.oisp.databackend.config.oisp.ZookeeperConfig",
-                            OISP_KERBEROS_CONFIG, "com.oisp.databackend.config.oisp.KerberosConfig",
-                            OISP_HBASE_CONFIG, "com.oisp.databackend.config.oisp.HBaseConfig");
+                    OISP_KAFKA_CONFIG, "com.oisp.databackend.config.oisp.KafkaConfig",
+                    OISP_ZOOKEEPER_CONFIG, "com.oisp.databackend.config.oisp.ZookeeperConfig",
+                    OISP_KERBEROS_CONFIG, "com.oisp.databackend.config.oisp.KerberosConfig",
+                    OISP_HBASE_CONFIG, "com.oisp.databackend.config.oisp.HBaseConfig");
 
     private BackendConfig backendConfig;
     private Map<String, Object> foundVars;
@@ -54,12 +56,10 @@ public class OispConfig {
             return foundVars.get(var);
         }
 
-
         String rawConfig = System.getenv(var);
         if (rawConfig == null) {
             throw new ConfigEnvironmentException("Could not find environment variable " + var);
         }
-
 
         Class<?> classDef = null;
         try {
@@ -79,34 +79,37 @@ public class OispConfig {
             throw new ConfigEnvironmentException("Could not parse content of " + var + ", =>" + rawConfig, e);
         }
 
-        //search all Env Variabe links, i.e. starting with @@
-        for (Iterator<String> it = jsonNode.fieldNames(); it.hasNext(); ) {
+        //search all Env Variabe links and Hashes, i.e. starting with @@ or %%
+        insertLinkObjectOrHash(myObj, jsonNode, classDef);
+
+        foundVars.put(var, myObj);
+        return myObj;
+    }
+
+    void insertLinkObjectOrHash(Object myObj, JsonNode jsonNode, Class<?> classDef) throws ConfigEnvironmentException {
+        for (Iterator<String> it = jsonNode.fieldNames(); it.hasNext();) {
             String key = it.next();
             JsonNode node = jsonNode.get(key);
             if (node.isTextual() && node.asText().startsWith(OISP_LINK_PREFIX)) {
                 Object linkObject = getObjectFromVar(node.asText().split(OISP_LINK_PREFIX)[1]);
                 try {
-                    String methodName = "set" + key.substring(0, 1).toUpperCase() + key.substring(1);
+                    String methodName = SET + key.substring(0, 1).toUpperCase() + key.substring(1);
                     Method method = classDef.getMethod(methodName, linkObject.getClass());
                     method.invoke(myObj, linkObject);
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     throw new ConfigEnvironmentException("Could not instantiate linked object " + node.asText(), e);
                 }
-            } else if (node.isTextual() && node.asText().startsWith("%%")) {
-                Properties property = getPropertyMap(node.asText().split("%%")[1]);
+            } else if (node.isTextual() && node.asText().startsWith(OISP_PROPERTY_PREFIX)) {
+                Properties property = getPropertyMap(node.asText().split(OISP_PROPERTY_PREFIX)[1]);
                 try {
-                    String methodName = "set" + key.substring(0, 1).toUpperCase() + key.substring(1);
+                    String methodName = SET + key.substring(0, 1).toUpperCase() + key.substring(1);
                     Method method = classDef.getMethod(methodName, property.getClass());
                     method.invoke(myObj, property);
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     throw new ConfigEnvironmentException("Could not instantiate property map " + node.asText(), e);
                 }
-
-             }
+            }
         }
-
-        foundVars.put(var, myObj);
-        return myObj;
     }
 
     Properties getPropertyMap(String var) throws ConfigEnvironmentException {
@@ -117,7 +120,7 @@ public class OispConfig {
 
         String rawConfig = System.getenv(var);
         if (rawConfig == null) {
-            throw new ConfigEnvironmentException("Could not find environment variable " + var);
+            throw new ConfigEnvironmentException("Could not find environment variable for property " + var);
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -125,7 +128,7 @@ public class OispConfig {
         try {
             jsonNode = objectMapper.readTree(rawConfig);
         } catch (IOException e) {
-            throw new ConfigEnvironmentException("Could not parse content of " + var + ", =>" + rawConfig, e);
+            throw new ConfigEnvironmentException("Could not parse content of property " + var + ">" + rawConfig, e);
         }
 
         //Loop through all fields and create property map

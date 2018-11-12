@@ -1,9 +1,7 @@
 package com.oisp.databackend.tsdb.hbase;
 
-import com.oisp.databackend.config.ServiceConfigProvider;
 import com.oisp.databackend.config.oisp.KerberosConfig;
 import com.oisp.databackend.config.oisp.OispConfig;
-import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -12,8 +10,6 @@ import org.apache.hadoop.hbase.security.UserProvider;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.trustedanalytics.hadoop.config.client.Configurations;
-import org.trustedanalytics.hadoop.config.client.ServiceType;
 import org.trustedanalytics.hadoop.kerberos.KrbLoginManager;
 import org.trustedanalytics.hadoop.kerberos.KrbLoginManagerFactory;
 
@@ -54,8 +50,6 @@ class HbaseConnManger {
         Configuration hbaseConfiguration =  convertPropertiesToConfiguration(props);
         KerberosConfig kerberosProperties = oispConfig.getBackendConfig().getKerberosConfig();
         if (isKerberosEnabled(hbaseConfiguration)) {
-
-
             KrbLoginManager loginManager = KrbLoginManagerFactory.getInstance()
                     .getKrbLoginManagerInstance(kerberosProperties.getKdc(), kerberosProperties.getKrealm());
             Subject subject = loginManager.loginWithCredentials(kerberosProperties.getKuser(),
@@ -74,10 +68,10 @@ class HbaseConnManger {
         return KERBEROS_AUTHENTICATION.equals(configuration.get(AUTHENTICATION_METHOD));
     }
 
-    private Configuration convertPropertiesToConfiguration(Properties props){
+    private Configuration convertPropertiesToConfiguration(Properties props) {
 
         Configuration conf = new Configuration();
-        for ( Map.Entry<Object, Object> entry: (Set<Map.Entry<Object, Object>>) props.entrySet() ){
+        for (Map.Entry<Object, Object> entry: (Set<Map.Entry<Object, Object>>) props.entrySet()) {
             conf.set((String) entry.getKey(), (String) entry.getValue());
         }
         return conf;
