@@ -16,7 +16,6 @@
 
 package com.oisp.databackend.api.kafka;
 
-import com.oisp.databackend.config.ServiceConfigProvider;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -25,9 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
