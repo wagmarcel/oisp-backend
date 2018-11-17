@@ -16,6 +16,7 @@ import java.util.*;
 @Service
 public class OispConfig {
     public static final String OISP_BACKEND_TSDB_NAME_DUMMY = "dummy";
+    public static final String OISP_BACKEND_TSDB_NAME_HBASE = "hbase";
     public static final String OISP_HBASE_TABLE_PREFIX = "oisp";
 
     private static final String OISP_BACKEND_CONFIG = "OISP_BACKEND_CONFIG";
@@ -37,7 +38,6 @@ public class OispConfig {
     private BackendConfig backendConfig;
     private Map<String, Object> foundVars;
     private Map<String, Object> foundMaps;
-
 
     @PostConstruct
     public void init() throws ConfigEnvironmentException {

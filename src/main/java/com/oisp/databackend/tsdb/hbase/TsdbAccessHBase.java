@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.tsdb.hbase;
 
+import com.oisp.databackend.config.oisp.TsdbHBaseCondition;
 import com.oisp.databackend.tsdb.TsdbObject;
 import com.oisp.databackend.tsdb.TsdbAccess;
 import org.apache.hadoop.hbase.Cell;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
@@ -39,8 +41,8 @@ import java.util.*;
 
 @Primary
 @Repository
+@Conditional(TsdbHBaseCondition.class)
 public class TsdbAccessHBase implements TsdbAccess {
-
     private static final Logger logger = LoggerFactory.getLogger(TsdbAccessHBase.class);
     private final String tableName;
     private final byte[] tableNameBytes;

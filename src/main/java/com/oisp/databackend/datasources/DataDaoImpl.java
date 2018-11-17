@@ -19,14 +19,14 @@ package com.oisp.databackend.datasources;
 
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.tsdb.TsdbAccess;
 import com.oisp.databackend.tsdb.TsdbObject;
 import com.oisp.databackend.tsdb.TsdbValueString;
-
-import com.oisp.databackend.tsdb.dummy.TsdbAccessDummy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Repository;
 
@@ -45,14 +45,19 @@ public class DataDaoImpl implements DataDao {
     private OispConfig oispConfig;
 
     @Autowired
-    public void selectDAOPlugin(TsdbAccess tsdbAccess) {
+    private ApplicationContext context;
+
+    @Autowired
+    public void selectDAOPlugin() throws ConfigEnvironmentException {
         String tsdbName = oispConfig.getBackendConfig().getTsdbName();
         if (oispConfig.OISP_BACKEND_TSDB_NAME_DUMMY.equals(tsdbName)) {
             logger.info("TSDB backend: dummy");
-            this.tsdbAccess = new TsdbAccessDummy();
-        } else {
+            this.tsdbAccess = (TsdbAccess) context.getBean("tsdbAccessDummy");
+        } else if (oispConfig.OISP_BACKEND_TSDB_NAME_HBASE.equals(tsdbName)) {
             logger.info("TSDB backend: hbase");
-            this.tsdbAccess = tsdbAccess;
+            this.tsdbAccess = (TsdbAccess) context.getBean("tsdbAccessHBase");
+        } else {
+            throw new ConfigEnvironmentException("Could not find the backend with name " + tsdbName);
         }
     }
 
