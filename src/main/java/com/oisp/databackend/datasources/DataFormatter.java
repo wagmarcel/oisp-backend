@@ -17,7 +17,7 @@
 package com.oisp.databackend.datasources;
 
 
-final class DataFormatter {
+public final class DataFormatter {
 
     private static final String GPS_X_COLUMN = "locX";
     private static final String GPS_Y_COLUMN = "locY";

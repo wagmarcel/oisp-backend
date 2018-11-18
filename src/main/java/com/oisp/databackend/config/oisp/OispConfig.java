@@ -17,7 +17,10 @@ import java.util.*;
 public class OispConfig {
     public static final String OISP_BACKEND_TSDB_NAME_DUMMY = "dummy";
     public static final String OISP_BACKEND_TSDB_NAME_HBASE = "hbase";
+    public static final String OISP_BACKEND_TSDB_NAME_OPENTSDB = "openTSDB";
     public static final String OISP_HBASE_TABLE_PREFIX = "oisp";
+    public static final String OISP_BACKEND_TSDB_URI = "uri";
+    public static final String OISP_BACKEND_TSDB_PORT = "port";
 
     private static final String OISP_BACKEND_CONFIG = "OISP_BACKEND_CONFIG";
     private static final String OISP_KAFKA_CONFIG = "OISP_KAFKA_CONFIG";

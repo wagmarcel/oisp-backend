@@ -2,7 +2,11 @@ package com.oisp.databackend.config.oisp;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Properties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BackendConfig {
 
     private String tsdbName;
@@ -16,6 +20,17 @@ public class BackendConfig {
     private KerberosConfig kerberosConfig;
     @JsonIgnore
     private HBaseConfig hbaseConfig;
+    @JsonIgnore
+    private Properties tsdbProperties;
+
+
+    public Properties getTsdbProperties() {
+        return tsdbProperties;
+    }
+
+    public void setTsdbProperties(Properties tsdbProperties) {
+        this.tsdbProperties = tsdbProperties;
+    }
 
     public String getTsdbName() {
         return tsdbName;
