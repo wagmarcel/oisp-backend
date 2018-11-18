@@ -1,5 +1,8 @@
 package com.oisp.databackend.config.oisp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class KerberosConfig {
     private String kdc;
     private String kpassword;

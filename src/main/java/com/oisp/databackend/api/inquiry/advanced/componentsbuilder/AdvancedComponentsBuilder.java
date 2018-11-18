@@ -24,9 +24,7 @@ import com.oisp.databackend.datastructures.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AdvancedComponentsBuilder {
 
@@ -45,6 +43,25 @@ public class AdvancedComponentsBuilder {
     public void appendComponentsDetails(List<DeviceData> deviceDataList, ComponentsBuilderParams parameters) {
 
         this.parameters = parameters;
+
+        // When the returnedMeasureAttributes where "*", then the backend retrieved all tags without defining them
+        // in advance. Therefore, the final list of attributes needs to be collected now
+        if (parameters.getReturnedMeasureAttributes().size() == 1
+                && "*".equals(parameters.getReturnedMeasureAttributes().get(0))) {
+            Set<String> result = new HashSet<String>();
+            for (Map.Entry<String, Observation[]> componentObservation : componentObservations.entrySet()) {
+                Observation[] observations = componentObservation.getValue();
+                result.addAll(Arrays.stream(observations)
+                        .map(observation -> observation.getAttributes().keySet())
+                        .reduce(new HashSet<String>(), (res, element) -> {
+                                res.addAll(element);
+                                return res;
+                            })
+                );
+            }
+            List<String> resultStringList = Arrays.asList(result.toArray(new String[result.size()]));
+            parameters.setReturnedMeasureAttributes(resultStringList);
+        }
 
         for (DeviceData device : deviceDataList) {
             logger.debug("Checking components for device {}", device.getDeviceId());

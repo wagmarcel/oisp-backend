@@ -1,9 +1,14 @@
 package com.oisp.databackend.tsdb;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TsdbObject {
+/**
+ * Main abstraction for TSDB objects
+ *
+ */
+public class TsdbObject implements Serializable {
     private String metric;
     private TsdbValue value;
     private long timestamp;
@@ -16,12 +21,36 @@ public class TsdbObject {
         this.attributes = attributes;
     }
 
+    public TsdbObject(String metric, TsdbValue value, long timestamp) {
+        this.metric = metric;
+        this.value  = value;
+        this.timestamp = timestamp;
+        this.attributes = new HashMap<String, String>();
+    }
+
     public TsdbObject() {
         attributes = new HashMap<String, String>();
     }
 
+    public TsdbObject(TsdbObject o) {
+        this.metric = o.getMetric();
+        this.value = o.getValue();
+        this.timestamp = o.getTimestamp();
+        this.attributes = new HashMap<String, String>();
+    }
+
     public TsdbObject withMetric(String metric) {
         this.setMetric(metric);
+        return this;
+    }
+
+    public TsdbObject withValue(TsdbValue value) {
+        this.value = value;
+        return this;
+    }
+
+    public TsdbObject withTimestamp(long timestamp) {
+        this.timestamp = timestamp;
         return this;
     }
 
