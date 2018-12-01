@@ -31,6 +31,7 @@ class TsdbObjectCreator {
     private static final Logger logger = LoggerFactory.getLogger(TsdbObjectCreator.class);
     private Result result;
     private Set<String> attributes;
+    private boolean gps;
 
     TsdbObjectCreator() {
     }
@@ -38,6 +39,11 @@ class TsdbObjectCreator {
 
     public TsdbObjectCreator withAttributes(Set<String> attributes) {
         this.attributes = attributes;
+        return this;
+    }
+
+    public TsdbObjectCreator withGps(boolean gps){
+        this.gps = gps;
         return this;
     }
 

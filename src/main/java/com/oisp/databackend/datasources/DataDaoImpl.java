@@ -79,9 +79,14 @@ public class DataDaoImpl implements DataDao {
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
 
         TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
+        if (gps) {
+            tsdbObject.setAttribute(DataFormatter.gpsValueToString(0), "");
+            tsdbObject.setAttribute(DataFormatter.gpsValueToString(1), "");
+            tsdbObject.setAttribute(DataFormatter.gpsValueToString(2), "");
+        }
         TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop);
 
-        return getObservations(tsdbObjects);
+        return getObservations(tsdbObjects, gps);
     }
 
     @Override
@@ -92,7 +97,7 @@ public class DataDaoImpl implements DataDao {
         TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
         TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop, forward, limit);
 
-        return getObservations(tsdbObjects);
+        return getObservations(tsdbObjects, gps);
     }
 
     @Override
@@ -103,11 +108,12 @@ public class DataDaoImpl implements DataDao {
         return tsdbAccess.scanForAttributeNames(tsdbObject, start, stop);
     }
 
-    private Observation[] getObservations(TsdbObject[] tsdbObjects) {
+    private Observation[] getObservations(TsdbObject[] tsdbObjects, boolean gps) {
         List<Observation> observations = new ArrayList<>();
         for (TsdbObject tsdbObject : tsdbObjects) {
             Observation observation = new ObservationCreator(tsdbObject)
                     .withAttributes(tsdbObject.getAttributes())
+                    .withGps(gps)
                     .create();
             observations.add(observation);
         }
