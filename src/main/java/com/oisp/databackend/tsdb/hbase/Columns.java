@@ -26,7 +26,7 @@ final class Columns {
     public static final String DATA_COLUMN = "measure_val";
     public static final byte[] BYTES_DATA_COLUMN = Bytes.toBytes(DATA_COLUMN);
 
-    public static final String ATTRIBUTE_COLUMN_PREFIX = "attibute:";
+    public static final String ATTRIBUTE_COLUMN_PREFIX = "attribute:";
     public static final byte[] BYTES_ATTRIBUTE_COLUMN_PREFIX = Bytes.toBytes(ATTRIBUTE_COLUMN_PREFIX);
 
     public static final short GPS_COLUMN_SIZE = 3;

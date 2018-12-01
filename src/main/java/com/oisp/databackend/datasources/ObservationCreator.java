@@ -68,12 +68,14 @@ class ObservationCreator {
     }
 
     private void addAdditionalInformation() {
+
+        if (hasGps) {
+            addLocationData();
+        }
         if (attributes != null) {
             addAttributesData(attributes);
         }
-        if (hasGps != null && hasGps) {
-            addLocationData();
-        }
+
     }
 
     private void addAttributesData(Map<String, String> attributes) {
@@ -89,6 +91,7 @@ class ObservationCreator {
                 if (coordinate[i] != null) {
                     observation.getLoc().add(Double.parseDouble(coordinate[i]));
                 }
+                attributes.remove(DataFormatter.gpsValueToString(i));
             }
         } catch (NumberFormatException e) {
             logger.warn("problem with parsing GPS coords... not a Double?");
