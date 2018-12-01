@@ -150,7 +150,7 @@ public class TsdbAccessHBase implements TsdbAccess {
         logger.debug("Scanning HBase: row: {} start: {} stop: {}", tsdbObject.getMetric(), start, stop);
         Set<String> attributesSet = tsdbObject.getAttributes().keySet();
         Scan scan = new HbaseScanManager(tsdbObject.getMetric()).create(start, stop).askForData(attributesSet).getScan();
-        return getObservations(scan);
+        return getObservations(scan, attributesSet);
     }
 
 
@@ -158,6 +158,7 @@ public class TsdbAccessHBase implements TsdbAccess {
         logger.debug("Scanning HBase: row {} start: {} stop: {} with limit: {}",
                 tsdbObject.getMetric(), start, stop, limit);
         HbaseScanManager scanManager = new HbaseScanManager(tsdbObject.getMetric());
+        Set<String> attributesSet = tsdbObject.getAttributes().keySet();
         if (forward) {
             scanManager.create(start, stop);
         } else {
@@ -169,15 +170,15 @@ public class TsdbAccessHBase implements TsdbAccess {
         Scan scan = scanManager.setCaching(limit)
                 .setFilter(new PageFilter(limit))
                 .getScan();
-        return getObservations(scan);
+        return getObservations(scan, attributesSet);
     }
 
 
-    private TsdbObject[] getObservations(Scan scan) {
+    private TsdbObject[] getObservations(Scan scan,  Set<String> attributesSet) {
         try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
             List<TsdbObject> observations = new ArrayList<>();
             for (Result result : scanner) {
-                TsdbObject observation = new TsdbObjectCreator()
+                TsdbObject observation = new TsdbObjectCreator().withAttributes(attributesSet)
                         .create(result);
                 observations.add(observation);
             }

@@ -79,9 +79,19 @@ public class DataDaoImpl implements DataDao {
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
 
         TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
+        if (attributes != null) {
+            for (String attr: attributes) {
+                tsdbObject.setAttribute(attr, "");
+            }
+        }
+        if (gps) {
+            tsdbObject.setAttribute(DataFormatter.gpsValueToString(0), "");
+            tsdbObject.setAttribute(DataFormatter.gpsValueToString(1), "");
+            tsdbObject.setAttribute(DataFormatter.gpsValueToString(2), "");
+        }
         TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop);
 
-        return getObservations(tsdbObjects);
+        return getObservations(tsdbObjects, gps);
     }
 
     @Override
@@ -92,7 +102,7 @@ public class DataDaoImpl implements DataDao {
         TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
         TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop, forward, limit);
 
-        return getObservations(tsdbObjects);
+        return getObservations(tsdbObjects, gps);
     }
 
     @Override
@@ -100,14 +110,22 @@ public class DataDaoImpl implements DataDao {
 
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {}", accountId, componentId, start, stop);
         TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
-        return tsdbAccess.scanForAttributeNames(tsdbObject, start, stop);
+        String[] attributesArray = tsdbAccess.scanForAttributeNames(tsdbObject, start, stop);
+
+        //Remove locX, locY, locZ attributes as these will be processed only when requested by location flag
+        String[] filteredAttr = Arrays.stream(attributesArray).filter((String s) ->
+                !s.equals(DataFormatter.gpsValueToString(0))
+                        && !s.equals(DataFormatter.gpsValueToString(1))
+                        && !s.equals(DataFormatter.gpsValueToString(2))).toArray(String[]::new);
+        return filteredAttr;
     }
 
-    private Observation[] getObservations(TsdbObject[] tsdbObjects) {
+    private Observation[] getObservations(TsdbObject[] tsdbObjects, boolean gps) {
         List<Observation> observations = new ArrayList<>();
         for (TsdbObject tsdbObject : tsdbObjects) {
             Observation observation = new ObservationCreator(tsdbObject)
                     .withAttributes(tsdbObject.getAttributes())
+                    .withGps(gps)
                     .create();
             observations.add(observation);
         }

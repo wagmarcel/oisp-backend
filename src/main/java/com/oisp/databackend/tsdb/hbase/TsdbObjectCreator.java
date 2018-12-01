@@ -41,6 +41,7 @@ class TsdbObjectCreator {
         return this;
     }
 
+
     public TsdbObject create(Result result) {
         observation = new TsdbObject();
         this.result = result;
