@@ -19,6 +19,8 @@ package com.oisp.databackend.tsdb.hbase;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import java.util.Arrays;
+
 final class DataFormatter {
 
     private static final String GPS_X_COLUMN = "locX";
@@ -59,8 +61,8 @@ final class DataFormatter {
     }
 
     public static String getAttrNameFromCell(Cell cell) {
-        String[] parts = Bytes.toString(cell.getRowArray()).split(KEY_DELIMITER);
-        return parts[cell.getRowOffset() - 1].split(":")[1];
+        byte[] slice = Arrays.copyOfRange(cell.getRowArray(), cell.getQualifierOffset() + Columns.ATTRIBUTE_COLUMN_PREFIX.length(), cell.getQualifierOffset() + cell.getQualifierLength());
+        return new String(slice);
     }
 
     public static long fixStopForExclusiveScan(long start, long stop) {
