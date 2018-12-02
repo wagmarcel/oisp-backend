@@ -20,7 +20,6 @@ package com.oisp.databackend.datasources;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
-import com.oisp.databackend.handlers.Data;
 import com.oisp.databackend.tsdb.TsdbAccess;
 import com.oisp.databackend.tsdb.TsdbObject;
 import com.oisp.databackend.tsdb.TsdbValueString;
@@ -80,6 +79,11 @@ public class DataDaoImpl implements DataDao {
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
 
         TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
+        if (attributes != null) {
+            for (String attr: attributes) {
+                tsdbObject.setAttribute(attr, "");
+            }
+        }
         if (gps) {
             tsdbObject.setAttribute(DataFormatter.gpsValueToString(0), "");
             tsdbObject.setAttribute(DataFormatter.gpsValueToString(1), "");
@@ -110,9 +114,9 @@ public class DataDaoImpl implements DataDao {
 
         //Remove locX, locY, locZ attributes as these will be processed only when requested by location flag
         String[] filteredAttr = Arrays.stream(attributesArray).filter((String s) ->
-                (!s.equals(DataFormatter.gpsValueToString(0)) &&
-                        !s.equals(DataFormatter.gpsValueToString(1)) &&
-                !s.equals(DataFormatter.gpsValueToString(2)))).toArray(String[]::new);
+                !s.equals(DataFormatter.gpsValueToString(0))
+                        && !s.equals(DataFormatter.gpsValueToString(1))
+                        && !s.equals(DataFormatter.gpsValueToString(2))).toArray(String[]::new);
         return filteredAttr;
     }
 

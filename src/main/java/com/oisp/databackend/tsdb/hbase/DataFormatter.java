@@ -17,7 +17,6 @@
 package com.oisp.databackend.tsdb.hbase;
 
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.Arrays;
 
