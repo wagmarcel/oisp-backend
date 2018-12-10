@@ -2,7 +2,9 @@ package com.oisp.databackend.config.oisp;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BackendConfig {
 
     private String tsdbName;
