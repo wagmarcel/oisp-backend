@@ -59,7 +59,7 @@ public class DataDaoImpl implements DataDao {
         } else if (oispConfig.OISP_BACKEND_TSDB_NAME_OPENTSDB.equals(tsdbName)) {
             logger.info("TSDB backend: openTSDB");
             this.tsdbAccess = (TsdbAccess) context.getBean("tsdbAccessOpenTsdb");
-        }else {
+        } else {
             throw new ConfigEnvironmentException("Could not find the backend with name " + tsdbName);
         }
     }

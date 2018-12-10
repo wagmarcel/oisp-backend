@@ -18,7 +18,7 @@ package com.oisp.databackend.tsdb.opentsdb;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.tsdb.TsdbAccess;
 import com.oisp.databackend.tsdb.TsdbObject;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -28,6 +28,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -39,9 +40,14 @@ import java.util.regex.Pattern;
 public class TsdbAccessOpenTsdb implements TsdbAccess {
 
     private static final Logger logger = LoggerFactory.getLogger(TsdbAccessOpenTsdb.class);
+
+    public static final String CONTENT_TYPE = "application/json";
+
+    @Autowired
+    private OispConfig oispConfig;
+
     @Override
     public boolean put(List<TsdbObject> tsdbObjects) {
-        String request = "http://localhost:4242/api/put";
         addTypeAttributes(tsdbObjects, "value");
         ObjectMapper mapper = new ObjectMapper();
         //SimpleModule module = new SimpleModule("TsdbObjectSerializer");
@@ -54,6 +60,10 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
             logger.error("Could not create JSON object for post request: " + e);
             return false;
         }
+        String request = "http://"
+                + oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_URI)
+                + ":"
+                + oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_PORT);
         String jsonObjectWithTags = jsonObject.replaceFirst(Pattern.quote("attributes"), "tags");
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(request);
@@ -62,8 +72,8 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
             entity = new StringEntity(jsonObjectWithTags);
 
             httpPost.setEntity(entity);
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
+            httpPost.setHeader("Accept", CONTENT_TYPE);
+            httpPost.setHeader("Content-type", CONTENT_TYPE);
             CloseableHttpResponse response = client.execute(httpPost);
             logger.info("Result of request: " + response.getStatusLine().getStatusCode());
         } catch (IOException e) {
@@ -81,7 +91,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     @Override
     public boolean put(TsdbObject tsdbObject) {
 
-        ArrayList<TsdbObject> list = new ArrayList<TsdbObject>();
+        List<TsdbObject> list = new ArrayList<TsdbObject>();
         list.add(tsdbObject);
 
         return put(list);
