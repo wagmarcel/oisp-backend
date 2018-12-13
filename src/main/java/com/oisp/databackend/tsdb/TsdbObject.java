@@ -20,6 +20,13 @@ public class TsdbObject {
         attributes = new HashMap<String, String>();
     }
 
+    public TsdbObject(TsdbObject o) {
+        this.metric = o.getMetric();
+        this.value = o.getValue();
+        this.timestamp = o.getTimestamp();
+        this.attributes = new HashMap<String, String>();
+    }
+
     public TsdbObject withMetric(String metric) {
         this.setMetric(metric);
         return this;

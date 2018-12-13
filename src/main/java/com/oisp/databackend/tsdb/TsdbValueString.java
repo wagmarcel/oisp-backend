@@ -5,6 +5,13 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public class TsdbValueString implements TsdbValue {
 
+    public TsdbValueString(String value) {
+        this.value = value;
+    }
+
+    public TsdbValueString(){
+
+    }
 
     private String value;
 

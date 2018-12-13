@@ -16,24 +16,26 @@
 
 package com.oisp.databackend.tsdb.opentsdb;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.tsdb.TsdbAccess;
 import com.oisp.databackend.tsdb.TsdbObject;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import com.oisp.databackend.tsdb.TsdbValue;
+import com.oisp.databackend.tsdb.TsdbValueString;
+import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.Query;
+import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.RestApi;
+import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.SubQuery;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Repository
@@ -41,53 +43,81 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
     private static final Logger logger = LoggerFactory.getLogger(TsdbAccessOpenTsdb.class);
 
-    public static final String CONTENT_TYPE = "application/json";
+
+    RestApi api;
+
+    @PostConstruct
+    public void init() {
+        api = new RestApi(oispConfig);
+    }
 
     @Autowired
     private OispConfig oispConfig;
 
     @Override
     public boolean put(List<TsdbObject> tsdbObjects) {
-        addTypeAttributes(tsdbObjects, "value");
-        ObjectMapper mapper = new ObjectMapper();
-        //SimpleModule module = new SimpleModule("TsdbObjectSerializer");
-        //module.addSerializer(TsdbObject.class, new TsdbObjectSerializer());
-        //mapper.registerModule(module);
-        String jsonObject = null;
-        try {
-            jsonObject = mapper.writeValueAsString(tsdbObjects);
-        } catch (JsonProcessingException e) {
-            logger.error("Could not create JSON object for post request: " + e);
-            return false;
-        }
-        String request = "http://"
-                + oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_URI)
-                + ":"
-                + oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_PORT);
-        String jsonObjectWithTags = jsonObject.replaceFirst(Pattern.quote("attributes"), "tags");
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(request);
-        StringEntity entity = null;
-        try {
-            entity = new StringEntity(jsonObjectWithTags);
 
-            httpPost.setEntity(entity);
-            httpPost.setHeader("Accept", CONTENT_TYPE);
-            httpPost.setHeader("Content-type", CONTENT_TYPE);
-            CloseableHttpResponse response = client.execute(httpPost);
-            logger.info("Result of request: " + response.getStatusLine().getStatusCode());
-        } catch (IOException e) {
-            logger.error("Could not create JSON payload for POST request: " + e);
+        List<TsdbObject> locationObjects = extractLocationObjects(tsdbObjects);
+        addTypeAttributes(tsdbObjects, "value");
+        if (locationObjects.size() > 0) {
+            tsdbObjects.addAll(locationObjects);
         }
-        return true;
+
+        return api.put(tsdbObjects);
     }
 
+    List<TsdbObject> extractLocationObjects(List<TsdbObject> tsdbObjects) {
+
+        List<TsdbObject> locationObjects = new ArrayList<TsdbObject>();
+        tsdbObjects.forEach( (element) -> {
+            Map<String, String> attributes = element.getAttributes();
+            if (attributes.size() == 0) {
+                return;
+            }
+            for(int i = 0; i < 3; i++) {
+                String locationName = DataFormatter.gpsValueToString(i);
+                if (attributes.get(locationName) != null){
+                    TsdbObject locationObject = new TsdbObject(element);
+                    TsdbValue value = new TsdbValueString(
+                            element.getAttributes().get(locationName)
+                    );
+                    locationObject.setValue(value);
+                    addTypeAttribute(locationObject, locationName);
+                    attributes.remove(locationName);
+                    locationObjects.add(locationObject);
+                }
+            }
+        });
+        return locationObjects;
+    }
+
+
+
+/*    void getRequest(String request, String jsonObject) {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(request);
+        try {
+            httpGet.setHeader("Accept", CONTENT_TYPE);
+            httpGet.setHeader("Content-type", CONTENT_TYPE);
+            CloseableHttpResponse response = client.execute(httpGet);
+            logger.info("Result of get:" + response.getStatusLine().getStatusCode());
+        } catch (IOException e) {
+            logger.error("Could not send GET request: " + e);
+        }
+    }*/
 
     private void addTypeAttributes(List<TsdbObject> tsdbObjects, String attr) {
         for (TsdbObject tsdbObject: tsdbObjects) {
             tsdbObject.setAttribute("type", attr);
         }
     }
+
+    private void addTypeAttribute(TsdbObject tsdbObject, String attr) {
+        List<TsdbObject> list = new ArrayList<TsdbObject>();
+        list.add(tsdbObject);
+        addTypeAttributes(list, attr);
+    }
+
     @Override
     public boolean put(TsdbObject tsdbObject) {
 
@@ -100,8 +130,27 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
     @Override
     public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
+        SubQuery subQuery = new SubQuery()
+                .withAggregator(SubQuery.AGGREGATOR_MAX)
+                .withMetric(tsdbObject.getMetric())
+                .withTag("type", "value");
 
-        return new TsdbObject[0];
+        Query query = new Query().withStart(start).withEnd(stop);
+        query.addQuery(subQuery);
+/*
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonObject = null;
+        try {
+            jsonObject = mapper.writeValueAsString(query);
+        } catch (JsonProcessingException e) {
+            logger.error("Could not create JSON object for post request: " + e);
+            return null;
+        }
+*/
+
+        api.query(query);
+        return null;
+
     }
 
     @Override
