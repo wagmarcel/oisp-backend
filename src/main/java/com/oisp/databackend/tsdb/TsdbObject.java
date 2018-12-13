@@ -16,6 +16,13 @@ public class TsdbObject {
         this.attributes = attributes;
     }
 
+    public TsdbObject(String metric, TsdbValue value, long timestamp) {
+        this.metric = metric;
+        this.value  = value;
+        this.timestamp = timestamp;
+        this.attributes = new HashMap<String, String>();
+    }
+
     public TsdbObject() {
         attributes = new HashMap<String, String>();
     }
@@ -29,6 +36,16 @@ public class TsdbObject {
 
     public TsdbObject withMetric(String metric) {
         this.setMetric(metric);
+        return this;
+    }
+
+    public TsdbObject withValue(TsdbValue value) {
+        this.value = value;
+        return this;
+    }
+
+    public TsdbObject withTimestamp(long timestamp) {
+        this.timestamp = timestamp;
         return this;
     }
 

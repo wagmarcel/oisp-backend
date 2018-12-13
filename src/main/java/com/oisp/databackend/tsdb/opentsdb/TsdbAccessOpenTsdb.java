@@ -23,6 +23,7 @@ import com.oisp.databackend.tsdb.TsdbObject;
 import com.oisp.databackend.tsdb.TsdbValue;
 import com.oisp.databackend.tsdb.TsdbValueString;
 import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.Query;
+import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.QueryResponse;
 import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.RestApi;
 import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.SubQuery;
 
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -91,21 +93,6 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
         return locationObjects;
     }
 
-
-
-/*    void getRequest(String request, String jsonObject) {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(request);
-        try {
-            httpGet.setHeader("Accept", CONTENT_TYPE);
-            httpGet.setHeader("Content-type", CONTENT_TYPE);
-            CloseableHttpResponse response = client.execute(httpGet);
-            logger.info("Result of get:" + response.getStatusLine().getStatusCode());
-        } catch (IOException e) {
-            logger.error("Could not send GET request: " + e);
-        }
-    }*/
-
     private void addTypeAttributes(List<TsdbObject> tsdbObjects, String attr) {
         for (TsdbObject tsdbObject: tsdbObjects) {
             tsdbObject.setAttribute("type", attr);
@@ -137,20 +124,27 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
         Query query = new Query().withStart(start).withEnd(stop);
         query.addQuery(subQuery);
-/*
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonObject = null;
-        try {
-            jsonObject = mapper.writeValueAsString(query);
-        } catch (JsonProcessingException e) {
-            logger.error("Could not create JSON object for post request: " + e);
-            return null;
+
+        QueryResponse[] queryResponses = api.query(query);
+
+        return createTsdbObjectFromQueryResponses(queryResponses);
+    }
+
+    TsdbObject[] createTsdbObjectFromQueryResponses(QueryResponse[] queryResponses) {
+
+        ArrayList<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
+        for (QueryResponse queryResponse: queryResponses) {
+            String metric = queryResponse.getMetric();
+            Map<Long, String> dps = queryResponse.getDps();
+            for (Map.Entry<Long, String> entry:  dps.entrySet()) {
+                Long timestamp = entry.getKey();
+                String value = entry.getValue();
+                TsdbObject tsdbObject = new TsdbObject(metric, new TsdbValueString(value), timestamp);
+                tsdbObjects.add(tsdbObject);
+            }
         }
-*/
-
-        api.query(query);
-        return null;
-
+        TsdbObject[] tsdbObjectsArray = new TsdbObject[tsdbObjects.size()];
+        return tsdbObjects.toArray(tsdbObjectsArray);
     }
 
     @Override
@@ -160,7 +154,6 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
 
     public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
-
         return new String[0];
     }
 

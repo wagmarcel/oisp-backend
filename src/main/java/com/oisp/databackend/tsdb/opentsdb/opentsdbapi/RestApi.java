@@ -74,7 +74,7 @@ public class RestApi {
         return jsonObject;
     }
 
-    public List<QueryResponse> query(Query query) {
+    public QueryResponse[] query(Query query) {
         String jsonObject = query.toString();
         String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
         CloseableHttpClient client = HttpClients.createDefault();
@@ -105,12 +105,11 @@ public class RestApi {
         }
         return queryResponsefromString(body);
     }
-    public List<QueryResponse> queryResponsefromString(String jsonString) {
-        List<QueryResponse> obj;
+    public QueryResponse[] queryResponsefromString(String jsonString) {
+        QueryResponse[] obj;
         try {
             ObjectMapper mapper = new ObjectMapper();
-            obj = mapper.readValue(jsonString, new TypeReference<List<QueryResponse>>() {
-            });
+            obj = mapper.readValue(jsonString, QueryResponse[].class);
         } catch (IOException e) {
             return null;
         }

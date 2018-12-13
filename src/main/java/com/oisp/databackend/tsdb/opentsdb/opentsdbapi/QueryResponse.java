@@ -1,15 +1,16 @@
 package com.oisp.databackend.tsdb.opentsdb.opentsdbapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class QueryResponse {
 
     private String metric;
     private Map<String, String> tags;
-    private List<String> aggregatedTags;
+    private List<String> aggregateTags;
     private Map<Long, String> dps;
 
     public void setTags(Map<String, String> tags) {
@@ -20,8 +21,8 @@ public class QueryResponse {
         this.metric = metric;
     }
 
-    public void setAggregatedTags(List<String> aggregatedTags) {
-        this.aggregatedTags = aggregatedTags;
+    public void setAggregateTags(List<String> aggregateTags) {
+        this.aggregateTags = aggregateTags;
     }
 
     public void setDps(Map<Long, String> dps) {
@@ -36,8 +37,8 @@ public class QueryResponse {
         return tags;
     }
 
-    public List<String> getAggregatedTags() {
-        return aggregatedTags;
+    public List<String> getAggregateTags() {
+        return aggregateTags;
     }
 
     public Map<Long, String> getDps() {
