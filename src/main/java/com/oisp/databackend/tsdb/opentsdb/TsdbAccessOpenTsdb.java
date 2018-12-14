@@ -49,7 +49,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     RestApi api;
 
     @PostConstruct
-    public void init() {
+    public void init() throws Exception{
         api = new RestApi(oispConfig);
     }
 
@@ -65,7 +65,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
             tsdbObjects.addAll(locationObjects);
         }
 
-        return api.put(tsdbObjects);
+        return api.put(tsdbObjects, true);
     }
 
     List<TsdbObject> extractLocationObjects(List<TsdbObject> tsdbObjects) {

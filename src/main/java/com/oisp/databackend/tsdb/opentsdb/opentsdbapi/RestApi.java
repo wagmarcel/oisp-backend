@@ -9,14 +9,19 @@ import com.oisp.databackend.tsdb.opentsdb.TsdbAccessOpenTsdb;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -24,25 +29,40 @@ public class RestApi {
     private static final Logger logger = LoggerFactory.getLogger(RestApi.class);
     public static final String CONTENT_TYPE = "application/json";
 
-    String base_path;
-    String put_path;
-    String query_path;
+    String host;
+    int port;
+    String scheme;
+    URI putUri;
+    URI queryUri;
 
-    public RestApi(OispConfig oispConfig) {
-        base_path = "http://"
-                + oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_URI)
-                + ":"
-                + oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_PORT);
-        put_path = base_path + "/api/put";
-        query_path = base_path + "/api/query";
+    public RestApi(OispConfig oispConfig) throws URISyntaxException {
+        scheme = "http";
+        host = oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_URI);
+        port = Integer.parseInt(oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_PORT));
+
+        putUri = new URIBuilder()
+            .setScheme(scheme)
+            .setPath("/api/put")
+            .setHost(host)
+            .setPort(port)
+            .setParameter("sync", null)
+            .build();
+        queryUri = new URIBuilder()
+            .setScheme(scheme)
+            .setPath("/api/query")
+            .setHost(host)
+            .setPort(port)
+            .build();
+
     }
 
 
-    public boolean put(List<TsdbObject> tsdbObjects) {
+    public boolean put(List<TsdbObject> tsdbObjects, boolean sync) {
         String jsonObject = tsdbObjectToJSON(tsdbObjects);
         String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(put_path);
+
+        HttpPost httpPost = new HttpPost(putUri);
         StringEntity entity = null;
         try {
             entity = new StringEntity(jsonObjectWithTags);
@@ -78,7 +98,8 @@ public class RestApi {
         String jsonObject = query.toString();
         String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(query_path);
+
+        HttpPost httpPost = new HttpPost(queryUri);
         StringEntity entity = null;
         String body = null;
         try {
