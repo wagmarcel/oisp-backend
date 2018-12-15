@@ -70,6 +70,7 @@ public class RestApi {
             httpPost.setEntity(entity);
             httpPost.setHeader("Accept", CONTENT_TYPE);
             httpPost.setHeader("Content-type", CONTENT_TYPE);
+            
             CloseableHttpResponse response = client.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
             logger.info("StatusCode of request: " + statusCode);
@@ -99,7 +100,7 @@ public class RestApi {
         String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
         CloseableHttpClient client = HttpClients.createDefault();
 
-            HttpPost httpPost = new HttpPost(queryUri);
+        HttpPost httpPost = new HttpPost(queryUri);
         StringEntity entity = null;
         String body = null;
         try {
@@ -126,6 +127,7 @@ public class RestApi {
         }
         return queryResponsefromString(body);
     }
+
     public QueryResponse[] queryResponsefromString(String jsonString) {
         QueryResponse[] obj;
         try {
