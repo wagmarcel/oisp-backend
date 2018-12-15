@@ -41,21 +41,21 @@ public class RestApi {
         port = Integer.parseInt(oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_PORT));
 
         putUri = new URIBuilder()
-            .setScheme(scheme)
-            .setPath("/api/put")
-            .setHost(host)
-            .setPort(port)
-            .setParameter("sync", null)
-            .build();
+                .setScheme(scheme)
+                .setPath("/api/put")
+                .setHost(host)
+                .setPort(port)
+                .setParameter("sync", null)
+                .build();
         queryUri = new URIBuilder()
-            .setScheme(scheme)
-            .setPath("/api/query")
-            .setHost(host)
-            .setPort(port)
-            .build();
+                .setScheme(scheme)
+                .setPath("/api/query")
+                .setHost(host)
+                .setPort(port)
+                .setParameter("ms", null)
+                .build();
 
     }
-
 
     public boolean put(List<TsdbObject> tsdbObjects, boolean sync) {
         String jsonObject = tsdbObjectToJSON(tsdbObjects);
@@ -99,7 +99,7 @@ public class RestApi {
         String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
         CloseableHttpClient client = HttpClients.createDefault();
 
-        HttpPost httpPost = new HttpPost(queryUri);
+            HttpPost httpPost = new HttpPost(queryUri);
         StringEntity entity = null;
         String body = null;
         try {

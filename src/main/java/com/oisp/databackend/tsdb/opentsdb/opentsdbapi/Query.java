@@ -10,9 +10,11 @@ public class Query {
     private long start;
     private long end;
     private List<SubQuery> queries;
+    private boolean msResolution;
 
     public Query() {
         this.queries = new ArrayList<SubQuery>();
+        this.msResolution = true;
     }
     public Query withStart(long start) {
         this.start = start;
@@ -35,6 +37,10 @@ public class Query {
         this.start = start;
     }
 
+    public void setMsResolution(boolean msResolution) {
+        this.msResolution = msResolution;
+    }
+
     public long getEnd() {
         return end;
     }
@@ -49,6 +55,10 @@ public class Query {
 
     public void addQuery(SubQuery subQuery) {
         this.queries.add(subQuery);
+    }
+
+    public boolean getMsResolution() {
+        return msResolution;
     }
 
     @Override
