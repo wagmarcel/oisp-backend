@@ -1,9 +1,14 @@
 package com.oisp.databackend.tsdb;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TsdbObject {
+/**
+ * Main abstraction for TSDB objects
+ *
+ */
+public class TsdbObject implements Serializable {
     private String metric;
     private TsdbValue value;
     private long timestamp;

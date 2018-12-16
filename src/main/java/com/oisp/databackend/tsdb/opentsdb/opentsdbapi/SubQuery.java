@@ -6,6 +6,8 @@ import java.util.Map;
 public class SubQuery {
 
     public static final String AGGREGATOR_MAX = "max";
+    public static final String AGGREGATOR_MIN = "min";
+    public static final String AGGREGATOR_NONE = "none";
 
     private String aggregator;
     private String metric;

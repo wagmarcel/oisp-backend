@@ -115,19 +115,40 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     @Override
     public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
         SubQuery subQuery = new SubQuery()
-                .withAggregator(SubQuery.AGGREGATOR_MAX)
-                .withMetric(tsdbObject.getMetric())
-                .withTag("type", "value");
+                .withAggregator(SubQuery.AGGREGATOR_NONE)
+                .withMetric(tsdbObject.getMetric());
 
-        // Add GPS attributes/tags
+        // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
+        // openTSDB?)
+        boolean keepTagMapEmpty = false;
         Map<String, String> attributes = tsdbObject.getAttributes();
         if (attributes.size() > 0) {
-            for (String attribute: attributes.keySet()) {
-                if (attribute == DataFormatter.gpsValueToString(0)
-                        || attribute == DataFormatter.gpsValueToString(1)
-                        || attribute == DataFormatter.gpsValueToString(2)) {
-                    String oldTag = subQuery.getTags().get("type");
-                    subQuery.withTag("type", oldTag + "|" + attribute);
+            for (String attribute : attributes.keySet()) {
+                if (attribute != DataFormatter.gpsValueToString(0)
+                        && attribute != DataFormatter.gpsValueToString(1)
+                        && attribute != DataFormatter.gpsValueToString(2)) {
+                    keepTagMapEmpty = true;
+                    break;
+                }
+            }
+
+        }
+
+        if (keepTagMapEmpty) {
+            tsdbObject.setAllAttributes(new HashMap<String, String>());
+        } else {
+            subQuery.withTag("type", "value");
+
+            // Add GPS attributes
+            //Map<String, String> attributes = tsdbObject.getAttributes();
+            if (attributes.size() > 0) {
+                for (String attribute : attributes.keySet()) {
+                    if (attribute == DataFormatter.gpsValueToString(0)
+                            || attribute == DataFormatter.gpsValueToString(1)
+                            || attribute == DataFormatter.gpsValueToString(2)) {
+                        String oldTag = subQuery.getTags().get("type");
+                        subQuery.withTag("type", oldTag + "|" + attribute);
+                    }
                 }
             }
         }
@@ -142,7 +163,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     TsdbObject[] createTsdbObjectFromQueryResponses(QueryResponse[] queryResponses) {
 
         SortedMap<Long, TsdbObject> tsdbObjectsMap = new TreeMap<>();
-        //ArrayList<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
+
         //first create the base objets with the value types
         for (QueryResponse queryResponse: queryResponses) {
             if (!queryResponse.getTags().get("type").equals("value")) {
@@ -156,7 +177,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
                 TsdbObject tsdbObject = new TsdbObject(metric, new TsdbValueString(value), timestamp);
                 tsdbObjectsMap.put(timestamp, tsdbObject);
             }
-        }
+        }   
         //Now add the gps tags if any
         for (QueryResponse queryResponse: queryResponses) {
 
@@ -176,6 +197,28 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
                 }
             }
         }
+
+        //Now add the other tags
+        for (QueryResponse queryResponse: queryResponses) {
+            String metric = queryResponse.getMetric();
+            Map<String, String> types = queryResponse.getTags();
+            Map<Long, String> dps = queryResponse.getDps();
+            for (Map.Entry<String, String> type : types.entrySet()) {
+                String tagK = type.getKey();
+                if (tagK.equals("type")) {
+                    continue;
+                }
+                String tagV = type.getValue();
+
+                for (Map.Entry<Long, String> entry : dps.entrySet()) {
+                    Long timestamp = entry.getKey();
+                    String value = entry.getValue();
+                    if (tsdbObjectsMap.get(timestamp) != null) {
+                        tsdbObjectsMap.get(timestamp).setAttribute(tagK, tagV);
+                    }
+                }
+            }
+        }
         // collect finally objects in an array
         TsdbObject[] tsdbObject = tsdbObjectsMap.values().toArray(new TsdbObject[0]);
         return tsdbObject;
@@ -188,7 +231,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
 
     public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
-        return new String[0];
+        return new String[]{("*")};
     }
 
 }

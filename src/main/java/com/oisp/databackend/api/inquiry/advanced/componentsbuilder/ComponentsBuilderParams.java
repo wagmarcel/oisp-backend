@@ -27,7 +27,7 @@ public class ComponentsBuilderParams {
 
     private final List<Map<String, String>> sort;
 
-    private final List<String> returnedMeasureAttributes;
+    private List<String> returnedMeasureAttributes;
 
     private final String aggregations;
 
@@ -61,5 +61,9 @@ public class ComponentsBuilderParams {
 
     public Long getComponentRowStart() {
         return componentRowStart;
+    }
+
+    public void setReturnedMeasureAttributes(List<String> returnedMeasureAttributes) {
+        this.returnedMeasureAttributes = returnedMeasureAttributes;
     }
 }

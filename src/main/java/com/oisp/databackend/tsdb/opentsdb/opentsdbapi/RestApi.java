@@ -70,7 +70,7 @@ public class RestApi {
             httpPost.setEntity(entity);
             httpPost.setHeader("Accept", CONTENT_TYPE);
             httpPost.setHeader("Content-type", CONTENT_TYPE);
-            
+
             CloseableHttpResponse response = client.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
             logger.info("StatusCode of request: " + statusCode);
