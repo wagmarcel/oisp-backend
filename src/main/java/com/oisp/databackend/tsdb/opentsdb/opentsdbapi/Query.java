@@ -57,7 +57,7 @@ public class Query {
         this.queries.add(subQuery);
     }
 
-    public boolean getMsResolution() {
+    public boolean isMsResolution() {
         return msResolution;
     }
 

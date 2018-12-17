@@ -34,14 +34,14 @@ public class RestApi {
     private static final String CLOSING_BRACKET = "]";
     private static final String OPENING_BRACKET = "[";
 
-    private String host;
-    private int port;
-    private String scheme;
     private URI putUri;
     private URI queryUri;
     public static final int MAXCHUNKSIZE = 4000;
 
     public RestApi(OispConfig oispConfig) throws URISyntaxException {
+        String host;
+        int port;
+        String scheme;
         scheme = "http";
         host = oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_URI);
         port = Integer.parseInt(oispConfig.getBackendConfig().getTsdbProperties().getProperty(OispConfig.OISP_BACKEND_TSDB_PORT));
@@ -104,8 +104,8 @@ public class RestApi {
                             return "";
                         }
                     })
-                .reduce(new String(), (collect, elem) -> {
-                        if ((collect.isEmpty()) || (collect.length() + elem.length() > MAXCHUNKSIZE)) {
+                .reduce("", (collect, elem) -> {
+                        if (collect.isEmpty() || collect.length() + elem.length() > MAXCHUNKSIZE) {
                             if (!collect.isEmpty()) {
                                 resultObjects.add(collect + CLOSING_BRACKET);
                             }

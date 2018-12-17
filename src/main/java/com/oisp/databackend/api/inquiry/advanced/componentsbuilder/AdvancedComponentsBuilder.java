@@ -46,7 +46,7 @@ public class AdvancedComponentsBuilder {
 
         // When the returnedMeasureAttributes where "*", then the backend retrieved all tags without defining them
         // in advance. Therefore, the final list of attributes needs to be collected now
-        if ((parameters.getReturnedMeasureAttributes().size() == 1)
+        if (parameters.getReturnedMeasureAttributes().size() == 1
                 && "*".equals(parameters.getReturnedMeasureAttributes().get(0))) {
             Set<String> result = new HashSet<String>();
             for (Map.Entry<String, Observation[]> componentObservation : componentObservations.entrySet()) {
@@ -59,7 +59,7 @@ public class AdvancedComponentsBuilder {
                             })
                 );
             }
-            List<String> resultStringList = Arrays.asList(result.toArray(new String[0]));
+            List<String> resultStringList = Arrays.asList(result.toArray(new String[result.size()]));
             parameters.setReturnedMeasureAttributes(resultStringList);
         }
 
