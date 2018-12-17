@@ -1,11 +1,9 @@
 package com.oisp.databackend.tsdb.opentsdb.opentsdbapi;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.tsdb.TsdbObject;
-import com.oisp.databackend.tsdb.opentsdb.TsdbAccessOpenTsdb;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -13,8 +11,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +24,22 @@ import java.util.regex.Pattern;
 
 public class RestApi {
     private static final Logger logger = LoggerFactory.getLogger(RestApi.class);
-    public static final String CONTENT_TYPE = "application/json";
+    public static final String CONTENT_TYPE_JSON = "application/json";
+    private static final String ATTRIBUTES = "\"attributes\":";
+    private static final String TAGS = "\"tags\":";
+    private static final String ACCEPT = "Accept";
+    private static final String CONTENTTYPE = "Content-type";
+    private static final int PUTOK = 204;
+    private static final int QUERYOK = 200;
+    private static final String CLOSING_BRACKET = "]";
+    private static final String OPENING_BRACKET = "[";
 
-    String host;
-    int port;
-    String scheme;
-    URI putUri;
-    URI queryUri;
-    public static int MAX_CHUNK_SIZE = 4000;
+    private String host;
+    private int port;
+    private String scheme;
+    private URI putUri;
+    private URI queryUri;
+    public static final int MAXCHUNKSIZE = 4000;
 
     public RestApi(OispConfig oispConfig) throws URISyntaxException {
         scheme = "http";
@@ -64,25 +68,25 @@ public class RestApi {
 
 
         StringEntity entity = null;
-        for(String jsonObject: jsonObjects) {
-            String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
+        for (String jsonObject: jsonObjects) {
+            String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote(ATTRIBUTES), TAGS);
             HttpPost httpPost = new HttpPost(putUri);
-            
+
             try {
                 entity = new StringEntity(jsonObjectWithTags);
 
                 httpPost.setEntity(entity);
-                httpPost.setHeader("Accept", CONTENT_TYPE);
-                httpPost.setHeader("Content-type", CONTENT_TYPE);
+                httpPost.setHeader(ACCEPT, CONTENT_TYPE_JSON);
+                httpPost.setHeader(CONTENTTYPE, CONTENT_TYPE_JSON);
 
                 CloseableHttpResponse response = client.execute(httpPost);
                 int statusCode = response.getStatusLine().getStatusCode();
                 logger.info("StatusCode of request: " + statusCode);
-                if (statusCode != 204) {
+                if (statusCode != PUTOK) {
                     return false;
                 }
             } catch (IOException e) {
-                logger.error("Could not create JSON payload for POST request: " + e);
+                logger.error("Could not create JSON payload for put POST request: " + e);
             }
         }
         return true;
@@ -93,28 +97,30 @@ public class RestApi {
         List<String> resultObjects = new ArrayList<String>();
         String remaining = tsdbObjects.stream()
                 .map((obj) -> {
-                    try {
-                        return mapper.writeValueAsString(obj);
-                    } catch (JsonProcessingException e) {
-                        logger.warn("Could not convert object to JSON " + e);
-                        return "";
-                    }
-                })
+                        try {
+                            return mapper.writeValueAsString(obj);
+                        } catch (JsonProcessingException e) {
+                            logger.warn("Could not convert object to JSON " + e);
+                            return "";
+                        }
+                    })
                 .reduce(new String(), (collect, elem) -> {
-                    if ((collect.isEmpty()) || (collect.length() + elem.length() > MAX_CHUNK_SIZE)) {
-                        if (!collect.isEmpty()) resultObjects.add(collect + "]");
-                        return "[" + elem;
-                    } else {
-                        return collect + "," + elem;
-                    }
-                });
-        resultObjects.add(remaining + "]");
+                        if ((collect.isEmpty()) || (collect.length() + elem.length() > MAXCHUNKSIZE)) {
+                            if (!collect.isEmpty()) {
+                                resultObjects.add(collect + CLOSING_BRACKET);
+                            }
+                            return OPENING_BRACKET + elem;
+                        } else {
+                            return collect + "," + elem;
+                        }
+                    });
+        resultObjects.add(remaining + CLOSING_BRACKET);
         return resultObjects;
     }
 
     public QueryResponse[] query(Query query) {
         String jsonObject = query.toString();
-        String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
+        String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote(ATTRIBUTES), TAGS);
         CloseableHttpClient client = HttpClients.createDefault();
 
         HttpPost httpPost = new HttpPost(queryUri);
@@ -124,12 +130,12 @@ public class RestApi {
             entity = new StringEntity(jsonObjectWithTags);
 
             httpPost.setEntity(entity);
-            httpPost.setHeader("Accept", CONTENT_TYPE);
-            httpPost.setHeader("Content-type", CONTENT_TYPE);
+            httpPost.setHeader(ACCEPT, CONTENT_TYPE_JSON);
+            httpPost.setHeader(CONTENTTYPE, CONTENT_TYPE_JSON);
             CloseableHttpResponse response = client.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
             logger.info("StatusCode of response: " + statusCode);
-            if (statusCode != 200) {
+            if (statusCode != QUERYOK) {
                 return null;
             }
             HttpEntity responseEntity = response.getEntity();
@@ -139,7 +145,7 @@ public class RestApi {
             }
             logger.info("Body of request" + body);
         } catch (IOException e) {
-            logger.error("Could not create JSON payload for POST request: " + e);
+            logger.error("Could not create JSON payload for query POST request: " + e);
             return null;
         }
         return queryResponsefromString(body);

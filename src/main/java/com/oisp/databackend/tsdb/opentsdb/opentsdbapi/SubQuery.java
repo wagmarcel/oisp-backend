@@ -11,7 +11,7 @@ public class SubQuery {
 
     private String aggregator;
     private String metric;
-    Map<String, String> tags;
+    private Map<String, String> tags;
 
 
     public SubQuery() {

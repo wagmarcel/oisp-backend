@@ -9,7 +9,7 @@ public class TsdbValueString implements TsdbValue {
         this.value = value;
     }
 
-    public TsdbValueString(){
+    public TsdbValueString() {
 
     }
 
