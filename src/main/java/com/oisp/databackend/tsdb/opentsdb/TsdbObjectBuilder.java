@@ -138,7 +138,7 @@ public final class TsdbObjectBuilder {
     public static boolean checkforTagMap(Map<String, String> attributes) {
         boolean keepTagMapEmpty = false;
 
-        if (attributes.isEmpty()) {
+        if (!attributes.isEmpty()) {
             for (String attribute : attributes.keySet()) {
                 if (attribute != DataFormatter.gpsValueToString(0)
                         && attribute != DataFormatter.gpsValueToString(1)

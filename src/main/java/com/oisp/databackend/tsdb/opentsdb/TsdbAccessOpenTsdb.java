@@ -54,7 +54,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
         List<TsdbObject> locationObjects = TsdbObjectBuilder.extractLocationObjects(tsdbObjects);
         TsdbObjectBuilder.addTypeAttributes(tsdbObjects, VALUE);
-        if (locationObjects.isEmpty()) {
+        if (!locationObjects.isEmpty()) {
             tsdbObjects.addAll(locationObjects);
         }
 
@@ -88,7 +88,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
             // Add GPS attributes
             //Map<String, String> attributes = tsdbObject.getAttributes();
-            if (attributes.isEmpty()) {
+            if (!attributes.isEmpty()) {
                 for (String attribute : attributes.keySet()) {
                     if (attribute == DataFormatter.gpsValueToString(0)
                             || attribute == DataFormatter.gpsValueToString(1)
