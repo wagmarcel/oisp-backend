@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -34,6 +35,7 @@ public class RestApi {
     String scheme;
     URI putUri;
     URI queryUri;
+    public static int MAX_CHUNK_SIZE = 4000;
 
     public RestApi(OispConfig oispConfig) throws URISyntaxException {
         scheme = "http";
@@ -45,7 +47,6 @@ public class RestApi {
                 .setPath("/api/put")
                 .setHost(host)
                 .setPort(port)
-                .setParameter("sync", null)
                 .build();
         queryUri = new URIBuilder()
                 .setScheme(scheme)
@@ -58,41 +59,57 @@ public class RestApi {
     }
 
     public boolean put(List<TsdbObject> tsdbObjects, boolean sync) {
-        String jsonObject = tsdbObjectToJSON(tsdbObjects);
-        String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
+        List<String> jsonObjects = tsdbObjectToJSON(tsdbObjects);
         CloseableHttpClient client = HttpClients.createDefault();
 
-        HttpPost httpPost = new HttpPost(putUri);
+
         StringEntity entity = null;
-        try {
-            entity = new StringEntity(jsonObjectWithTags);
+        for(String jsonObject: jsonObjects) {
+            String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote("\"attributes\":"), "\"tags\":");
+            HttpPost httpPost = new HttpPost(putUri);
+            
+            try {
+                entity = new StringEntity(jsonObjectWithTags);
 
-            httpPost.setEntity(entity);
-            httpPost.setHeader("Accept", CONTENT_TYPE);
-            httpPost.setHeader("Content-type", CONTENT_TYPE);
+                httpPost.setEntity(entity);
+                httpPost.setHeader("Accept", CONTENT_TYPE);
+                httpPost.setHeader("Content-type", CONTENT_TYPE);
 
-            CloseableHttpResponse response = client.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            logger.info("StatusCode of request: " + statusCode);
-            if (statusCode != 204) {
-                return false;
+                CloseableHttpResponse response = client.execute(httpPost);
+                int statusCode = response.getStatusLine().getStatusCode();
+                logger.info("StatusCode of request: " + statusCode);
+                if (statusCode != 204) {
+                    return false;
+                }
+            } catch (IOException e) {
+                logger.error("Could not create JSON payload for POST request: " + e);
             }
-
-        } catch (IOException e) {
-            logger.error("Could not create JSON payload for POST request: " + e);
         }
         return true;
     }
 
-    String tsdbObjectToJSON(List<TsdbObject> tsdbObjects) {
+    List<String> tsdbObjectToJSON(List<TsdbObject> tsdbObjects) {
         ObjectMapper mapper = new ObjectMapper();
-        String jsonObject = null;
-        try {
-            jsonObject = mapper.writeValueAsString(tsdbObjects);
-        } catch (JsonProcessingException e) {
-            return null;
-        }
-        return jsonObject;
+        List<String> resultObjects = new ArrayList<String>();
+        String remaining = tsdbObjects.stream()
+                .map((obj) -> {
+                    try {
+                        return mapper.writeValueAsString(obj);
+                    } catch (JsonProcessingException e) {
+                        logger.warn("Could not convert object to JSON " + e);
+                        return "";
+                    }
+                })
+                .reduce(new String(), (collect, elem) -> {
+                    if ((collect.isEmpty()) || (collect.length() + elem.length() > MAX_CHUNK_SIZE)) {
+                        if (!collect.isEmpty()) resultObjects.add(collect + "]");
+                        return "[" + elem;
+                    } else {
+                        return collect + "," + elem;
+                    }
+                });
+        resultObjects.add(remaining + "]");
+        return resultObjects;
     }
 
     public QueryResponse[] query(Query query) {
@@ -111,7 +128,7 @@ public class RestApi {
             httpPost.setHeader("Content-type", CONTENT_TYPE);
             CloseableHttpResponse response = client.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
-            logger.info("StatusCode of request: " + statusCode);
+            logger.info("StatusCode of response: " + statusCode);
             if (statusCode != 200) {
                 return null;
             }

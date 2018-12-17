@@ -156,7 +156,9 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
         query.addQuery(subQuery);
 
         QueryResponse[] queryResponses = api.query(query);
-
+        if (queryResponses == null) {
+            return null;
+        }
         return createTsdbObjectFromQueryResponses(queryResponses);
     }
 
