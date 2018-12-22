@@ -127,7 +127,7 @@ public class Data {
         return res;
     }
 
-    @RequestMapping(value = "/v1/accounts/{accountId}/inquiryComponentFirstAndLast")
+    @RequestMapping(value = "/v1/accounts/{accountId}/inquiryComponentFirstAndLast", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity firstLastMeasurementTimestamp(@PathVariable String accountId,
                                                  @Valid @RequestBody final FirstLastTimestampRequest request,
@@ -147,13 +147,13 @@ public class Data {
         }
     }
 
-    @RequestMapping("/")
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
     public String index() throws JSONException {
         return this.version();
     }
 
-    @RequestMapping("/v1/version")
+    @RequestMapping(value = "/v1/version", method = RequestMethod.GET)
     @ResponseBody
     public String version() throws JSONException {
         JSONObject appVersion = new JSONObject();
