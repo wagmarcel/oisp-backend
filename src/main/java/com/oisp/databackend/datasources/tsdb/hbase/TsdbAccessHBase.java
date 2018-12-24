@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.tsdb.hbase;
+package com.oisp.databackend.datasources.tsdb.hbase;
 
 import com.oisp.databackend.config.oisp.TsdbHBaseCondition;
-import com.oisp.databackend.tsdb.TsdbObject;
-import com.oisp.databackend.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.ObservationCreator;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datasources.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -103,12 +105,12 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public boolean put(List<TsdbObject> tsdbObjects) {
+    public boolean put(List<Observation> observations) {
 
         try (Table table = getHbaseTable()) {
 
             List<Put> puts = new ArrayList<Put>();
-            for (TsdbObject obs : tsdbObjects) {
+            for (Observation obs : observations) {
                 puts.add(getPutForObservation(obs));
             }
             table.put(puts);
@@ -119,23 +121,35 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public boolean put(TsdbObject tsdbObjects) {
+    public boolean put(Observation observation) {
 
-        List<TsdbObject> puts = new ArrayList<TsdbObject>();
-        puts.add(tsdbObjects);
+        List<Observation> puts = new ArrayList<Observation>();
+        puts.add(observation);
         return put(puts);
     }
 
 
-    byte[] getRowKey(TsdbObject tsdbObject) {
-        return Bytes.toBytes(tsdbObject.getMetric() + "." + DataFormatter.zeroPrefixedTimestamp(tsdbObject.getTimestamp()));
+    byte[] getRowKey(Observation observation) {
+        return Bytes.toBytes(observation.getAid() + "." + observation.getCid() + "." + DataFormatter.zeroPrefixedTimestamp(observation.getOn()));
     }
 
 
-    private Put getPutForObservation(TsdbObject tsdbObject) {
-        Put put = new Put(getRowKey(tsdbObject));
-        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) tsdbObject.getValue().get()));
-        Map<String, String> attributes = tsdbObject.getAttributes();
+    private Put getPutForObservation(Observation observation) {
+        Put put = new Put(getRowKey(observation));
+        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) observation.getValue()));
+        Map<String, String> attributes = observation.getAttributes();
+        // In hbase, we treat gps coordinates as special columns
+        // like the attributes. So we add all gps coordinates to attributes
+        if (observation.getLoc() != null) {
+            if (attributes == null) { // no attributes?, but we need the structure for location data as well
+                attributes = new HashMap<String, String>();
+                observation.setAttributes(attributes);
+            }
+            for (int i = 0; i < observation.getLoc().size() && i < ObservationCreator.GPS_COLUMN_SIZE; i++) {
+                String gpsAttributeName = com.oisp.databackend.datasources.DataFormatter.gpsValueToString(i);
+                observation.getAttributes().put(gpsAttributeName, observation.getLoc().get(i).toString());
+            }
+        }
         if (attributes != null) {
             for (String k : attributes.keySet()) {
                 put.addColumn(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.ATTRIBUTE_COLUMN_PREFIX + k),
@@ -215,4 +229,9 @@ public class TsdbAccessHBase implements TsdbAccess {
         }
         return attributes;
     }
+
+    private void mergeObservationAttributesWithLoc(Observation o) {
+
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.oisp.databackend.tsdb;
+package com.oisp.databackend.datasources.tsdb;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -10,18 +10,18 @@ import java.util.Map;
  */
 public class TsdbObject implements Serializable {
     private String metric;
-    private TsdbValue value;
+    private String value;
     private long timestamp;
     private Map<String, String> attributes;
 
-    public TsdbObject(String metric, TsdbValue value, long timestamp, Map<String, String> attributes) {
+    public TsdbObject(String metric, String value, long timestamp, Map<String, String> attributes) {
         this.metric = metric;
         this.value  = value;
         this.timestamp = timestamp;
         this.attributes = attributes;
     }
 
-    public TsdbObject(String metric, TsdbValue value, long timestamp) {
+    public TsdbObject(String metric, String value, long timestamp) {
         this.metric = metric;
         this.value  = value;
         this.timestamp = timestamp;
@@ -44,7 +44,7 @@ public class TsdbObject implements Serializable {
         return this;
     }
 
-    public TsdbObject withValue(TsdbValue value) {
+    public TsdbObject withValue(String value) {
         this.value = value;
         return this;
     }
@@ -58,7 +58,7 @@ public class TsdbObject implements Serializable {
         this.metric = metric;
     }
 
-    public void setValue(TsdbValue value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
@@ -78,7 +78,7 @@ public class TsdbObject implements Serializable {
         return metric;
     }
 
-    public TsdbValue getValue() {
+    public String getValue() {
         return value;
     }
 

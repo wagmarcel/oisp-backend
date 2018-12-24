@@ -20,9 +20,9 @@ package com.oisp.databackend.datasources;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
-import com.oisp.databackend.tsdb.TsdbAccess;
-import com.oisp.databackend.tsdb.TsdbObject;
-import com.oisp.databackend.tsdb.TsdbValueString;
+import com.oisp.databackend.datasources.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.TsdbValueString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,12 +67,12 @@ public class DataDaoImpl implements DataDao {
     @Override
     public boolean put(final Observation[] observations) {
 
-        List<TsdbObject> puts = new ArrayList<TsdbObject>();
+        /*List<TsdbObject> puts = new ArrayList<TsdbObject>();
         for (Observation obs : observations) {
             puts.add(getPutForObservation(obs));
-        }
+        }*/
 
-        tsdbAccess.put(puts);
+        tsdbAccess.put(Arrays.asList(observations));
 
         return true;
     }
@@ -138,31 +138,6 @@ public class DataDaoImpl implements DataDao {
 
     private String getMetric(String accountId, String componentId) {
         return accountId + "." + componentId;
-    }
-
-
-    private TsdbObject getPutForObservation(Observation o) {
-        TsdbObject put = new TsdbObject();
-        String metric = getMetric(o.getAid(), o.getCid());
-        put.setMetric(metric);
-        long timestamp = o.getOn();
-        put.setTimestamp(timestamp);
-        TsdbValueString value = new TsdbValueString();
-        value.set(o.getValue());
-        put.setValue(value);
-        if (o.getLoc() != null) {
-            for (int i = 0; i < o.getLoc().size() && i < ObservationCreator.GPS_COLUMN_SIZE; i++) {
-                String gpsAttributeName = DataFormatter.gpsValueToString(i);
-                put.setAttribute(gpsAttributeName, o.getLoc().get(i).toString());
-            }
-        }
-        Map<String, String> attributes = o.getAttributes();
-        if (attributes != null) {
-            for (String k : attributes.keySet()) {
-                put.setAttribute(k, attributes.get(k));
-            }
-        }
-        return put;
     }
 
 }

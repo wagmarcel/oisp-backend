@@ -1,7 +1,7 @@
 package com.oisp.databackend.datasources;
 
 import com.oisp.databackend.datastructures.Observation;
-import com.oisp.databackend.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.TsdbObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ import java.util.Map;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class ObservationCreator {
+public class ObservationCreator {
 
     public static final short GPS_COLUMN_SIZE = 3;
     private Observation observation;
@@ -55,7 +55,7 @@ class ObservationCreator {
         observation = new Observation();
         addBasicInformation();
         addAdditionalInformation();
-        logger.info("========================Observation");
+        //logger.info("========================Observation");
         return observation;
     }
 
@@ -63,7 +63,7 @@ class ObservationCreator {
         observation.setCid(componentId);
         observation.setAid(accountId);
         observation.setOn(tsdbObject.getTimestamp()); //0L;
-        observation.setValue((String) tsdbObject.getValue().get());
+        observation.setValue(tsdbObject.getValue());
         observation.setAttributes(new HashMap<String, String>());
     }
 

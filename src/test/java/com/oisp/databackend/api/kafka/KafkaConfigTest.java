@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.api.kafka;
 
+import com.oisp.databackend.config.oisp.BackendConfig;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -25,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -43,6 +45,12 @@ public class KafkaConfigTest {
     @InjectMocks
     private KafkaConfig kafkaConfig;
 
+    @Mock
+    private com.oisp.databackend.config.oisp.KafkaConfig kafkaOispConfig;
+
+    @Mock
+    private BackendConfig backendConfig;
+
     @Before
     public void initMocks() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -51,17 +59,22 @@ public class KafkaConfigTest {
 
     @Test
     public void testKafkaProducer_isEnabled() throws Exception {
-        //PowerMockito.whenNew(KafkaProducer.class).withAnyArguments().thenReturn(kafkaProducer);
+        PowerMockito.whenNew(KafkaProducer.class).withAnyArguments().thenReturn(kafkaProducer);
 
-        //KafkaProducer<String, List<Observation>> kf = kafkaConfig.kafkaProducer();
-        //assert kf == kafkaProducer;
-        assert true;
+        PowerMockito.when(oispConfig.getBackendConfig()).thenReturn(backendConfig);
+        PowerMockito.when(backendConfig.getKafkaConfig()).thenReturn(kafkaOispConfig);
+        PowerMockito.when(kafkaOispConfig.getUri()).thenReturn("kafka");
+        KafkaProducer<String, List<Observation>> kf = kafkaConfig.kafkaProducer();
+        assert kf == kafkaProducer;
     }
 
     @Test
     public void testKafkaProducer_isDisabled() throws Exception {
-        //KafkaProducer<String, List<Observation>> kf = kafkaConfig.kafkaProducer();
-        //assert kf == null;
-        assert true;
+        PowerMockito.whenNew(KafkaProducer.class).withAnyArguments().thenReturn(null);
+        PowerMockito.when(oispConfig.getBackendConfig()).thenReturn(backendConfig);
+        PowerMockito.when(backendConfig.getKafkaConfig()).thenReturn(kafkaOispConfig);
+        PowerMockito.when(kafkaOispConfig.getUri()).thenReturn("kafka");
+        KafkaProducer<String, List<Observation>> kf = kafkaConfig.kafkaProducer();
+        assert kf == null;
     }
 }

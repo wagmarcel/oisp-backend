@@ -1,9 +1,10 @@
-package com.oisp.databackend.tsdb.opentsdb.opentsdbapi;
+package com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oisp.databackend.config.oisp.OispConfig;
-import com.oisp.databackend.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.TsdbObject;
+import com.oisp.databackend.datastructures.Observation;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -62,8 +63,8 @@ public class RestApi {
 
     }
 
-    public boolean put(List<TsdbObject> tsdbObjects, boolean sync) {
-        List<String> jsonObjects = tsdbObjectToJSON(tsdbObjects);
+    public boolean put(List<Observation> observation, boolean sync) {
+        List<String> jsonObjects = ObservationToJSON(observation);
         CloseableHttpClient client = HttpClients.createDefault();
 
 
@@ -92,12 +93,13 @@ public class RestApi {
         return true;
     }
 
-    List<String> tsdbObjectToJSON(List<TsdbObject> tsdbObjects) {
+    List<String> ObservationToJSON(List<Observation> observations) {
         ObjectMapper mapper = new ObjectMapper();
         List<String> resultObjects = new ArrayList<String>();
-        String remaining = tsdbObjects.stream()
+        String remaining = observations.stream()
                 .map((obj) -> {
                         try {
+
                             return mapper.writeValueAsString(obj);
                         } catch (JsonProcessingException e) {
                             logger.warn("Could not convert object to JSON " + e);

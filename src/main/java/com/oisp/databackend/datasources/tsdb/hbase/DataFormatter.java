@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.tsdb.hbase;
+package com.oisp.databackend.datasources.tsdb.hbase;
 
 import org.apache.hadoop.hbase.Cell;
 

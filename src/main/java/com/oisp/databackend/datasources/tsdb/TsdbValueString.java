@@ -1,4 +1,4 @@
-package com.oisp.databackend.tsdb;
+package com.oisp.databackend.datasources.tsdb;
 
 
 import com.fasterxml.jackson.annotation.JsonValue;

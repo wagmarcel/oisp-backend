@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.tsdb;
+package com.oisp.databackend.datasources.tsdb;
+
+import com.oisp.databackend.datastructures.Observation;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,17 +31,17 @@ public interface TsdbAccess {
 
     /**
      *
-     * @param tsdbObject A single TSDB object to send the the data backend
+     * @param observation A single Observation to send the the data backend
      * @return true if successful, false otherwise
      */
-    boolean put(TsdbObject tsdbObject);
+    boolean put(Observation observation);
 
     /**
      *
-     * @param tsdbObjectList A list of TSDB objects to send to the data backend
+     * @param observationList A list of Observations to send to the data backend
      * @return true if successful, false otherwise
      */
-    boolean put(List<TsdbObject> tsdbObjectList);
+    boolean put(List<Observation> observationList);
 
     /**
      *

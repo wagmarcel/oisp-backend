@@ -1,15 +1,18 @@
-package com.oisp.databackend.tsdb.opentsdb;
+package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import com.oisp.databackend.datasources.DataFormatter;
-import com.oisp.databackend.tsdb.TsdbObject;
-import com.oisp.databackend.tsdb.TsdbValue;
-import com.oisp.databackend.tsdb.TsdbValueString;
-import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.QueryResponse;
+import com.oisp.databackend.datasources.ObservationCreator;
+import com.oisp.databackend.datasources.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.TsdbValue;
+import com.oisp.databackend.datasources.tsdb.TsdbValueString;
+import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.QueryResponse;
+import com.oisp.databackend.datastructures.Observation;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static com.oisp.databackend.tsdb.opentsdb.TsdbAccessOpenTsdb.TYPE;
-import static com.oisp.databackend.tsdb.opentsdb.TsdbAccessOpenTsdb.VALUE;
+import static com.oisp.databackend.datasources.tsdb.opentsdb.TsdbAccessOpenTsdb.TYPE;
+import static com.oisp.databackend.datasources.tsdb.opentsdb.TsdbAccessOpenTsdb.VALUE;
 
 public final class TsdbObjectBuilder {
 
@@ -17,43 +20,33 @@ public final class TsdbObjectBuilder {
 
     }
 
-    public static List<TsdbObject> extractLocationObjects(List<TsdbObject> tsdbObjects) {
+    public static List<TsdbObject> extractLocationObjects(List<Observation> observations) {
 
-        List<TsdbObject> locationObjects = new ArrayList<TsdbObject>();
-        tsdbObjects.forEach((element)
-                -> {
-                Map<String, String> attributes = element.getAttributes();
-                if (attributes.size() == 0) {
-                    return;
-                }
-                for (int i = 0; i < TsdbAccessOpenTsdb.GPS_COORDINATES; i++) {
-                    String locationName = DataFormatter.gpsValueToString(i);
-                    if (attributes.get(locationName) != null) {
-                        TsdbObject locationObject = new TsdbObject(element);
-                        TsdbValue value = new TsdbValueString(
-                                element.getAttributes().get(locationName)
-                        );
-                        locationObject.setValue(value);
-                        addTypeAttribute(locationObject, locationName);
-                        attributes.remove(locationName);
-                        locationObjects.add(locationObject);
+        return observations.stream()
+                .filter(element -> ! element.getLoc().isEmpty())
+                .flatMap(element
+                        -> {
+                    String metric = getMetric(element.getAid(), element.getCid());
+                    List<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
+                    for (int i = 0; i < element.getLoc().size(); i++) {
+                        TsdbObject tsdbObject = new TsdbObject(metric, element.getValue(), element.getOn(), element.getAttributes());
+                        addTypeAttribute(tsdbObject, DataFormatter.gpsValueToString(i));
+                        tsdbObjects.add(tsdbObject);
                     }
-                }
-            });
-        return locationObjects;
+                    return tsdbObjects.stream();
+                })
+               .collect(Collectors.toList());
     }
 
 
     public static void addTypeAttributes(List<TsdbObject> tsdbObjects, String attr) {
         for (TsdbObject tsdbObject: tsdbObjects) {
-            tsdbObject.setAttribute(TYPE, attr);
+           addTypeAttribute(tsdbObject, attr);
         }
     }
 
     private static void addTypeAttribute(TsdbObject tsdbObject, String attr) {
-        List<TsdbObject> list = new ArrayList<TsdbObject>();
-        list.add(tsdbObject);
-        addTypeAttributes(list, attr);
+        tsdbObject.setAttribute(TYPE, attr);
     }
 
     private static void addTagsFromQuery(SortedMap<Long, TsdbObject> tsdbObjectsMap, QueryResponse[] queryResponses) {
@@ -111,7 +104,8 @@ public final class TsdbObjectBuilder {
             for (Map.Entry<Long, String> entry:  dps.entrySet()) {
                 Long timestamp = entry.getKey();
                 String value = entry.getValue();
-                TsdbObject tsdbObject = new TsdbObject(metric, new TsdbValueString(value), timestamp);
+                TsdbObject tsdbObject = new TsdbObject(metric,
+                        value, timestamp);
                 tsdbObjectsMap.put(timestamp, tsdbObject);
             }
         }
@@ -150,6 +144,38 @@ public final class TsdbObjectBuilder {
         }
 
         return keepTagMapEmpty;
+    }
+
+
+    private static String getMetric(String accountId, String componentId) {
+        return accountId + "." + componentId;
+    }
+
+    public static List<TsdbObject> createTsdbObjectsFromObservations(List<Observation> observations) {
+        return observations.stream()
+                .flatMap(element
+                        -> getTsdbObjectsfromObservation(element).stream())
+                .collect(Collectors.toList());
+    }
+
+    public static List<TsdbObject> getTsdbObjectsfromObservation(Observation o) {
+
+        List<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
+        String metric = getMetric(o.getAid(), o.getCid());
+        long timestamp = o.getOn();
+        String value = o.getValue();
+        TsdbObject put = new TsdbObject()
+                .withMetric(metric)
+                .withTimestamp(timestamp)
+                .withValue(value);
+        put.setAllAttributes(o.getAttributes());
+        List<Observation> observations = new ArrayList<Observation>();
+        observations.add(o);
+        List<TsdbObject> tsdbObjectsWithLoc = extractLocationObjects(observations);
+        Map<String, String> attributes = o.getAttributes();
+        put.setAllAttributes(attributes);
+        tsdbObjects.add(put);
+        return tsdbObjects;
     }
 
 }

@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.tsdb.opentsdb;
+package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataFormatter;
-import com.oisp.databackend.tsdb.TsdbAccess;
-import com.oisp.databackend.tsdb.TsdbObject;
-import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.Query;
-import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.QueryResponse;
-import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.RestApi;
-import com.oisp.databackend.tsdb.opentsdb.opentsdbapi.SubQuery;
+import com.oisp.databackend.datasources.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.Query;
+import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.QueryResponse;
+import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.RestApi;
+import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.SubQuery;
 
+import com.oisp.databackend.datastructures.Observation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -56,22 +57,17 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     }
 
     @Override
-    public boolean put(List<TsdbObject> tsdbObjects) {
+    public boolean put(List<Observation> observations) {
+        List<TsdbObject> tsdbObjects = TsdbObjectBuilder.createTsdbObjectsFromObservations(observations);
 
-        List<TsdbObject> locationObjects = TsdbObjectBuilder.extractLocationObjects(tsdbObjects);
-        TsdbObjectBuilder.addTypeAttributes(tsdbObjects, VALUE);
-        if (!locationObjects.isEmpty()) {
-            tsdbObjects.addAll(locationObjects);
-        }
-
-        return api.put(tsdbObjects, true);
+        return api.put(observations, true);
     }
 
     @Override
-    public boolean put(TsdbObject tsdbObject) {
+    public boolean put(Observation observation) {
 
-        List<TsdbObject> list = new ArrayList<TsdbObject>();
-        list.add(tsdbObject);
+        List<Observation> list = new ArrayList<Observation>();
+        list.add(observation);
 
         return put(list);
     }
