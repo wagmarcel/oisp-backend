@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.tsdb.hbase;
+package com.oisp.databackend.datasources.tsdb.hbase;
 
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -39,7 +39,7 @@ class HbaseScanManager {
     }
 
     public HbaseScanManager create(long start, long stop) {
-        long fixedStop = DataFormatter.fixStopForExclusiveScan(start, stop);
+        long fixedStop = HbaseDataFormatter.fixStopForExclusiveScan(start, stop);
         scan = new Scan(
                 createRow(start),
                 createRow(fixedStop)
@@ -50,12 +50,12 @@ class HbaseScanManager {
     }
 
     public byte[] createRow(long timestamp) {
-        String sb = rowPrefix + '.' + DataFormatter.zeroPrefixedTimestamp(timestamp);
+        String sb = rowPrefix + '.' + HbaseDataFormatter.zeroPrefixedTimestamp(timestamp);
         return Bytes.toBytes(sb);
     }
 
     public HbaseScanManager askForData(Set<String> attributes) {
-        scan.addColumn(com.oisp.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, com.oisp.databackend.tsdb.hbase.Columns.BYTES_DATA_COLUMN);
+        scan.addColumn(com.oisp.databackend.datasources.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, com.oisp.databackend.datasources.tsdb.hbase.Columns.BYTES_DATA_COLUMN);
         askForAdditionalInformation(attributes);
         return this;
     }
@@ -96,7 +96,7 @@ class HbaseScanManager {
 
     private void askForAttributes(Set<String> attributes) {
         for (String a : attributes) {
-            scan.addColumn(com.oisp.databackend.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(com.oisp.databackend.tsdb.hbase.Columns.ATTRIBUTE_COLUMN_PREFIX + a));
+            scan.addColumn(com.oisp.databackend.datasources.tsdb.hbase.Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(com.oisp.databackend.datasources.tsdb.hbase.Columns.ATTRIBUTE_COLUMN_PREFIX + a));
         }
     }
 }

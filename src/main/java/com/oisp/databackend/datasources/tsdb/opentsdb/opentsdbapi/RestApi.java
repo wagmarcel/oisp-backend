@@ -1,9 +1,9 @@
-package com.oisp.databackend.tsdb.opentsdb.opentsdbapi;
+package com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oisp.databackend.config.oisp.OispConfig;
-import com.oisp.databackend.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -62,10 +62,13 @@ public class RestApi {
 
     }
 
-    public boolean put(List<TsdbObject> tsdbObjects, boolean sync) {
-        List<String> jsonObjects = tsdbObjectToJSON(tsdbObjects);
-        CloseableHttpClient client = HttpClients.createDefault();
 
+
+    public boolean put(List<TsdbObject> tsdbObjects, boolean sync) {
+
+        List<String> jsonObjects = tsdbObjectsToJSON(tsdbObjects);
+
+        CloseableHttpClient client = HttpClients.createDefault();
 
         StringEntity entity = null;
         for (String jsonObject: jsonObjects) {
@@ -81,8 +84,10 @@ public class RestApi {
 
                 CloseableHttpResponse response = client.execute(httpPost);
                 int statusCode = response.getStatusLine().getStatusCode();
-                logger.info("StatusCode of request: " + statusCode);
+                logger.debug("StatusCode of put response: " + statusCode);
                 if (statusCode != PUTOK) {
+                    logger.error("Status code: {}, Error reason {}", statusCode, EntityUtils.toString(
+                            response.getEntity(), "UTF-8"));
                     return false;
                 }
             } catch (IOException e) {
@@ -92,7 +97,7 @@ public class RestApi {
         return true;
     }
 
-    List<String> tsdbObjectToJSON(List<TsdbObject> tsdbObjects) {
+    List<String> tsdbObjectsToJSON(List<TsdbObject> tsdbObjects) {
         ObjectMapper mapper = new ObjectMapper();
         List<String> resultObjects = new ArrayList<String>();
         String remaining = tsdbObjects.stream()
@@ -100,7 +105,7 @@ public class RestApi {
                         try {
                             return mapper.writeValueAsString(obj);
                         } catch (JsonProcessingException e) {
-                            logger.warn("Could not convert object to JSON " + e);
+                            logger.error("Could not convert object to JSON " + e);
                             return "";
                         }
                     })
@@ -134,7 +139,7 @@ public class RestApi {
             httpPost.setHeader(CONTENTTYPE, CONTENT_TYPE_JSON);
             CloseableHttpResponse response = client.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
-            logger.info("StatusCode of response: " + statusCode);
+            logger.debug("StatusCode of query response: " + statusCode);
             if (statusCode != QUERYOK) {
                 return null;
             }
@@ -143,7 +148,6 @@ public class RestApi {
             if (responseEntity != null) {
                 body = EntityUtils.toString(responseEntity);
             }
-            logger.info("Body of request" + body);
         } catch (IOException e) {
             logger.error("Could not create JSON payload for query POST request: " + e);
             return null;

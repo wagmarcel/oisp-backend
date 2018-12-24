@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.api.kafka;
 
+import com.oisp.databackend.config.oisp.BackendConfig;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
@@ -56,6 +57,15 @@ public class KafkaSenderServiceTest {
     @Mock
     private KafkaProducer<String, Observation> kafkaProducer;
 
+    @Mock
+    private BackendConfig backendConfig;
+
+    @Mock
+    private com.oisp.databackend.config.oisp.KafkaConfig kafkaOispConfig;
+
+    @Mock
+    private com.oisp.databackend.config.oisp.ZookeeperConfig zookeeperConfig;
+
     @InjectMocks
     private KafkaSenderService kafkaSenderService;
 
@@ -68,12 +78,15 @@ public class KafkaSenderServiceTest {
 
         PowerMockito.mockStatic(AdminUtils.class);
         Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenReturn(true);
-
-        //Mockito.when(serviceConfigProvider.getBackendConfig().getKafkaConfig().getTopicsObservations()).thenReturn(TOPIC);
-        //Mockito.when(serviceConfigProvider.getBackendConfig().getKafkaConfig().getPartitions()).thenReturn(1);
-        //Mockito.when(serviceConfigProvider.getBackendConfig().getKafkaConfig().getReplication()).thenReturn(1);
-        //Mockito.when(serviceConfigProvider.getBackendConfig().getKafkaConfig().getTimeoutMs()).thenReturn(10);
-        //Mockito.when(serviceConfigProvider.getBackendConfig().getZookeeperConfig().getZkCluster()).thenReturn("localhost");
+        PowerMockito.when(serviceConfigProvider.getBackendConfig()).thenReturn(backendConfig);
+        PowerMockito.when(backendConfig.getKafkaConfig()).thenReturn(kafkaOispConfig);
+        PowerMockito.when(backendConfig.getZookeeperConfig()).thenReturn(zookeeperConfig);
+        PowerMockito.when(kafkaOispConfig.getUri()).thenReturn("kafka");
+        Mockito.when(serviceConfigProvider.getBackendConfig().getKafkaConfig().getTopicsObservations()).thenReturn(TOPIC);
+        Mockito.when(serviceConfigProvider.getBackendConfig().getKafkaConfig().getPartitions()).thenReturn(1);
+        Mockito.when(serviceConfigProvider.getBackendConfig().getKafkaConfig().getReplication()).thenReturn(1);
+        Mockito.when(serviceConfigProvider.getBackendConfig().getKafkaConfig().getTimeoutMs()).thenReturn(10);
+        Mockito.when(serviceConfigProvider.getBackendConfig().getZookeeperConfig().getZkCluster()).thenReturn("localhost");
     }
 
     @After
@@ -83,37 +96,37 @@ public class KafkaSenderServiceTest {
 
     @Test
     public void testCreateTopic_topic_exist() throws ConfigEnvironmentException {
-        //kafkaSenderService.createTopic();
-        //kafkaSenderService.close();
-        //Mockito.verify(kafkaProducer).close();
-        //Mockito.verifyNoMoreInteractions(kafkaProducer);
-        assert true;
+        kafkaSenderService.createTopic();
+        kafkaSenderService.close();
+        Mockito.verify(kafkaProducer).close();
+        Mockito.verifyNoMoreInteractions(kafkaProducer);
+        //assert true;
     }
 
     @Test
     public void testCreateTopic_topic_not_exist() throws ConfigEnvironmentException {
-        //Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenReturn(false);
-        //kafkaSenderService.createTopic();
-        //kafkaSenderService.close();
-        //Mockito.verify(kafkaProducer).close();
-        //Mockito.verifyNoMoreInteractions(kafkaProducer);
-        assert true;
+        Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenReturn(false);
+        kafkaSenderService.createTopic();
+        kafkaSenderService.close();
+        Mockito.verify(kafkaProducer).close();
+        Mockito.verifyNoMoreInteractions(kafkaProducer);
+        //assert true;
     }
 
     @Test
     public void testCreateTopic_error_handling() throws Exception {
-        //Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenThrow(new ZkException());
-        //kafkaSenderService.createTopic();
-        //kafkaSenderService.close();
-        //Mockito.verifyNoMoreInteractions(kafkaProducer);
-        assert true;
+        Mockito.when(AdminUtils.topicExists(zkUtils, TOPIC)).thenThrow(new ZkException());
+        kafkaSenderService.createTopic();
+        kafkaSenderService.close();
+        Mockito.verifyNoMoreInteractions(kafkaProducer);
+        //assert true;
     }
 
     @Test
     public void testSend() throws Exception {
-        //kafkaSenderService.createTopic();
-        //kafkaSenderService.send(Arrays.asList(new Observation()));
-        //Mockito.verify(kafkaProducer).send(Mockito.anyObject(), Mockito.anyObject());
-        assert true;
+        kafkaSenderService.createTopic();
+        kafkaSenderService.send(Arrays.asList(new Observation()));
+        Mockito.verify(kafkaProducer).send(Mockito.anyObject(), Mockito.anyObject());
+        //assert true;
     }
 }

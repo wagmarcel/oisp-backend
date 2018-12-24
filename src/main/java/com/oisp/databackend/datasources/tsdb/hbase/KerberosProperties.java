@@ -1,4 +1,4 @@
-package com.oisp.databackend.tsdb.hbase;
+package com.oisp.databackend.datasources.tsdb.hbase;
 
 /**
  * Copyright (c) 2015 Intel Corporation

@@ -1,4 +1,4 @@
-package com.oisp.databackend.tsdb.opentsdb.opentsdbapi;
+package com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
