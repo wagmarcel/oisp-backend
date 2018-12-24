@@ -1,7 +1,6 @@
-package com.oisp.databackend.tsdb.hbase;
+package com.oisp.databackend.datasources.tsdb.hbase;
 
-import com.oisp.databackend.tsdb.TsdbObject;
-import com.oisp.databackend.tsdb.TsdbValueString;
+import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -53,13 +52,11 @@ class TsdbObjectCreator {
 
     private void addBasicInformation() {
         String key = Bytes.toString(result.getRow());
-        TsdbValueString value = new TsdbValueString();
-        String stringValue = new String(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
-        value.set(stringValue);
-        observation.setTimestamp(DataFormatter.getTimeFromKey(key)); //0L;
+        String value = new String(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
+        observation.setTimestamp(HbaseDataFormatter.getTimeFromKey(key)); //0L;
         observation.setValue(value);
         observation.setAllAttributes(new HashMap<String, String>());
-        observation.setMetric(DataFormatter.getMetricFromKey(key));
+        observation.setMetric(HbaseDataFormatter.getPrefixFromKey(key));
     }
 
     private void addAdditionalInformation() {

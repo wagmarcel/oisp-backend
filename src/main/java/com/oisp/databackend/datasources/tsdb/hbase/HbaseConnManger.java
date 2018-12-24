@@ -1,4 +1,4 @@
-package com.oisp.databackend.tsdb.hbase;
+package com.oisp.databackend.datasources.tsdb.hbase;
 
 import com.oisp.databackend.config.oisp.KerberosConfig;
 import com.oisp.databackend.config.oisp.OispConfig;

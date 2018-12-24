@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.tsdb.hbase;
+package com.oisp.databackend.datasources.tsdb.hbase;
 
 import com.oisp.databackend.config.oisp.TsdbHBaseCondition;
-import com.oisp.databackend.tsdb.TsdbObject;
-import com.oisp.databackend.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
+import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datasources.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.DataFormatter;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -38,6 +40,7 @@ import javax.annotation.PreDestroy;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Primary
 @Repository
@@ -47,6 +50,7 @@ public class TsdbAccessHBase implements TsdbAccess {
     private final String tableName;
     private final byte[] tableNameBytes;
     private static final String DEVICE_MEASUREMENT = "_DEVICE_MEASUREMENT";
+    private static final String SEPARATOR = ".";
 
     private Connection connection;
     @Autowired
@@ -103,12 +107,12 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public boolean put(List<TsdbObject> tsdbObjects) {
+    public boolean put(List<Observation> observations) {
 
         try (Table table = getHbaseTable()) {
 
             List<Put> puts = new ArrayList<Put>();
-            for (TsdbObject obs : tsdbObjects) {
+            for (Observation obs : observations) {
                 puts.add(getPutForObservation(obs));
             }
             table.put(puts);
@@ -119,23 +123,40 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public boolean put(TsdbObject tsdbObjects) {
+    public boolean put(Observation observation) {
 
-        List<TsdbObject> puts = new ArrayList<TsdbObject>();
-        puts.add(tsdbObjects);
+        List<Observation> puts = new ArrayList<Observation>();
+        puts.add(observation);
         return put(puts);
     }
 
 
-    byte[] getRowKey(TsdbObject tsdbObject) {
-        return Bytes.toBytes(tsdbObject.getMetric() + "." + DataFormatter.zeroPrefixedTimestamp(tsdbObject.getTimestamp()));
+    byte[] getRowKey(Observation observation) {
+        return Bytes.toBytes(observation.getAid() + SEPARATOR + observation.getCid() + SEPARATOR + DataFormatter.zeroPrefixedTimestamp(observation.getOn()));
     }
 
+    byte[] getRowPrefix(TsdbQuery tsdbQuery) {
+        return Bytes.toBytes(tsdbQuery.getAid() + SEPARATOR + tsdbQuery.getCid());
+    }
 
-    private Put getPutForObservation(TsdbObject tsdbObject) {
-        Put put = new Put(getRowKey(tsdbObject));
-        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) tsdbObject.getValue().get()));
-        Map<String, String> attributes = tsdbObject.getAttributes();
+    private Put getPutForObservation(Observation observation) {
+        Put put = new Put(getRowKey(observation));
+        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) observation.getValue()));
+        Map<String, String> attributes = observation.getAttributes();
+        // In hbase, we treat gps coordinates as special columns
+        // like the attributes. So we add all gps coordinates to attributes
+        if (observation.getLoc() != null) {
+            if (attributes == null) { // no attributes?, but we need the structure for location data as well
+                attributes = new HashMap<String, String>();
+                observation.setAttributes(attributes);
+            }
+            for (int i = 0; i < observation.getLoc().size() && i < ObservationCreator.GPS_COLUMN_SIZE; i++) {
+                String gpsAttributeName = DataFormatter.gpsValueToString(i);
+                if (observation.getLoc().get(i) != null) {
+                    observation.getAttributes().put(gpsAttributeName, observation.getLoc().get(i).toString());
+                }
+            }
+        }
         if (attributes != null) {
             for (String k : attributes.keySet()) {
                 put.addColumn(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.ATTRIBUTE_COLUMN_PREFIX + k),
@@ -145,61 +166,82 @@ public class TsdbAccessHBase implements TsdbAccess {
         return put;
     }
 
+    private void addLocationColumns(List<String> attributeList) {
+        attributeList.add(DataFormatter.gpsValueToString(0));
+        attributeList.add(DataFormatter.gpsValueToString(1));
+        attributeList.add(DataFormatter.gpsValueToString(2));
+    }
+
     @Override
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
-        logger.debug("Scanning HBase: row: {} start: {} stop: {}", tsdbObject.getMetric(), start, stop);
-        Set<String> attributesSet = tsdbObject.getAttributes().keySet();
-        Scan scan = new HbaseScanManager(tsdbObject.getMetric()).create(start, stop).askForData(attributesSet).getScan();
-        return getObservations(scan, attributesSet);
+    public Observation[] scan(TsdbQuery tsdbQuery) {
+        logger.debug("Scanning HBase: aid: {} cid: {} start: {} stop: {}", tsdbQuery.getAid(), tsdbQuery.getCid(), tsdbQuery.getStart(), tsdbQuery.getStop());
+        if (tsdbQuery.isLocationInfo()) {
+            addLocationColumns(tsdbQuery.getAttributes());
+        }
+        Scan scan = new HbaseScanManager(
+                new String(getRowPrefix(tsdbQuery)))
+                .create(tsdbQuery.getStart(), tsdbQuery.getStop())
+                .askForData(tsdbQuery.getAttributes().stream().collect(Collectors.toSet()))
+                .getScan();
+        return getObservations(tsdbQuery, scan);
     }
 
 
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit) {
-        logger.debug("Scanning HBase: row {} start: {} stop: {} with limit: {}",
-                tsdbObject.getMetric(), start, stop, limit);
-        HbaseScanManager scanManager = new HbaseScanManager(tsdbObject.getMetric());
-        Set<String> attributesSet = tsdbObject.getAttributes().keySet();
+    public Observation[] scan(TsdbQuery tsdbQuery, boolean forward, int limit) {
+        logger.debug("Scanning HBase: aid: {} cid: {} start: {} stop: {} with limit: {}",
+                tsdbQuery.getAid(), tsdbQuery.getCid(), tsdbQuery.getStart(), tsdbQuery.getStop(), limit);
+        HbaseScanManager scanManager = new HbaseScanManager(new String(getRowPrefix(tsdbQuery)));
+        Set<String> attributesSet = tsdbQuery.getAttributes().stream().collect(Collectors.toSet());
         if (forward) {
-            scanManager.create(start, stop);
+            scanManager.create(tsdbQuery.getStart(), tsdbQuery.getStop());
         } else {
-            scanManager.create(stop, start).setReversed();
+            scanManager.create(tsdbQuery.getStop(), tsdbQuery.getStart()).setReversed();
         }
-        scanManager.askForData(tsdbObject.getAttributes().keySet());
+        scanManager.askForData(attributesSet);
 
         logger.debug("Scanning with limit: {}", limit);
         Scan scan = scanManager.setCaching(limit)
                 .setFilter(new PageFilter(limit))
                 .getScan();
-        return getObservations(scan, attributesSet);
+        return getObservations(tsdbQuery, scan);
     }
 
 
-    private TsdbObject[] getObservations(Scan scan,  Set<String> attributesSet) {
+    private Observation[] getObservations(TsdbQuery tsdbQuery, Scan scan) {
         try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
-            List<TsdbObject> observations = new ArrayList<>();
+            List<Observation> observations = new ArrayList<>();
             for (Result result : scanner) {
-                TsdbObject observation = new TsdbObjectCreator().withAttributes(attributesSet)
+                boolean gps = tsdbQuery.isLocationInfo();
+                Observation observation = new ObservationCreator(tsdbQuery.getAid(), tsdbQuery.getCid())
+                        .withAttributes(tsdbQuery.getAttributes().stream().collect(Collectors.toSet()))
+                        .withGps(gps)
                         .create(result);
                 observations.add(observation);
             }
-            return observations.toArray(new TsdbObject[observations.size()]);
+            return observations.toArray(new Observation[observations.size()]);
         } catch (IOException ex) {
             logger.error("Unable to find observation in hbase", ex);
             return null;
         }
     }
 
-    public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
+    public String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException {
 
-        logger.debug("Scanning HBase: getMetric: {} start: {} stop: {}", tsdbObject.getMetric(), start, stop);
+        logger.debug("Scanning HBase: accountId: {} componentId: {} start: {} stop: {}", tsdbQuery.getAid(), tsdbQuery.getCid(), tsdbQuery.getStart(), tsdbQuery.getStop());
 
-        Scan scan = new HbaseScanManager(tsdbObject.getMetric())
-                .create(start, stop)
+        Scan scan = new HbaseScanManager(
+                DataFormatter.createMetric(tsdbQuery.getAid(), tsdbQuery.getCid()))
+                .create(tsdbQuery.getStart(), tsdbQuery.getStop())
                 .setFilter(new ColumnPrefixFilter(Columns.BYTES_ATTRIBUTE_COLUMN_PREFIX))
                 .getScan();
 
-        Set<String> attributeNames = retrieveAttributeNames(scan);
-        return attributeNames.toArray(new String[attributeNames.size()]);
+        return retrieveAttributeNames(scan)
+                .stream()
+                .filter((String s) ->
+                        !s.equals(DataFormatter.gpsValueToString(0))
+                        && !s.equals(DataFormatter.gpsValueToString(1))
+                        && !s.equals(DataFormatter.gpsValueToString(2)))
+                .toArray(String[]::new);
     }
 
     private Set<String> retrieveAttributeNames(Scan scan) throws IOException {
@@ -208,7 +250,7 @@ public class TsdbAccessHBase implements TsdbAccess {
             for (Result result = scanner.next(); result != null; result = scanner.next()) {
                 List<Cell> cells = result.listCells();
                 for (Cell cell : cells) {
-                    String attrName = DataFormatter.getAttrNameFromCell(cell);
+                    String attrName = HbaseDataFormatter.getAttrNameFromCell(cell);
                     attributes.add(attrName);
                 }
             }

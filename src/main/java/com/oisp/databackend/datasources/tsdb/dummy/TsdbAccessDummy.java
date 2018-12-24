@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.tsdb.dummy;
+package com.oisp.databackend.datasources.tsdb.dummy;
 
-import com.oisp.databackend.tsdb.TsdbAccess;
-import com.oisp.databackend.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
+import com.oisp.databackend.datastructures.Observation;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -27,29 +28,29 @@ import java.util.*;
 public class TsdbAccessDummy implements TsdbAccess {
 
     @Override
-    public boolean put(List<TsdbObject> tsdbObjects) {
+    public boolean put(List<Observation> observations) {
         return true;
     }
 
     @Override
-    public boolean put(TsdbObject tsdbObjects) {
+    public boolean put(Observation observation) {
         return true;
     }
 
 
     @Override
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
+    public Observation[] scan(TsdbQuery tsdbQuery) {
 
-        return new TsdbObject[0];
+        return new Observation[0];
     }
 
     @Override
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit) {
-        return new TsdbObject[0];
+    public Observation[] scan(TsdbQuery tsdbQuery, boolean forward, int limit) {
+        return new Observation[0];
     }
 
 
-    public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
+    public String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException {
 
         return new String[0];
     }

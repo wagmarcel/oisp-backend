@@ -18,11 +18,10 @@ package com.oisp.databackend.datasources;
 
 
 import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
-import com.oisp.databackend.tsdb.TsdbAccess;
-import com.oisp.databackend.tsdb.TsdbObject;
-import com.oisp.databackend.tsdb.TsdbValueString;
+import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,102 +66,56 @@ public class DataDaoImpl implements DataDao {
     @Override
     public boolean put(final Observation[] observations) {
 
-        List<TsdbObject> puts = new ArrayList<TsdbObject>();
-        for (Observation obs : observations) {
-            puts.add(getPutForObservation(obs));
-        }
-
-        tsdbAccess.put(puts);
-
+        tsdbAccess.put(Arrays.asList(observations));
         return true;
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributes) {
-        logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
-
-        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
-        if (attributes != null) {
-            for (String attr: attributes) {
-                tsdbObject.setAttribute(attr, "");
-            }
-        }
-        if (gps) {
-            tsdbObject.setAttribute(DataFormatter.gpsValueToString(0), "");
-            tsdbObject.setAttribute(DataFormatter.gpsValueToString(1), "");
-            tsdbObject.setAttribute(DataFormatter.gpsValueToString(2), "");
-        }
-        TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop);
-
-        return getObservations(tsdbObjects, gps);
+    public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributeList) {
+        logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
+        TsdbQuery tsdbQuery = new TsdbQuery()
+                .withAid(accountId)
+                .withCid(componentId)
+                .withLocationInfo(gps)
+                .withAttributes(attributeList)
+                .withStart(start)
+                .withStop(stop);
+        return tsdbAccess.scan(tsdbQuery);
     }
 
     @Override
     public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps,
-                              String[] attributes, boolean forward, int limit) {
-        logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {} with limit: {}",
+                              String[] attributeList, boolean forward, int limit) {
+        logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {} with limit: {}",
                 accountId, componentId, start, stop, gps, limit);
-        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
-        TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop, forward, limit);
-
-        return getObservations(tsdbObjects, gps);
+        TsdbQuery tsdbQuery = new TsdbQuery()
+                .withAid(accountId)
+                .withCid(componentId)
+                .withLocationInfo(gps)
+                .withAttributes(attributeList)
+                .withStart(start)
+                .withStop(stop);
+        Observation[] observations = tsdbAccess.scan(tsdbQuery, forward, limit);
+        //addLocToObservations(observations, gps);
+        return observations;
     }
 
     @Override
     public String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException {
 
-        logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {}", accountId, componentId, start, stop);
-        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
-        String[] attributesArray = tsdbAccess.scanForAttributeNames(tsdbObject, start, stop);
+        logger.debug("Scanning TSD: acc: {} cid: {} start: {} stop: {}", accountId, componentId, start, stop);
+        TsdbQuery tsdbQuery = new TsdbQuery()
+                .withAid(accountId)
+                .withCid(componentId)
+                .withStart(start)
+                .withStop(stop);
+        String[] attributesArray = tsdbAccess.scanForAttributeNames(tsdbQuery);
 
         //Remove locX, locY, locZ attributes as these will be processed only when requested by location flag
-        String[] filteredAttr = Arrays.stream(attributesArray).filter((String s) ->
+        /*String[] filteredAttr = Arrays.stream(attributesArray).filter((String s) ->
                 !s.equals(DataFormatter.gpsValueToString(0))
                         && !s.equals(DataFormatter.gpsValueToString(1))
-                        && !s.equals(DataFormatter.gpsValueToString(2))).toArray(String[]::new);
-        return filteredAttr;
+                        && !s.equals(DataFormatter.gpsValueToString(2))).toArray(String[]::new);*/
+        return attributesArray;
     }
-
-    private Observation[] getObservations(TsdbObject[] tsdbObjects, boolean gps) {
-        List<Observation> observations = new ArrayList<>();
-        for (TsdbObject tsdbObject : tsdbObjects) {
-            Observation observation = new ObservationCreator(tsdbObject)
-                    .withAttributes(tsdbObject.getAttributes())
-                    .withGps(gps)
-                    .create();
-            observations.add(observation);
-        }
-        return observations.toArray(new Observation[observations.size()]);
-
-    }
-
-    private String getMetric(String accountId, String componentId) {
-        return accountId + "." + componentId;
-    }
-
-
-    private TsdbObject getPutForObservation(Observation o) {
-        TsdbObject put = new TsdbObject();
-        String metric = getMetric(o.getAid(), o.getCid());
-        put.setMetric(metric);
-        long timestamp = o.getOn();
-        put.setTimestamp(timestamp);
-        TsdbValueString value = new TsdbValueString();
-        value.set(o.getValue());
-        put.setValue(value);
-        if (o.getLoc() != null) {
-            for (int i = 0; i < o.getLoc().size() && i < ObservationCreator.GPS_COLUMN_SIZE; i++) {
-                String gpsAttributeName = DataFormatter.gpsValueToString(i);
-                put.setAttribute(gpsAttributeName, o.getLoc().get(i).toString());
-            }
-        }
-        Map<String, String> attributes = o.getAttributes();
-        if (attributes != null) {
-            for (String k : attributes.keySet()) {
-                put.setAttribute(k, attributes.get(k));
-            }
-        }
-        return put;
-    }
-
 }

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.tsdb;
+package com.oisp.databackend.datasources.tsdb;
+
+import com.oisp.databackend.datastructures.Observation;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,49 +31,41 @@ public interface TsdbAccess {
 
     /**
      *
-     * @param tsdbObject A single TSDB object to send the the data backend
+     * @param observation A single Observation to send the the data backend
      * @return true if successful, false otherwise
      */
-    boolean put(TsdbObject tsdbObject);
+    boolean put(Observation observation);
 
     /**
      *
-     * @param tsdbObjectList A list of TSDB objects to send to the data backend
+     * @param observationList A list of Observations to send to the data backend
      * @return true if successful, false otherwise
      */
-    boolean put(List<TsdbObject> tsdbObjectList);
+    boolean put(List<Observation> observationList);
 
     /**
      *
-     * @param tsdbObject Prototype of TSDB object to be retrieved. Contains metric and attributes to retrieve
-     * @param start timestamp in ms for first object
-     * @param stop timestamp in ms for last object
+     * @param tsdbQuery Query for observations to be retrieved.
      * @return list of retrieved TSDB objects
      */
-    TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop);
+    Observation[] scan(TsdbQuery tsdbQuery);
 
     /**
      * Can be used to scan a fixed number of samples from a timestamp, e.g. to show the 1000 most recent values
      * Useful for user interfaces with live data updates
-     * @param tsdbObject Prototype of TSDB object to be retrieved. Contains metric and attributes to retrieve
-     * @param start timestamp in ms for first object - when forward == true, timestamp for most recent possible
-     *              timestamp otherwise
-     * @param stop timestamp in ms for latest possible object - when forward == true, timestamp for first object
-     *             otherwise
+     * @param tsdbQuery query for Observations to be retrieved.
      * @param forward order of scanning, i.e. true means from old to new timestamps, false from new to old
      * @param limit max number of samples
      * @return list of retrieved TSDB objects
      */
-    TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit);
+    Observation[] scan(TsdbQuery tsdbQuery, boolean forward, int limit);
 
     /**
      * For advanced searches where all attributes are considered. Some backends need a list of all attributes
      * to retrieve them all.
-     * @param tsdbObject get list of all attributes within a time interval
-     * @param start timestamp in ms for first object
-     * @param stop timestamp in ms for last object
-     * @return Array of found tags
+     * @param tsdbQuery get list of all attribute names within a time interval
+     * @return Array of found tags/attribute names
      * @throws IOException
      */
-    String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException;
+    String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException;
 }
