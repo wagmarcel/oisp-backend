@@ -45,17 +45,17 @@ public interface TsdbAccess {
 
     /**
      *
-     * @param tsdbObject Prototype of TSDB object to be retrieved. Contains metric and attributes to retrieve
+     * @param observation Prototype of observation to be retrieved. Contains metric and attributes to retrieve
      * @param start timestamp in ms for first object
      * @param stop timestamp in ms for last object
      * @return list of retrieved TSDB objects
      */
-    TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop);
+    Observation[] scan(Observation observation, long start, long stop);
 
     /**
      * Can be used to scan a fixed number of samples from a timestamp, e.g. to show the 1000 most recent values
      * Useful for user interfaces with live data updates
-     * @param tsdbObject Prototype of TSDB object to be retrieved. Contains metric and attributes to retrieve
+     * @param observation Prototype of Observation object to be retrieved. Contains metric and attributes to retrieve
      * @param start timestamp in ms for first object - when forward == true, timestamp for most recent possible
      *              timestamp otherwise
      * @param stop timestamp in ms for latest possible object - when forward == true, timestamp for first object
@@ -64,7 +64,7 @@ public interface TsdbAccess {
      * @param limit max number of samples
      * @return list of retrieved TSDB objects
      */
-    TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit);
+    Observation[] scan(Observation observation, long start, long stop, boolean forward, int limit);
 
     /**
      * For advanced searches where all attributes are considered. Some backends need a list of all attributes

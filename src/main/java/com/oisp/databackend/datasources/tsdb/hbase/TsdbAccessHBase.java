@@ -17,7 +17,6 @@
 package com.oisp.databackend.datasources.tsdb.hbase;
 
 import com.oisp.databackend.config.oisp.TsdbHBaseCondition;
-import com.oisp.databackend.datasources.ObservationCreator;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.datasources.tsdb.TsdbObject;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
@@ -133,6 +132,9 @@ public class TsdbAccessHBase implements TsdbAccess {
         return Bytes.toBytes(observation.getAid() + "." + observation.getCid() + "." + DataFormatter.zeroPrefixedTimestamp(observation.getOn()));
     }
 
+    byte[] getRowPrefix(Observation observation) {
+        return Bytes.toBytes(observation.getAid() + "." + observation.getCid());
+    }
 
     private Put getPutForObservation(Observation observation) {
         Put put = new Put(getRowKey(observation));
@@ -160,43 +162,44 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
-        logger.debug("Scanning HBase: row: {} start: {} stop: {}", tsdbObject.getMetric(), start, stop);
-        Set<String> attributesSet = tsdbObject.getAttributes().keySet();
-        Scan scan = new HbaseScanManager(tsdbObject.getMetric()).create(start, stop).askForData(attributesSet).getScan();
-        return getObservations(scan, attributesSet);
+    public Observation[] scan(Observation observation, long start, long stop) {
+        logger.debug("Scanning HBase: aid: {} cid: {} start: {} stop: {}", observation.getAid(), observation.getCid(), start, stop);
+        Set<String> attributesSet = observation.getAttributes().keySet();
+        Scan scan = new HbaseScanManager(new String(getRowPrefix(observation))).create(start, stop).askForData(attributesSet).getScan();
+        return getObservations(observation, scan);
     }
 
 
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit) {
-        logger.debug("Scanning HBase: row {} start: {} stop: {} with limit: {}",
-                tsdbObject.getMetric(), start, stop, limit);
-        HbaseScanManager scanManager = new HbaseScanManager(tsdbObject.getMetric());
-        Set<String> attributesSet = tsdbObject.getAttributes().keySet();
+    public Observation[] scan(Observation observation, long start, long stop, boolean forward, int limit) {
+        logger.debug("Scanning HBase: aid: {} cid: {} start: {} stop: {} with limit: {}",
+                observation.getAid(), observation.getCid(), start, stop, limit);
+        HbaseScanManager scanManager = new HbaseScanManager(new String(getRowPrefix(observation)));
+        Set<String> attributesSet = observation.getAttributes().keySet();
         if (forward) {
             scanManager.create(start, stop);
         } else {
             scanManager.create(stop, start).setReversed();
         }
-        scanManager.askForData(tsdbObject.getAttributes().keySet());
+        scanManager.askForData(attributesSet);
 
         logger.debug("Scanning with limit: {}", limit);
         Scan scan = scanManager.setCaching(limit)
                 .setFilter(new PageFilter(limit))
                 .getScan();
-        return getObservations(scan, attributesSet);
+        return getObservations(observation, scan);
     }
 
 
-    private TsdbObject[] getObservations(Scan scan,  Set<String> attributesSet) {
+    private Observation[] getObservations(Observation observationProto, Scan scan) {
         try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
-            List<TsdbObject> observations = new ArrayList<>();
+            List<Observation> observations = new ArrayList<>();
             for (Result result : scanner) {
-                TsdbObject observation = new TsdbObjectCreator().withAttributes(attributesSet)
+                Observation observation = new ObservationCreator(observationProto.getAid(), observationProto.getCid())
+                        .withAttributes(observationProto.getAttributes().keySet())
                         .create(result);
                 observations.add(observation);
             }
-            return observations.toArray(new TsdbObject[observations.size()]);
+            return observations.toArray(new Observation[observations.size()]);
         } catch (IOException ex) {
             logger.error("Unable to find observation in hbase", ex);
             return null;

@@ -1,10 +1,7 @@
 package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import com.oisp.databackend.datasources.DataFormatter;
-import com.oisp.databackend.datasources.ObservationCreator;
 import com.oisp.databackend.datasources.tsdb.TsdbObject;
-import com.oisp.databackend.datasources.tsdb.TsdbValue;
-import com.oisp.databackend.datasources.tsdb.TsdbValueString;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.QueryResponse;
 import com.oisp.databackend.datastructures.Observation;
 

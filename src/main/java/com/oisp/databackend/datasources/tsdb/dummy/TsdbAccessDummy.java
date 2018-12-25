@@ -39,14 +39,14 @@ public class TsdbAccessDummy implements TsdbAccess {
 
 
     @Override
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
+    public Observation[] scan(Observation observation, long start, long stop) {
 
-        return new TsdbObject[0];
+        return new Observation[0];
     }
 
     @Override
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit) {
-        return new TsdbObject[0];
+    public Observation[] scan(Observation observation, long start, long stop, boolean forward, int limit) {
+        return new Observation[0];
     }
 
 

@@ -46,10 +46,10 @@ public final class DataFormatter {
         }
     }
 
-/*    public static Long getTimeFromKey(String key) {
+   public static Long getTimeFromKey(String key) {
         String[] parts = key.split(KEY_DELIMITER);
         return Long.parseLong(parts[2].trim());
-    }*/
+    }
 
     public static String getAccountFromKey(String key) {
         String[] parts = key.split(KEY_DELIMITER);

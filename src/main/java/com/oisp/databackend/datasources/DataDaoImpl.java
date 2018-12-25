@@ -18,11 +18,11 @@ package com.oisp.databackend.datasources;
 
 
 import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.tsdb.hbase.ObservationCreator;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbObject;
-import com.oisp.databackend.datasources.tsdb.TsdbValueString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,45 +67,30 @@ public class DataDaoImpl implements DataDao {
     @Override
     public boolean put(final Observation[] observations) {
 
-        /*List<TsdbObject> puts = new ArrayList<TsdbObject>();
-        for (Observation obs : observations) {
-            puts.add(getPutForObservation(obs));
-        }*/
-
         tsdbAccess.put(Arrays.asList(observations));
-
         return true;
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributes) {
+    public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributeList) {
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
-
-        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
-        if (attributes != null) {
-            for (String attr: attributes) {
-                tsdbObject.setAttribute(attr, "");
-            }
-        }
-        if (gps) {
-            tsdbObject.setAttribute(DataFormatter.gpsValueToString(0), "");
-            tsdbObject.setAttribute(DataFormatter.gpsValueToString(1), "");
-            tsdbObject.setAttribute(DataFormatter.gpsValueToString(2), "");
-        }
-        TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop);
-
-        return getObservations(tsdbObjects, gps);
+        Observation observation = new Observation(accountId, componentId, 0, "");
+        addLocAndAttributes(observation, attributeList, gps);
+        Observation[] observations = tsdbAccess.scan(observation, start, stop);
+        addLocToObservations(observations, gps);
+        return observations;
     }
 
     @Override
     public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps,
-                              String[] attributes, boolean forward, int limit) {
+                              String[] attributeList, boolean forward, int limit) {
         logger.debug("Scanning HBase: acc: {} cid: {} start: {} stop: {} gps: {} with limit: {}",
                 accountId, componentId, start, stop, gps, limit);
-        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
-        TsdbObject[] tsdbObjects = tsdbAccess.scan(tsdbObject, start, stop, forward, limit);
-
-        return getObservations(tsdbObjects, gps);
+        Observation observation = new Observation(accountId, componentId, 0, "");
+        addLocAndAttributes(observation, attributeList, gps);
+        Observation[] observations = tsdbAccess.scan(observation, start, stop, forward, limit);
+        addLocToObservations(observations, gps);
+        return observations;
     }
 
     @Override
@@ -123,17 +108,37 @@ public class DataDaoImpl implements DataDao {
         return filteredAttr;
     }
 
-    private Observation[] getObservations(TsdbObject[] tsdbObjects, boolean gps) {
-        List<Observation> observations = new ArrayList<>();
-        for (TsdbObject tsdbObject : tsdbObjects) {
-            Observation observation = new ObservationCreator(tsdbObject)
-                    .withAttributes(tsdbObject.getAttributes())
-                    .withGps(gps)
-                    .create();
-            observations.add(observation);
+    private void addLocAndAttributes(Observation observation, String[] attributeList, boolean gps) {
+        Map<String, String> attributes = new HashMap<String, String>();
+        if (attributeList != null) {
+            for (String attr: attributeList) {
+                attributes.put(attr, "");
+            }
         }
-        return observations.toArray(new Observation[observations.size()]);
+        if (gps) {
+            attributes.put(DataFormatter.gpsValueToString(0), "");
+            attributes.put(DataFormatter.gpsValueToString(1), "");
+            attributes.put(DataFormatter.gpsValueToString(2), "");
+        }
+        observation.setAttributes(attributes);
+    }
 
+    private void addLocToObservations(Observation[] observations, boolean gps) {
+        if (!gps) {
+            return;
+        }
+        //List<Observation> observations = new ArrayList<>();
+        for (Observation observation : observations) {
+            Map<String, String> attributes = observation.getAttributes();
+            for (int i = 0; i < ObservationCreator.GPS_COLUMN_SIZE; i++) {
+
+                String loc_string = attributes.get(DataFormatter.gpsValueToString(i));
+                if (loc_string != null) {
+                    observation.getLoc().add(Double.parseDouble(loc_string));
+                    attributes.remove(DataFormatter.gpsValueToString(i));
+                }
+            }
+        }
     }
 
     private String getMetric(String accountId, String componentId) {
