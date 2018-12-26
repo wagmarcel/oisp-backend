@@ -22,6 +22,7 @@ public final class DataFormatter {
     private static final String GPS_X_COLUMN = "locX";
     private static final String GPS_Y_COLUMN = "locY";
     private static final String GPS_Z_COLUMN = "locZ";
+    public static final int GPS_COLUMN_SIZE = 3;
 
     private static final String KEY_DELIMITER = "\\.";
 
@@ -46,26 +47,17 @@ public final class DataFormatter {
         }
     }
 
-   public static Long getTimeFromKey(String key) {
-        String[] parts = key.split(KEY_DELIMITER);
-        return Long.parseLong(parts[2].trim());
-    }
-
-    public static String getAccountFromKey(String key) {
+    public static String getAccountFromMetric(String key) {
         String[] parts = key.split(KEY_DELIMITER);
         return parts[0];
     }
 
-    public static String getComponentFromKey(String key) {
+    public static String getCidFromMetric(String key) {
         String[] parts = key.split(KEY_DELIMITER);
         return parts[1];
     }
 
-
-    public static long fixStopForExclusiveScan(long start, long stop) {
-        if (stop > start && Long.MAX_VALUE - stop > 1.0) {
-            return stop + 1;
-        }
-        return stop;
+    public static String createMetric(String accountId, String componentId) {
+        return accountId + "." + componentId;
     }
 }

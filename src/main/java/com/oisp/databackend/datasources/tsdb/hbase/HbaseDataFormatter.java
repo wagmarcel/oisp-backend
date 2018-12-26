@@ -16,19 +16,17 @@
 
 package com.oisp.databackend.datasources.tsdb.hbase;
 
+import com.oisp.databackend.datasources.DataFormatter;
 import org.apache.hadoop.hbase.Cell;
 
 import java.util.Arrays;
 
-final class DataFormatter {
+final class HbaseDataFormatter {
 
-    private static final String GPS_X_COLUMN = "locX";
-    private static final String GPS_Y_COLUMN = "locY";
-    private static final String GPS_Z_COLUMN = "locZ";
 
     private static final String KEY_DELIMITER = "\\.";
 
-    private DataFormatter() {
+    private HbaseDataFormatter() {
 
     }
 
@@ -36,25 +34,12 @@ final class DataFormatter {
         return String.format("%13d", ts);
     }
 
-    public static String gpsValueToString(int i) {
-        switch (i) {
-            case 0:
-                return GPS_X_COLUMN;
-            case 1:
-                return GPS_Y_COLUMN;
-            case 2:
-                return GPS_Z_COLUMN;
-            default:
-                throw new IllegalArgumentException("no such column #" + i);
-        }
-    }
-
     public static Long getTimeFromKey(String key) {
         String[] parts = key.split(KEY_DELIMITER);
         return Long.parseLong(parts[2].trim());
     }
 
-    public static String getMetricFromKey(String key) {
+    public static String getPrefixFromKey(String key) {
         String[] parts = key.split(KEY_DELIMITER);
         return new String(parts[0] + "." + parts[1]);
     }

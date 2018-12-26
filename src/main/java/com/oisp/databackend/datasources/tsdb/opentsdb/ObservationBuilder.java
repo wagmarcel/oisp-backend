@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 import static com.oisp.databackend.datasources.tsdb.opentsdb.TsdbAccessOpenTsdb.TYPE;
 import static com.oisp.databackend.datasources.tsdb.opentsdb.TsdbAccessOpenTsdb.VALUE;
 
-public final class TsdbObjectBuilder {
+public final class ObservationBuilder {
 
-    private TsdbObjectBuilder() {
+    private ObservationBuilder() {
 
     }
 
@@ -23,7 +23,7 @@ public final class TsdbObjectBuilder {
                 .filter(element -> ! element.getLoc().isEmpty())
                 .flatMap(element
                         -> {
-                    String metric = getMetric(element.getAid(), element.getCid());
+                    String metric = DataFormatter.createMetric(element.getAid(), element.getCid());
                     List<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
                     for (int i = 0; i < element.getLoc().size(); i++) {
                         TsdbObject tsdbObject = new TsdbObject(metric, element.getValue(), element.getOn(), element.getAttributes());
@@ -46,7 +46,7 @@ public final class TsdbObjectBuilder {
         tsdbObject.setAttribute(TYPE, attr);
     }
 
-    private static void addTagsFromQuery(SortedMap<Long, TsdbObject> tsdbObjectsMap, QueryResponse[] queryResponses) {
+    private static void addTagsFromQuery(SortedMap<Long, Observation> observationsMap, QueryResponse[] queryResponses) {
         for (QueryResponse queryResponse: queryResponses) {
             Map<String, String> types = queryResponse.getTags();
             Map<Long, String> dps = queryResponse.getDps();
@@ -59,15 +59,15 @@ public final class TsdbObjectBuilder {
 
                 for (Map.Entry<Long, String> entry : dps.entrySet()) {
                     Long timestamp = entry.getKey();
-                    if (tsdbObjectsMap.get(timestamp) != null) {
-                        tsdbObjectsMap.get(timestamp).setAttribute(tagK, tagV);
+                    if (observationsMap.get(timestamp) != null) {
+                        observationsMap.get(timestamp).getAttributes().put(tagK, tagV);
                     }
                 }
             }
         }
     }
 
-    private static void addGpsFromQuery(SortedMap<Long, TsdbObject> tsdbObjectsMap, QueryResponse[] queryResponses) {
+    private static void addGpsFromQuery(SortedMap<Long, Observation> observationsMap, QueryResponse[] queryResponses) {
         for (QueryResponse queryResponse: queryResponses) {
 
             String type = queryResponse.getTags().get(TYPE);
@@ -80,17 +80,16 @@ public final class TsdbObjectBuilder {
             for (Map.Entry<Long, String> entry : dps.entrySet()) {
                 Long timestamp = entry.getKey();
                 String value = entry.getValue();
-                if (tsdbObjectsMap.get(timestamp) != null) {
-                    tsdbObjectsMap.get(timestamp).setAttribute(type, value);
+                if (observationsMap.get(timestamp) != null) {
+                    observationsMap.get(timestamp).getAttributes().put(type, value);
                 }
             }
         }
     }
 
+    private static SortedMap<Long, Observation> createBaseObservations(QueryResponse[] queryResponses) {
 
-    private static SortedMap<Long, TsdbObject> createBaseTsdbObjects(QueryResponse[] queryResponses) {
-
-        SortedMap<Long, TsdbObject> tsdbObjectsMap = new TreeMap<>();
+        SortedMap<Long, Observation> observationMap = new TreeMap<>();
 
         for (QueryResponse queryResponse: queryResponses) {
             if (!queryResponse.getTags().get(TYPE).equals(VALUE)) {
@@ -101,29 +100,29 @@ public final class TsdbObjectBuilder {
             for (Map.Entry<Long, String> entry:  dps.entrySet()) {
                 Long timestamp = entry.getKey();
                 String value = entry.getValue();
-                TsdbObject tsdbObject = new TsdbObject(metric,
-                        value, timestamp);
-                tsdbObjectsMap.put(timestamp, tsdbObject);
+                Observation observation = new Observation(DataFormatter.getAccountFromMetric(metric),
+                        DataFormatter.getCidFromMetric(metric),
+                        timestamp, value);
+                observationMap.put(timestamp, observation);
             }
         }
-
-        return tsdbObjectsMap;
+        return observationMap;
     }
 
-    public static TsdbObject[] createTsdbObjectFromQueryResponses(QueryResponse[] queryResponses) {
+    public static Observation[] createObservationFromQueryResponses(QueryResponse[] queryResponses) {
 
         //first create the base objets with the value types
-        SortedMap<Long, TsdbObject> tsdbObjectsMap
-                = createBaseTsdbObjects(queryResponses);
+        SortedMap<Long, Observation> observationMap
+                = createBaseObservations(queryResponses);
 
         //Now add the gps tags if any
-        addGpsFromQuery(tsdbObjectsMap, queryResponses);
+        addGpsFromQuery(observationMap, queryResponses);
 
         //Now add the other tags
-        addTagsFromQuery(tsdbObjectsMap, queryResponses);
+        addTagsFromQuery(observationMap, queryResponses);
 
         // collect finally objects in an array
-        return tsdbObjectsMap.values().toArray(new TsdbObject[0]);
+        return observationMap.values().toArray(new Observation[0]);
     }
 
     public static boolean checkforTagMap(Map<String, String> attributes) {
@@ -143,11 +142,6 @@ public final class TsdbObjectBuilder {
         return keepTagMapEmpty;
     }
 
-
-    private static String getMetric(String accountId, String componentId) {
-        return accountId + "." + componentId;
-    }
-
     public static List<TsdbObject> createTsdbObjectsFromObservations(List<Observation> observations) {
         return observations.stream()
                 .flatMap(element
@@ -158,7 +152,7 @@ public final class TsdbObjectBuilder {
     public static List<TsdbObject> getTsdbObjectsfromObservation(Observation o) {
 
         List<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
-        String metric = getMetric(o.getAid(), o.getCid());
+        String metric = DataFormatter.createMetric(o.getAid(), o.getCid());
         long timestamp = o.getOn();
         String value = o.getValue();
         TsdbObject put = new TsdbObject()

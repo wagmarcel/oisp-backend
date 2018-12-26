@@ -39,7 +39,7 @@ class HbaseScanManager {
     }
 
     public HbaseScanManager create(long start, long stop) {
-        long fixedStop = DataFormatter.fixStopForExclusiveScan(start, stop);
+        long fixedStop = HbaseDataFormatter.fixStopForExclusiveScan(start, stop);
         scan = new Scan(
                 createRow(start),
                 createRow(fixedStop)
@@ -50,7 +50,7 @@ class HbaseScanManager {
     }
 
     public byte[] createRow(long timestamp) {
-        String sb = rowPrefix + '.' + DataFormatter.zeroPrefixedTimestamp(timestamp);
+        String sb = rowPrefix + '.' + HbaseDataFormatter.zeroPrefixedTimestamp(timestamp);
         return Bytes.toBytes(sb);
     }
 

@@ -58,7 +58,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
     @Override
     public boolean put(List<Observation> observations) {
-        List<TsdbObject> tsdbObjects = TsdbObjectBuilder.createTsdbObjectsFromObservations(observations);
+        //List<Observation> observations = ObservationBuilder.createTsdbObjectsFromObservations(observations);
 
         return api.put(observations, true);
     }
@@ -73,18 +73,19 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     }
 
     @Override
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop) {
+    public Observation[] scan(Observation observationProto, long start, long stop) {
         SubQuery subQuery = new SubQuery()
                 .withAggregator(SubQuery.AGGREGATOR_NONE)
-                .withMetric(tsdbObject.getMetric());
+                .withMetric(DataFormatter.createMetric(observationProto.getAid(),
+                        observationProto.getCid()));
 
-        Map<String, String> attributes = tsdbObject.getAttributes();
+        Map<String, String> attributes = observationProto.getAttributes();
         // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
         // openTSDB?)
-        boolean keepTagMapEmpty = TsdbObjectBuilder.checkforTagMap(attributes);
+        boolean keepTagMapEmpty = ObservationBuilder.checkforTagMap(attributes);
 
         if (keepTagMapEmpty) {
-            tsdbObject.setAllAttributes(new HashMap<String, String>());
+            observationProto.setAttributes(new HashMap<String, String>());
         } else {
             subQuery.withTag(TYPE, VALUE);
 
@@ -108,14 +109,14 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
         if (queryResponses == null) {
             return null;
         }
-        return TsdbObjectBuilder.createTsdbObjectFromQueryResponses(queryResponses);
+        return ObservationBuilder.createObservationFromQueryResponses(queryResponses);
     }
 
 
 
     @Override
-    public TsdbObject[] scan(TsdbObject tsdbObject, long start, long stop, boolean forward, int limit) {
-        return new TsdbObject[0];
+    public Observation[] scan(Observation observation, long start, long stop, boolean forward, int limit) {
+        return new Observation[0];
     }
 
 

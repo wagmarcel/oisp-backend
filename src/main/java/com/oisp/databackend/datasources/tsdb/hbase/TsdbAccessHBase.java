@@ -20,6 +20,7 @@ import com.oisp.databackend.config.oisp.TsdbHBaseCondition;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.datasources.tsdb.TsdbObject;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.DataFormatter;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -148,8 +149,10 @@ public class TsdbAccessHBase implements TsdbAccess {
                 observation.setAttributes(attributes);
             }
             for (int i = 0; i < observation.getLoc().size() && i < ObservationCreator.GPS_COLUMN_SIZE; i++) {
-                String gpsAttributeName = com.oisp.databackend.datasources.DataFormatter.gpsValueToString(i);
-                observation.getAttributes().put(gpsAttributeName, observation.getLoc().get(i).toString());
+                String gpsAttributeName = DataFormatter.gpsValueToString(i);
+                if (observation.getLoc().get(i) != null) {
+                    observation.getAttributes().put(gpsAttributeName, observation.getLoc().get(i).toString());
+                }
             }
         }
         if (attributes != null) {
@@ -161,12 +164,20 @@ public class TsdbAccessHBase implements TsdbAccess {
         return put;
     }
 
+    private void addLocationColumns(Map<String, String> attributeSet) {
+        for(int i = 0; i < DataFormatter.GPS_COLUMN_SIZE; i++) {
+            attributeSet.put(DataFormatter.gpsValueToString(i), "");
+        }
+    }
+
     @Override
-    public Observation[] scan(Observation observation, long start, long stop) {
-        logger.debug("Scanning HBase: aid: {} cid: {} start: {} stop: {}", observation.getAid(), observation.getCid(), start, stop);
-        Set<String> attributesSet = observation.getAttributes().keySet();
-        Scan scan = new HbaseScanManager(new String(getRowPrefix(observation))).create(start, stop).askForData(attributesSet).getScan();
-        return getObservations(observation, scan);
+    public Observation[] scan(Observation observationProto, long start, long stop) {
+        logger.debug("Scanning HBase: aid: {} cid: {} start: {} stop: {}", observationProto.getAid(), observationProto.getCid(), start, stop);
+        if ((observationProto.getLoc() != null) && !observationProto.getLoc().isEmpty()) {
+            addLocationColumns(observationProto.getAttributes());
+        }
+        Scan scan = new HbaseScanManager(new String(getRowPrefix(observationProto))).create(start, stop).askForData(observationProto.getAttributes().keySet()).getScan();
+        return getObservations(observationProto, scan);
     }
 
 
@@ -196,6 +207,7 @@ public class TsdbAccessHBase implements TsdbAccess {
             for (Result result : scanner) {
                 Observation observation = new ObservationCreator(observationProto.getAid(), observationProto.getCid())
                         .withAttributes(observationProto.getAttributes().keySet())
+                        .withGps(observationProto.getLoc() != null ? !observationProto.getLoc().isEmpty() : false)
                         .create(result);
                 observations.add(observation);
             }
@@ -225,7 +237,7 @@ public class TsdbAccessHBase implements TsdbAccess {
             for (Result result = scanner.next(); result != null; result = scanner.next()) {
                 List<Cell> cells = result.listCells();
                 for (Cell cell : cells) {
-                    String attrName = DataFormatter.getAttrNameFromCell(cell);
+                    String attrName = HbaseDataFormatter.getAttrNameFromCell(cell);
                     attributes.add(attrName);
                 }
             }

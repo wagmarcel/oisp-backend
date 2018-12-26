@@ -44,7 +44,7 @@ public class DataFormatterTest {
 
     /*@Test
     public void Invoke_DataFormatter_getTimeFromKey() {
-        assert DataFormatter.getTimeFromKey("test \0 datatime \0 1234 \0 key").equals(1234L);
+        assert DataFormatter.getTimeFromMetric("test \0 datatime \0 1234 \0 key").equals(1234L);
     }*/
 
     @Test

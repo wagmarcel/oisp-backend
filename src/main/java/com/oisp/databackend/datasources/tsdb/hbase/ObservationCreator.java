@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,8 +39,10 @@ public class ObservationCreator {
     private Set<String> attributes;
 
     public ObservationCreator(String accountId, String componentId) {
-        this.accountId = accountId;//DataFormatter.getAccountFromKey(rowKey);
-        this.componentId = componentId;//DataFormatter.getComponentFromKey(rowKey);
+        this.accountId = accountId;
+        this.componentId = componentId;
+        this.hasGps = false;
+
     }
 
     public ObservationCreator withGps(boolean hasGps) {
@@ -68,7 +69,7 @@ public class ObservationCreator {
         String value = Bytes.toString(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
         observation.setCid(componentId);
         observation.setAid(accountId);
-        observation.setOn(DataFormatter.getTimeFromKey(key)); //0L;
+        observation.setOn(HbaseDataFormatter.getTimeFromKey(key)); //0L;
         observation.setValue(value);
         observation.setAttributes(new HashMap<String, String>());
     }
