@@ -19,7 +19,6 @@ package com.oisp.databackend.datasources.tsdb.opentsdb;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
-import com.oisp.databackend.datasources.tsdb.TsdbObject;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.Query;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.QueryResponse;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.RestApi;

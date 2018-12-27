@@ -1,7 +1,6 @@
 package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import com.oisp.databackend.datasources.DataFormatter;
-import com.oisp.databackend.datasources.tsdb.TsdbObject;
 import com.oisp.databackend.datastructures.Observation;
 
 import java.util.ArrayList;

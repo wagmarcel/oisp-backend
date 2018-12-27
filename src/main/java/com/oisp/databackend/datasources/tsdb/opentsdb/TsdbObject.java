@@ -1,4 +1,4 @@
-package com.oisp.databackend.datasources.tsdb;
+package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -21,7 +21,7 @@ import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
-import com.oisp.databackend.datasources.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

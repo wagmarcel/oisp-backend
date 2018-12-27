@@ -3,7 +3,7 @@ package com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oisp.databackend.config.oisp.OispConfig;
-import com.oisp.databackend.datasources.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;

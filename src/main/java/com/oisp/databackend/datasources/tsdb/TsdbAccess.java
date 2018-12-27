@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.datasources.tsdb;
 
+import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import com.oisp.databackend.datastructures.Observation;
 
 import java.io.IOException;

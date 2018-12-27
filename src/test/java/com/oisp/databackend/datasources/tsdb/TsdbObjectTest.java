@@ -1,14 +1,11 @@
 package com.oisp.databackend.datasources.tsdb;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.*;
 
+import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 
 import java.util.HashMap;
 import java.util.Map;
