@@ -3,10 +3,7 @@ package com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oisp.databackend.config.oisp.OispConfig;
-import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.tsdb.TsdbObject;
-import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObjectBuilder;
-import com.oisp.databackend.datastructures.Observation;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -22,9 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public class RestApi {
@@ -89,9 +84,9 @@ public class RestApi {
 
                 CloseableHttpResponse response = client.execute(httpPost);
                 int statusCode = response.getStatusLine().getStatusCode();
-                logger.info("StatusCode of put request: " + statusCode);
+                logger.debug("StatusCode of put response: " + statusCode);
                 if (statusCode != PUTOK) {
-                    logger.info("Error reason", EntityUtils.toString(
+                    logger.error("Status code: {}, Error reason {}", statusCode, EntityUtils.toString(
                             response.getEntity(), "UTF-8"));
                     return false;
                 }
@@ -110,7 +105,7 @@ public class RestApi {
                         try {
                             return mapper.writeValueAsString(obj);
                         } catch (JsonProcessingException e) {
-                            logger.warn("Could not convert object to JSON " + e);
+                            logger.error("Could not convert object to JSON " + e);
                             return "";
                         }
                     })
@@ -142,10 +137,9 @@ public class RestApi {
             httpPost.setEntity(entity);
             httpPost.setHeader(ACCEPT, CONTENT_TYPE_JSON);
             httpPost.setHeader(CONTENTTYPE, CONTENT_TYPE_JSON);
-            logger.info("Marcel523 query: {}, {}", queryUri, jsonObjectWithTags);
             CloseableHttpResponse response = client.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
-            logger.info("StatusCode of response: " + statusCode);
+            logger.debug("StatusCode of query response: " + statusCode);
             if (statusCode != QUERYOK) {
                 return null;
             }
@@ -154,7 +148,6 @@ public class RestApi {
             if (responseEntity != null) {
                 body = EntityUtils.toString(responseEntity);
             }
-            logger.info("Body of request" + body);
         } catch (IOException e) {
             logger.error("Could not create JSON payload for query POST request: " + e);
             return null;

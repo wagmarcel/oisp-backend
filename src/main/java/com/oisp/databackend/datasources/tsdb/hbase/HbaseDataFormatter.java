@@ -16,7 +16,6 @@
 
 package com.oisp.databackend.datasources.tsdb.hbase;
 
-import com.oisp.databackend.datasources.DataFormatter;
 import org.apache.hadoop.hbase.Cell;
 
 import java.util.Arrays;

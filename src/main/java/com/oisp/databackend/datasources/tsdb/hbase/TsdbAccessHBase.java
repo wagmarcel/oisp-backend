@@ -49,6 +49,7 @@ public class TsdbAccessHBase implements TsdbAccess {
     private final String tableName;
     private final byte[] tableNameBytes;
     private static final String DEVICE_MEASUREMENT = "_DEVICE_MEASUREMENT";
+    private static final String SEPARATOR = ".";
 
     private Connection connection;
     @Autowired
@@ -130,11 +131,11 @@ public class TsdbAccessHBase implements TsdbAccess {
 
 
     byte[] getRowKey(Observation observation) {
-        return Bytes.toBytes(observation.getAid() + "." + observation.getCid() + "." + DataFormatter.zeroPrefixedTimestamp(observation.getOn()));
+        return Bytes.toBytes(observation.getAid() + SEPARATOR + observation.getCid() + SEPARATOR + DataFormatter.zeroPrefixedTimestamp(observation.getOn()));
     }
 
     byte[] getRowPrefix(Observation observation) {
-        return Bytes.toBytes(observation.getAid() + "." + observation.getCid());
+        return Bytes.toBytes(observation.getAid() + SEPARATOR + observation.getCid());
     }
 
     private Put getPutForObservation(Observation observation) {
@@ -165,7 +166,7 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     private void addLocationColumns(Map<String, String> attributeSet) {
-        for(int i = 0; i < DataFormatter.GPS_COLUMN_SIZE; i++) {
+        for (int i = 0; i < DataFormatter.GPS_COLUMN_SIZE; i++) {
             attributeSet.put(DataFormatter.gpsValueToString(i), "");
         }
     }
@@ -173,7 +174,7 @@ public class TsdbAccessHBase implements TsdbAccess {
     @Override
     public Observation[] scan(Observation observationProto, long start, long stop) {
         logger.debug("Scanning HBase: aid: {} cid: {} start: {} stop: {}", observationProto.getAid(), observationProto.getCid(), start, stop);
-        if ((observationProto.getLoc() != null) && !observationProto.getLoc().isEmpty()) {
+        if (observationProto.getLoc() != null && !observationProto.getLoc().isEmpty()) {
             addLocationColumns(observationProto.getAttributes());
         }
         Scan scan = new HbaseScanManager(new String(getRowPrefix(observationProto))).create(start, stop).askForData(observationProto.getAttributes().keySet()).getScan();
@@ -205,9 +206,15 @@ public class TsdbAccessHBase implements TsdbAccess {
         try (Table table = getHbaseTable(); ResultScanner scanner = table.getScanner(scan)) {
             List<Observation> observations = new ArrayList<>();
             for (Result result : scanner) {
+                boolean gps = false;
+                if (observationProto.getLoc() != null) {
+                    gps = !observationProto.getLoc().isEmpty();
+                } else {
+                    gps = false;
+                }
                 Observation observation = new ObservationCreator(observationProto.getAid(), observationProto.getCid())
                         .withAttributes(observationProto.getAttributes().keySet())
-                        .withGps(observationProto.getLoc() != null ? !observationProto.getLoc().isEmpty() : false)
+                        .withGps(gps)
                         .create(result);
                 observations.add(observation);
             }
@@ -244,9 +251,4 @@ public class TsdbAccessHBase implements TsdbAccess {
         }
         return attributes;
     }
-
-    private void mergeObservationAttributesWithLoc(Observation o) {
-
-    }
-
 }

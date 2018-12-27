@@ -1,12 +1,10 @@
 package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import com.oisp.databackend.datasources.DataFormatter;
-import com.oisp.databackend.datasources.tsdb.TsdbObject;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.QueryResponse;
 import com.oisp.databackend.datastructures.Observation;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class ObservationBuilder {
 
@@ -101,7 +99,7 @@ public final class ObservationBuilder {
             if (attributes.isEmpty()) {
                 continue;
             }
-            String coord[] = {
+            String[] coord = {
                     attributes.get(DataFormatter.gpsValueToString(0)),
                     attributes.get(DataFormatter.gpsValueToString(1)),
                     attributes.get(DataFormatter.gpsValueToString(2))
@@ -109,7 +107,7 @@ public final class ObservationBuilder {
             List<Double> loc = new ArrayList<>();
             for (int i = 0; i < DataFormatter.GPS_COLUMN_SIZE;  i++) {
                 if (coord[i] != null) {
-                        loc.add(Double.parseDouble(coord[i]));
+                    loc.add(Double.parseDouble(coord[i]));
                 }
             }
             observation.setLoc(loc);

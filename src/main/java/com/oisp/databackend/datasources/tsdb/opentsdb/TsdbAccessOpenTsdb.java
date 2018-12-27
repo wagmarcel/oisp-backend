@@ -37,6 +37,7 @@ import java.util.*;
 @Repository
 public class TsdbAccessOpenTsdb implements TsdbAccess {
 
+    private static final String OR = "|";
     private RestApi api;
     @Autowired
     private OispConfig oispConfig;
@@ -76,18 +77,18 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
                 .withMetric(DataFormatter.createMetric(observationProto.getAid(),
                         observationProto.getCid()));
 
-        Map<String, String> attributes = observationProto.getAttributes();
         // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
         // openTSDB?)
         if (!observationProto.getAttributes().isEmpty()) {
-            String tag = TsdbObjectBuilder.VALUE;
+            StringBuffer tag = new StringBuffer(TsdbObjectBuilder.VALUE);
             if (!observationProto.getLoc().isEmpty()) {
-                tag = tag
-                        + "|" + DataFormatter.gpsValueToString(0)
-                        + "|" + DataFormatter.gpsValueToString(1)
-                        + "|" + DataFormatter.gpsValueToString(2);
+                tag.append(
+                        OR + DataFormatter.gpsValueToString(0)
+                        + OR + DataFormatter.gpsValueToString(1)
+                        + OR + DataFormatter.gpsValueToString(2)
+                );
             }
-            subQuery.withTag(TsdbObjectBuilder.TYPE, tag);
+            subQuery.withTag(TsdbObjectBuilder.TYPE, tag.toString());
         }
         Query query = new Query().withStart(start).withEnd(stop);
         query.addQuery(subQuery);

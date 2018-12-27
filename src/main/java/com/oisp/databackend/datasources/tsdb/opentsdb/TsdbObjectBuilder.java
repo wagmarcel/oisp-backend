@@ -10,9 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TsdbObjectBuilder {
+public final class TsdbObjectBuilder {
     static final String VALUE = "value";
     static final String TYPE = "type";
+
+    private TsdbObjectBuilder() {
+
+    }
 
     private static void addTypeAttribute(TsdbObject tsdbObject, String attr) {
         tsdbObject.setAttribute(TYPE, attr);
@@ -25,18 +29,17 @@ public class TsdbObjectBuilder {
     }
 
     public static List<TsdbObject> extractLocationObjects(Observation observation) {
-
-                if ((observation.getLoc() == null) || observation.getLoc().isEmpty()) {
-                    return new ArrayList<TsdbObject>();
-                }
-                String metric = DataFormatter.createMetric(observation.getAid(), observation.getCid());
-                List<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
-                for (int i = 0; i < observation.getLoc().size(); i++) {
-                    TsdbObject tsdbObject = new TsdbObject(metric, observation.getLoc().get(i).toString(), observation.getOn());
-                    addTypeAttribute(tsdbObject, DataFormatter.gpsValueToString(i));
-                    tsdbObjects.add(tsdbObject);
-                }
-                return tsdbObjects;
+        if (observation.getLoc() == null || observation.getLoc().isEmpty()) {
+            return new ArrayList<TsdbObject>();
+        }
+        String metric = DataFormatter.createMetric(observation.getAid(), observation.getCid());
+        List<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
+        for (int i = 0; i < observation.getLoc().size(); i++) {
+            TsdbObject tsdbObject = new TsdbObject(metric, observation.getLoc().get(i).toString(), observation.getOn());
+            addTypeAttribute(tsdbObject, DataFormatter.gpsValueToString(i));
+            tsdbObjects.add(tsdbObject);
+        }
+        return tsdbObjects;
     }
 
     public static List<TsdbObject> createTsdbObjectsFromObservations(List<Observation> observations) {
@@ -60,7 +63,6 @@ public class TsdbObjectBuilder {
         if (attributes == null) {
             attributes = new HashMap<>();
         }
-        //List<Observation> observations = new ArrayList<Observation>();
         List<TsdbObject> tsdbObjectsWithLoc = extractLocationObjects(o);
         put.setAllAttributes(attributes);
         addTypeAttribute(put, VALUE);
