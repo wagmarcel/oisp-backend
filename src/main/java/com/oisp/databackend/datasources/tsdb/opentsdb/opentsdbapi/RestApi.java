@@ -3,7 +3,9 @@ package com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.tsdb.TsdbObject;
+import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObjectBuilder;
 import com.oisp.databackend.datastructures.Observation;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,7 +22,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class RestApi {
@@ -63,10 +67,13 @@ public class RestApi {
 
     }
 
-    public boolean put(List<Observation> observation, boolean sync) {
-        List<String> jsonObjects = ObservationToJSON(observation);
-        CloseableHttpClient client = HttpClients.createDefault();
 
+
+    public boolean put(List<TsdbObject> tsdbObjects, boolean sync) {
+
+        List<String> jsonObjects = tsdbObjectsToJSON(tsdbObjects);
+
+        CloseableHttpClient client = HttpClients.createDefault();
 
         StringEntity entity = null;
         for (String jsonObject: jsonObjects) {
@@ -82,8 +89,10 @@ public class RestApi {
 
                 CloseableHttpResponse response = client.execute(httpPost);
                 int statusCode = response.getStatusLine().getStatusCode();
-                logger.info("StatusCode of request: " + statusCode);
+                logger.info("StatusCode of put request: " + statusCode);
                 if (statusCode != PUTOK) {
+                    logger.info("Error reason", EntityUtils.toString(
+                            response.getEntity(), "UTF-8"));
                     return false;
                 }
             } catch (IOException e) {
@@ -93,13 +102,12 @@ public class RestApi {
         return true;
     }
 
-    List<String> ObservationToJSON(List<Observation> observations) {
+    List<String> tsdbObjectsToJSON(List<TsdbObject> tsdbObjects) {
         ObjectMapper mapper = new ObjectMapper();
         List<String> resultObjects = new ArrayList<String>();
-        String remaining = observations.stream()
+        String remaining = tsdbObjects.stream()
                 .map((obj) -> {
                         try {
-
                             return mapper.writeValueAsString(obj);
                         } catch (JsonProcessingException e) {
                             logger.warn("Could not convert object to JSON " + e);
@@ -134,6 +142,7 @@ public class RestApi {
             httpPost.setEntity(entity);
             httpPost.setHeader(ACCEPT, CONTENT_TYPE_JSON);
             httpPost.setHeader(CONTENTTYPE, CONTENT_TYPE_JSON);
+            logger.info("Marcel523 query: {}, {}", queryUri, jsonObjectWithTags);
             CloseableHttpResponse response = client.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
             logger.info("StatusCode of response: " + statusCode);

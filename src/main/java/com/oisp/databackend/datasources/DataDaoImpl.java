@@ -77,7 +77,7 @@ public class DataDaoImpl implements DataDao {
         Observation observation = new Observation(accountId, componentId, 0, "");
         addLocAndAttributes(observation, attributeList, gps);
         Observation[] observations = tsdbAccess.scan(observation, start, stop);
-        addLocToObservations(observations, gps);
+        //addLocToObservations(observations, gps);
         return observations;
     }
 
@@ -115,11 +115,11 @@ public class DataDaoImpl implements DataDao {
                 attributes.put(attr, "");
             }
         }
+        List<Double> loc = new ArrayList<>();
         if (gps) {
-            List<Double> loc = new ArrayList<>();
             loc.add(0.0);
-            observation.setLoc(loc);
         }
+        observation.setLoc(loc);
         observation.setAttributes(attributes);
     }
 

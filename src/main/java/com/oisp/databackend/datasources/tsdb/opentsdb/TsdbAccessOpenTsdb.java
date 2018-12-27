@@ -37,9 +37,6 @@ import java.util.*;
 @Repository
 public class TsdbAccessOpenTsdb implements TsdbAccess {
 
-    static final String VALUE = "value";
-    static final String TYPE = "type";
-    static final int GPS_COORDINATES = 3;
     private RestApi api;
     @Autowired
     private OispConfig oispConfig;
@@ -58,9 +55,9 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
     @Override
     public boolean put(List<Observation> observations) {
-        //List<Observation> observations = ObservationBuilder.createTsdbObjectsFromObservations(observations);
+        List<TsdbObject> tsdbObjects = TsdbObjectBuilder.createTsdbObjectsFromObservations(observations);
 
-        return api.put(observations, true);
+        return api.put(tsdbObjects, true);
     }
 
     @Override
@@ -82,25 +79,15 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
         Map<String, String> attributes = observationProto.getAttributes();
         // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
         // openTSDB?)
-        boolean keepTagMapEmpty = ObservationBuilder.checkforTagMap(attributes);
-
-        if (keepTagMapEmpty) {
-            observationProto.setAttributes(new HashMap<String, String>());
-        } else {
-            subQuery.withTag(TYPE, VALUE);
-
-            // Add GPS attributes
-            //Map<String, String> attributes = tsdbObject.getAttributes();
-            if (!attributes.isEmpty()) {
-                for (String attribute : attributes.keySet()) {
-                    if (attribute == DataFormatter.gpsValueToString(0)
-                            || attribute == DataFormatter.gpsValueToString(1)
-                            || attribute == DataFormatter.gpsValueToString(2)) {
-                        String oldTag = subQuery.getTags().get(TYPE);
-                        subQuery.withTag(TYPE, oldTag + "|" + attribute);
-                    }
-                }
+        if (!observationProto.getAttributes().isEmpty()) {
+            String tag = TsdbObjectBuilder.VALUE;
+            if (!observationProto.getLoc().isEmpty()) {
+                tag = tag
+                        + "|" + DataFormatter.gpsValueToString(0)
+                        + "|" + DataFormatter.gpsValueToString(1)
+                        + "|" + DataFormatter.gpsValueToString(2);
             }
+            subQuery.withTag(TsdbObjectBuilder.TYPE, tag);
         }
         Query query = new Query().withStart(start).withEnd(stop);
         query.addQuery(subQuery);
