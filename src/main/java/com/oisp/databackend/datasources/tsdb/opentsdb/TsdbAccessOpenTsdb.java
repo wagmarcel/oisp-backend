@@ -19,6 +19,7 @@ package com.oisp.databackend.datasources.tsdb.opentsdb;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.Query;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.QueryResponse;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.RestApi;
@@ -70,17 +71,17 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     }
 
     @Override
-    public Observation[] scan(Observation observationProto, long start, long stop) {
+    public Observation[] scan(TsdbQuery tsdbQuery) {
         SubQuery subQuery = new SubQuery()
                 .withAggregator(SubQuery.AGGREGATOR_NONE)
-                .withMetric(DataFormatter.createMetric(observationProto.getAid(),
-                        observationProto.getCid()));
+                .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
+                        tsdbQuery.getCid()));
 
         // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
         // openTSDB?)
-        if (!observationProto.getAttributes().isEmpty()) {
+        if (!tsdbQuery.getAttributes().isEmpty()) {
             StringBuffer tag = new StringBuffer(TsdbObjectBuilder.VALUE);
-            if (!observationProto.getLoc().isEmpty()) {
+            if (tsdbQuery.isLocationInfo()) {
                 tag.append(
                         OR + DataFormatter.gpsValueToString(0)
                         + OR + DataFormatter.gpsValueToString(1)
@@ -89,7 +90,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
             }
             subQuery.withTag(TsdbObjectBuilder.TYPE, tag.toString());
         }
-        Query query = new Query().withStart(start).withEnd(stop);
+        Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
 
         QueryResponse[] queryResponses = api.query(query);
@@ -102,12 +103,12 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
 
 
     @Override
-    public Observation[] scan(Observation observation, long start, long stop, boolean forward, int limit) {
+    public Observation[] scan(TsdbQuery tsdbQuery, boolean forward, int limit) {
         return new Observation[0];
     }
 
 
-    public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
+    public String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException {
         return new String[]{"*"};
     }
 

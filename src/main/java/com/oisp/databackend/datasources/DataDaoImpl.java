@@ -18,6 +18,7 @@ package com.oisp.databackend.datasources;
 
 
 import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
@@ -73,10 +74,14 @@ public class DataDaoImpl implements DataDao {
     @Override
     public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributeList) {
         logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
-        Observation observation = new Observation(accountId, componentId, 0, "");
-        addLocAndAttributes(observation, attributeList, gps);
-        Observation[] observations = tsdbAccess.scan(observation, start, stop);
-        //addLocToObservations(observations, gps);
+        TsdbQuery tsdbQuery = new TsdbQuery()
+                .withAid(accountId)
+                .withCid(componentId)
+                .withLocationInfo(gps)
+                .withAttributes(Arrays.asList(attributeList))
+                .withStart(start)
+                .withStop(stop);
+        Observation[] observations = tsdbAccess.scan(tsdbQuery);
         return observations;
     }
 
@@ -85,9 +90,14 @@ public class DataDaoImpl implements DataDao {
                               String[] attributeList, boolean forward, int limit) {
         logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {} with limit: {}",
                 accountId, componentId, start, stop, gps, limit);
-        Observation observation = new Observation(accountId, componentId, 0, "");
-        addLocAndAttributes(observation, attributeList, gps);
-        Observation[] observations = tsdbAccess.scan(observation, start, stop, forward, limit);
+        TsdbQuery tsdbQuery = new TsdbQuery()
+                .withAid(accountId)
+                .withCid(componentId)
+                .withLocationInfo(gps)
+                .withAttributes(Arrays.asList(attributeList))
+                .withStart(start)
+                .withStop(stop);
+        Observation[] observations = tsdbAccess.scan(tsdbQuery, forward, limit);
         //addLocToObservations(observations, gps);
         return observations;
     }
@@ -95,16 +105,20 @@ public class DataDaoImpl implements DataDao {
     @Override
     public String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException {
 
-        logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {}", accountId, componentId, start, stop);
-        TsdbObject tsdbObject = new TsdbObject().withMetric(getMetric(accountId, componentId));
-        String[] attributesArray = tsdbAccess.scanForAttributeNames(tsdbObject, start, stop);
+        logger.debug("Scanning TSD: acc: {} cid: {} start: {} stop: {}", accountId, componentId, start, stop);
+        TsdbQuery tsdbQuery = new TsdbQuery()
+                .withAid(accountId)
+                .withCid(componentId)
+                .withStart(start)
+                .withStop(stop);
+        String[] attributesArray = tsdbAccess.scanForAttributeNames(tsdbQuery);
 
         //Remove locX, locY, locZ attributes as these will be processed only when requested by location flag
-        String[] filteredAttr = Arrays.stream(attributesArray).filter((String s) ->
+        /*String[] filteredAttr = Arrays.stream(attributesArray).filter((String s) ->
                 !s.equals(DataFormatter.gpsValueToString(0))
                         && !s.equals(DataFormatter.gpsValueToString(1))
-                        && !s.equals(DataFormatter.gpsValueToString(2))).toArray(String[]::new);
-        return filteredAttr;
+                        && !s.equals(DataFormatter.gpsValueToString(2))).toArray(String[]::new);*/
+        return attributesArray;
     }
 
     private void addLocAndAttributes(Observation observation, String[] attributeList, boolean gps) {

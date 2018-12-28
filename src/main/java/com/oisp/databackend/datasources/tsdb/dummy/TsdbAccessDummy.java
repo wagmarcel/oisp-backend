@@ -17,6 +17,7 @@
 package com.oisp.databackend.datasources.tsdb.dummy;
 
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import com.oisp.databackend.datastructures.Observation;
 import org.springframework.stereotype.Repository;
@@ -39,18 +40,18 @@ public class TsdbAccessDummy implements TsdbAccess {
 
 
     @Override
-    public Observation[] scan(Observation observation, long start, long stop) {
+    public Observation[] scan(TsdbQuery tsdbQuery) {
 
         return new Observation[0];
     }
 
     @Override
-    public Observation[] scan(Observation observation, long start, long stop, boolean forward, int limit) {
+    public Observation[] scan(TsdbQuery tsdbQuery, boolean forward, int limit) {
         return new Observation[0];
     }
 
 
-    public String[] scanForAttributeNames(TsdbObject tsdbObject, long start, long stop) throws IOException {
+    public String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException {
 
         return new String[0];
     }
