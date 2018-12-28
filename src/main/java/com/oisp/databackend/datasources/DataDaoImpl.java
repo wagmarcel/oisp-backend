@@ -78,7 +78,7 @@ public class DataDaoImpl implements DataDao {
                 .withAid(accountId)
                 .withCid(componentId)
                 .withLocationInfo(gps)
-                .withAttributes(Arrays.asList(attributeList))
+                .withAttributes(attributeList)
                 .withStart(start)
                 .withStop(stop);
         Observation[] observations = tsdbAccess.scan(tsdbQuery);
@@ -94,7 +94,7 @@ public class DataDaoImpl implements DataDao {
                 .withAid(accountId)
                 .withCid(componentId)
                 .withLocationInfo(gps)
-                .withAttributes(Arrays.asList(attributeList))
+                .withAttributes(attributeList)
                 .withStart(start)
                 .withStop(stop);
         Observation[] observations = tsdbAccess.scan(tsdbQuery, forward, limit);

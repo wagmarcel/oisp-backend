@@ -1,6 +1,7 @@
 package com.oisp.databackend.datasources.tsdb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TsdbQuery {
@@ -37,6 +38,14 @@ public class TsdbQuery {
 
     public TsdbQuery withAttributes(List<String> attributes) {
         this.attributes = attributes;
+        return this;
+    }
+
+    public TsdbQuery withAttributes(String[] attributes) {
+        if (attributes == null) {
+            attributes = new String[0];
+        }
+        this.attributes = Arrays.asList(attributes);
         return this;
     }
 
