@@ -18,7 +18,6 @@ package com.oisp.databackend.datasources.tsdb.dummy;
 
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
-import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import com.oisp.databackend.datastructures.Observation;
 import org.springframework.stereotype.Repository;
 

@@ -22,7 +22,6 @@ import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
-import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +80,7 @@ public class DataDaoImpl implements DataDao {
                 .withAttributes(attributeList)
                 .withStart(start)
                 .withStop(stop);
-        Observation[] observations = tsdbAccess.scan(tsdbQuery);
-        return observations;
+        return tsdbAccess.scan(tsdbQuery);
     }
 
     @Override
@@ -120,24 +118,4 @@ public class DataDaoImpl implements DataDao {
                         && !s.equals(DataFormatter.gpsValueToString(2))).toArray(String[]::new);*/
         return attributesArray;
     }
-
-    private void addLocAndAttributes(Observation observation, String[] attributeList, boolean gps) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        if (attributeList != null) {
-            for (String attr: attributeList) {
-                attributes.put(attr, "");
-            }
-        }
-        List<Double> loc = new ArrayList<>();
-        if (gps) {
-            loc.add(0.0);
-        }
-        observation.setLoc(loc);
-        observation.setAttributes(attributes);
-    }
-
-    private String getMetric(String accountId, String componentId) {
-        return accountId + "." + componentId;
-    }
-
 }

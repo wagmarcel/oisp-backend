@@ -8,7 +8,7 @@ public class TsdbQuery {
     private String aid;
     private String cid;
     private List<String>  attributes;
-    boolean locationInfo;
+    private boolean locationInfo;
     private long start;
     private long stop;
 
@@ -43,7 +43,8 @@ public class TsdbQuery {
 
     public TsdbQuery withAttributes(String[] attributes) {
         if (attributes == null) {
-            attributes = new String[0];
+            this.attributes = new ArrayList<>();
+            return this;
         }
         this.attributes = Arrays.asList(attributes);
         return this;
