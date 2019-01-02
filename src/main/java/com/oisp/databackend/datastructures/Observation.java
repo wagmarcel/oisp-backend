@@ -37,6 +37,15 @@ public class Observation {
     private String value;
     private List<Double> loc;
     private Map<String, String> attributes;
+    private String dataType;
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
 
     public Observation() {
     }
