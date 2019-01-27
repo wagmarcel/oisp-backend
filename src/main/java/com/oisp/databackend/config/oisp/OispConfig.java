@@ -27,16 +27,20 @@ public class OispConfig {
     private static final String OISP_ZOOKEEPER_CONFIG = "OISP_ZOOKEEPER_CONFIG";
     private static final String OISP_KERBEROS_CONFIG = "OISP_KERBEROS_CONFIG";
     private static final String OISP_HBASE_CONFIG = "OISP_HBASE_CONFIG";
+    private static final String OISP_BACKEND_JAEGER_CONFIG = "OISP_BACKEND_JAEGER_CONFIG";
+
     private static final String OISP_LINK_PREFIX = "@@";
     private static final String OISP_PROPERTY_PREFIX = "%%";
     private static final String SET = "set";
 
-    private static final Map<String, String> varClass =
-            ImmutableMap.of(OISP_BACKEND_CONFIG, "com.oisp.databackend.config.oisp.BackendConfig",
-                    OISP_KAFKA_CONFIG, "com.oisp.databackend.config.oisp.KafkaConfig",
-                    OISP_ZOOKEEPER_CONFIG, "com.oisp.databackend.config.oisp.ZookeeperConfig",
-                    OISP_KERBEROS_CONFIG, "com.oisp.databackend.config.oisp.KerberosConfig",
-                    OISP_HBASE_CONFIG, "com.oisp.databackend.config.oisp.HBaseConfig");
+    private static final Map<String, String> varClass = ImmutableMap.<String, String>builder()
+        .put(OISP_BACKEND_CONFIG, "com.oisp.databackend.config.oisp.BackendConfig")
+        .put(OISP_KAFKA_CONFIG, "com.oisp.databackend.config.oisp.KafkaConfig")
+        .put(OISP_ZOOKEEPER_CONFIG, "com.oisp.databackend.config.oisp.ZookeeperConfig")
+        .put(OISP_KERBEROS_CONFIG, "com.oisp.databackend.config.oisp.KerberosConfig")
+        .put(OISP_HBASE_CONFIG, "com.oisp.databackend.config.oisp.HBaseConfig")
+        .put(OISP_BACKEND_JAEGER_CONFIG, "com.oisp.databackend.config.oisp.JaegerConfig")
+            .build();
 
     private BackendConfig backendConfig;
     private Map<String, Object> foundVars;
@@ -49,6 +53,7 @@ public class OispConfig {
         foundMaps = new Hashtable<String, Object>();
 
         backendConfig = (BackendConfig) getObjectFromVar(OISP_BACKEND_CONFIG);
+
     }
 
 

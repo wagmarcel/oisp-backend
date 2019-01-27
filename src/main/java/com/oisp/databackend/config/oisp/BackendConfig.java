@@ -22,7 +22,16 @@ public class BackendConfig {
     private HBaseConfig hbaseConfig;
     @JsonIgnore
     private Properties tsdbProperties;
+    @JsonIgnore
+    private JaegerConfig jaegerConfig;
 
+    public JaegerConfig getJaegerConfig() {
+        return jaegerConfig;
+    }
+
+    public void setJaegerConfig(JaegerConfig jaegerConfig) {
+        this.jaegerConfig = jaegerConfig;
+    }
 
     public Properties getTsdbProperties() {
         return tsdbProperties;
