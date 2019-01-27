@@ -117,6 +117,13 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web") 
     compile("org.springframework.boot:spring-boot-starter-jetty")
     compile("org.springframework.boot:spring-boot-starter-log4j2")
+// https://mvnrepository.com/artifact/io.opentracing.contrib/opentracing-spring-web-autoconfigure
+    compile group: 'io.opentracing.contrib', name: 'opentracing-spring-web-autoconfigure', version: '0.3.2'
+    compile group: 'io.jaegertracing', name: 'jaeger-core', version: '0.31.0'
+    compile group: 'io.jaegertracing', name: 'jaeger-thrift', version: '0.31.0'
+
+
+
 
     compile("org.apache.hbase:hbase:$hbaseVersion")
     compile("org.apache.hbase:hbase-client:$hbaseVersion")
