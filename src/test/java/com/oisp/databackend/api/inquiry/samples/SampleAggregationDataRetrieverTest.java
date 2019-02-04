@@ -42,7 +42,7 @@ public class SampleAggregationDataRetrieverTest {
         SampleAggregationDataRetriever instance = new SampleAggregationDataRetriever(params);
 
         //ACT
-        List<List<String>> result = instance.get(observations, null, null);
+        List<List<Object>> result = instance.get(observations, null, null);
 
         //ASSERT
         //values are averaged in each bucket
@@ -61,7 +61,7 @@ public class SampleAggregationDataRetrieverTest {
         SampleAggregationDataRetriever instance = new SampleAggregationDataRetriever(params);
 
         //ACT
-        List<List<String>> result = instance.get(observations, null, null);
+        List<List<Object>> result = instance.get(observations, null, null);
 
         //ASSERT
         assertEquals(result, Arrays.asList(Arrays.asList("10", "200.0"), Arrays.asList("11", "201.0")));
@@ -82,7 +82,7 @@ public class SampleAggregationDataRetrieverTest {
         SampleAggregationDataRetriever instance = new SampleAggregationDataRetriever(params);
 
         //ACT
-        List<List<String>> result = instance.get(observations, null, null);
+        List<List<Object>> result = instance.get(observations, null, null);
 
         //ASSERT
         //bucket size is floor(999ms/300) = 3ms

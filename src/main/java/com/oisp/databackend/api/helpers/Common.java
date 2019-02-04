@@ -29,7 +29,7 @@ public final class Common {
     private Common() {
     }
 
-    public static void addObservationLocation(Observation observation, List<String> samples, int maxCoordinatesCount) {
+    public static void addObservationLocation(Observation observation, List<Object> samples, int maxCoordinatesCount) {
         if (observation.getLoc() == null) {
             logger.warn("Parsing GPS failed - no location info provided");
             return;

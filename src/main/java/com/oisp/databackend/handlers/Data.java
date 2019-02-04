@@ -17,6 +17,9 @@
 package com.oisp.databackend.handlers;
 
 import com.oisp.databackend.api.Service;
+import com.oisp.databackend.datastructures.AdvancedComponent;
+import com.oisp.databackend.datastructures.ComponentDataType;
+import com.oisp.databackend.datastructures.DeviceData;
 import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
 import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
 import com.oisp.databackend.datastructures.requests.DataSubmissionRequest;
@@ -36,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,10 +48,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.function.Predicate;
 
 @RestController
 @ControllerAdvice
 public class Data {
+
+    static final String BYTEARRAY = "ByteArray";
+    static final String CBORTYPE = "application/cbor";
 
     private static final Logger logger = LoggerFactory.getLogger(Data.class);
 
@@ -70,7 +78,7 @@ public class Data {
     private static final String REQUEST_LOG_ENTRY = "REQUEST: aid: {}";
     private static final String DEBUG_LOG = "{}";
 
-    @RequestMapping(value = "/v1/accounts/{accountId}/dataSubmission", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/v1/accounts/{accountId}/dataSubmission", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE, CBORTYPE})
     @ResponseBody
     public ResponseEntity dataSubmission(@PathVariable String accountId, @Valid @RequestBody DataSubmissionRequest request,
                                   BindingResult result) throws ServiceException, BindException {
@@ -89,12 +97,15 @@ public class Data {
         }
     }
 
-    @RequestMapping(value = "/v1/accounts/{accountId}/dataInquiry", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/v1/accounts/{accountId}/dataInquiry", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE, CBORTYPE})
     @ResponseBody
     public ResponseEntity dataInquiry(@PathVariable String accountId, @RequestBody DataInquiryRequest request)
             throws ServiceException, ConfigEnvironmentException {
-        logger.info(REQUEST_LOG_ENTRY, accountId);
+        logger.debug(REQUEST_LOG_ENTRY, accountId);
         logger.debug(DEBUG_LOG, request);
+        Predicate<ComponentDataType> p1 = c -> BYTEARRAY.equals(c.getDataType());
+        boolean binaryResponse = request.getComponentsWithDataType().values().stream().anyMatch(p1);
 
         requestValidator = new DataRequestValidator(request);
         requestValidator.validate();
@@ -102,18 +113,30 @@ public class Data {
         basicDataInquiryService.withParams(accountId, request);
         DataInquiryResponse dataInquiryResponse = basicDataInquiryService.invoke();
 
-        ResponseEntity res = new ResponseEntity<DataInquiryResponse>(dataInquiryResponse, HttpStatus.OK);
-        logger.info(RESPONSE_LOG_ENTRY, res.getStatusCode());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        if (binaryResponse) {
+            httpHeaders.setContentType(MediaType.parseMediaType(CBORTYPE));
+        } else {
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        }
+        ResponseEntity res = new ResponseEntity<DataInquiryResponse>(dataInquiryResponse, httpHeaders, HttpStatus.OK);
+        logger.debug(RESPONSE_LOG_ENTRY, res.getStatusCode());
         logger.debug(DEBUG_LOG, dataInquiryResponse);
         return res;
     }
 
     @RequestMapping(value = "/v1/accounts/{accountId}/dataInquiry/advanced", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE, CBORTYPE})
     @ResponseBody
     public ResponseEntity advancedDataInquiry(@PathVariable String accountId, @RequestBody final AdvDataInquiryRequest request) throws ServiceException, ConfigEnvironmentException {
         logger.info(REQUEST_LOG_ENTRY, accountId);
         logger.debug(DEBUG_LOG, request);
+        Predicate<AdvancedComponent> pred = c -> BYTEARRAY.equals(c.getDataType());
+
+        boolean binaryResponse = false;
+        for (DeviceData deviceData: request.getDeviceDataList()) {
+            binaryResponse = binaryResponse || deviceData.getComponents().stream().anyMatch(pred);
+        }
 
         requestValidator = new AdvanceDataRequestValidator(request);
         requestValidator.validate();
@@ -121,7 +144,13 @@ public class Data {
         advancedDataInquiryService.withParams(accountId, request);
         AdvDataInquiryResponse dataInquiryResponse = advancedDataInquiryService.invoke();
 
-        ResponseEntity res = new ResponseEntity<AdvDataInquiryResponse>(dataInquiryResponse, HttpStatus.OK);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        if (binaryResponse) {
+            httpHeaders.setContentType(MediaType.parseMediaType(CBORTYPE));
+        } else {
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        }
+        ResponseEntity res = new ResponseEntity<AdvDataInquiryResponse>(dataInquiryResponse, httpHeaders, HttpStatus.OK);
         logger.info(RESPONSE_LOG_ENTRY, res.getStatusCode());
         logger.debug(DEBUG_LOG, dataInquiryResponse);
         return res;

@@ -68,4 +68,9 @@ public interface TsdbAccess {
      * @throws IOException
      */
     String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException;
+
+    /**
+     * Get list of data types which are supported by tsdb backend
+     */
+    List<String> getSupportedDataTypes();
 }

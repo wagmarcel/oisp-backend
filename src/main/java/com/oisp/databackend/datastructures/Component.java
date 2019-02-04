@@ -27,7 +27,7 @@ public class Component {
 
     private String componentId;
     private List<String> samplesHeader;   // ["Timestamp", "Value", "lat", "lon", "alt", "att1", "att2"]
-    private List<List<String>> samples;   // [<timestamp_2>,"<sample_2>",latitude,longitude,altitude],
+    private List<List<Object>> samples;   // [<timestamp_2>,"<sample_2>",latitude,longitude,altitude],
 
     public String getComponentId() {
         return componentId;
@@ -45,11 +45,11 @@ public class Component {
         this.samplesHeader = samplesHeader;
     }
 
-    public List<List<String>> getSamples() {
+    public List<List<Object>> getSamples() {
         return samples;
     }
 
-    public void setSamples(List<List<String>> samples) {
+    public void setSamples(List<List<Object>> samples) {
         this.samples = samples;
     }
 

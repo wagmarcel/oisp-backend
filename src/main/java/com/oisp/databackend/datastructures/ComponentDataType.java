@@ -22,7 +22,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ComponentDataType {
 
-    public static final String NUMBER = "Number";
+    public static final String NUMBER    = "Number";
+    public static final String STRING    = "String";
+    public static final String BOOLEAN   = "Boolean";
+    public static final String BYTEARRAY = "ByteArray";
+
 
     private String componentId;
     private String componentType;
@@ -76,6 +80,24 @@ public class ComponentDataType {
 
     public boolean isNumericType() {
         return getDataType().equals(NUMBER);
+    }
+    public boolean isStringType() {
+        return getDataType().equals(STRING);
+    }
+    public boolean isBooleanType() {
+        return getDataType().equals(BOOLEAN);
+    }
+    public boolean isByteArrayType() {
+        return getDataType().equals(BYTEARRAY);
+    }
+    public boolean isBinaryType() {
+        return getDataType().equals(BYTEARRAY);
+    }
+    public boolean isValidType() {
+        return getDataType().equals(NUMBER)
+                || getDataType().equals(STRING)
+                || getDataType().equals(BOOLEAN)
+                || getDataType().equals(BYTEARRAY);
     }
 }
 

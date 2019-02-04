@@ -78,7 +78,7 @@ public class FirstLastTimestampService implements Service<FirstLastTimestampRequ
     }
 
     private Observation[] getTopObservation(String component, boolean first) {
-        return hbase.scan(accountId, component,
+        return hbase.scan(accountId, component, "ByteArray", //ByteArray is used to avoid interpretation of value since only the timestamps are needed
                 0L,
                 Long.MAX_VALUE,
                 false,

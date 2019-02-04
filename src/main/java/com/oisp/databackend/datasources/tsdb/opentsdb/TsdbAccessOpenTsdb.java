@@ -112,4 +112,8 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
         return new String[]{"*"};
     }
 
+    @Override
+    public List<String> getSupportedDataTypes() {
+        return Arrays.asList("Number", "Boolean");
+    }
 }
