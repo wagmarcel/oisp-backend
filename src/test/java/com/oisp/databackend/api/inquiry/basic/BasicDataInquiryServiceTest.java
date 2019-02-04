@@ -55,14 +55,14 @@ public class BasicDataInquiryServiceTest {
         observations[1] = new Observation("2", componentId, 4L, "6");
         firstObservation = observations[0];
         secondObservation = observations[1];
-        Mockito.when(dataDaoMock.scan(accountId, componentId, request.getStartDate(), request.getEndDate(), false, null)).thenReturn(observations);
+        Mockito.when(dataDaoMock.scan(accountId, componentId, "Number", request.getStartDate(), request.getEndDate(), false, null)).thenReturn(observations);
     }
 
-    private String getFirstObservationValue(DataInquiryResponse response) {
+    private Object getFirstObservationValue(DataInquiryResponse response) {
         return response.getComponents().get(0).getSamples().get(0).get(1);
     }
 
-    private String getFirstObservationOn(DataInquiryResponse response) {
+    private Object getFirstObservationOn(DataInquiryResponse response) {
         return response.getComponents().get(0).getSamples().get(0).get(0);
     }
 
@@ -91,11 +91,13 @@ public class BasicDataInquiryServiceTest {
         request.setEndDate(1L);
         request.setCountOnly(true);
         Map<String, ComponentDataType> components = new HashMap<>();
-        components.put(componentId, new ComponentDataType());
+        ComponentDataType type = new ComponentDataType();
+        type.setDataType(ComponentDataType.NUMBER);
+        components.put(componentId, type);
         request.setComponentsWithDataType(components);
 
         Observation[] observations = new Observation[2];
-        Mockito.when(dataDaoMock.scan(accountId, componentId, request.getStartDate(), request.getEndDate(), false, null)).thenReturn(observations);
+        Mockito.when(dataDaoMock.scan(accountId, componentId, "Number", request.getStartDate(), request.getEndDate(), false, null)).thenReturn(observations);
 
         basicDataInquiryService = basicDataInquiryService.withParams(accountId, request);
         //ACT
@@ -112,7 +114,9 @@ public class BasicDataInquiryServiceTest {
         request.setEndDate(1L);
         request.setCountOnly(false);
         Map<String, ComponentDataType> components = new HashMap<>();
-        components.put(componentId, new ComponentDataType());
+        ComponentDataType type = new ComponentDataType();
+        type.setDataType(ComponentDataType.NUMBER);
+        components.put(componentId, type);
         request.setComponentsWithDataType(components);
         basicDataInquiryService = basicDataInquiryService.withParams(accountId, request);
 
@@ -124,7 +128,7 @@ public class BasicDataInquiryServiceTest {
         assertEquals((Long) 2L, response.getRowCount());
         assertEquals(accountId, response.getAccountId());
         assertEquals(componentId, response.getComponents().get(0).getComponentId());
-        assertEquals(firstObservation.getOn().toString(), getFirstObservationOn(response));
+        assertEquals(firstObservation.getOn(), getFirstObservationOn(response));
         assertEquals(firstObservation.getValue(), getFirstObservationValue(response));
         assertEquals(null, response.getMaxPoints());
     }

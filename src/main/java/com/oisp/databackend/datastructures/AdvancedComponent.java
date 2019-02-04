@@ -42,7 +42,7 @@ public class AdvancedComponent {
     private Double sum;
     private Double sumOfSquares;
     private List<String> samplesHeader;
-    private List<List<String>> samples;  // [<timestamp_2>,"<sample_2>",latitude,longitude,altitude],
+    private List<List<Object>> samples;  // [<timestamp_2>,"<sample_2>",latitude,longitude,altitude],
 
     public String toString() {
         return JsonWriter.objectToJson(this);
@@ -120,11 +120,11 @@ public class AdvancedComponent {
         this.samplesHeader = samplesHeader;
     }
 
-    public List<List<String>> getSamples() {
+    public List<List<Object>> getSamples() {
         return samples;
     }
 
-    public void setSamples(List<List<String>> samples) {
+    public void setSamples(List<List<Object>> samples) {
         this.samples = samples;
     }
 

@@ -141,7 +141,11 @@ public class TsdbAccessHBase implements TsdbAccess {
 
     private Put getPutForObservation(Observation observation) {
         Put put = new Put(getRowKey(observation));
-        put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) observation.getValue()));
+        if (observation.isBinary()) {
+            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, observation.getbValue());
+        } else {
+            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) observation.getValue()));
+        }
         Map<String, String> attributes = observation.getAttributes();
         // In hbase, we treat gps coordinates as special columns
         // like the attributes. So we add all gps coordinates to attributes
@@ -215,6 +219,7 @@ public class TsdbAccessHBase implements TsdbAccess {
                 Observation observation = new ObservationCreator(tsdbQuery.getAid(), tsdbQuery.getCid())
                         .withAttributes(tsdbQuery.getAttributes().stream().collect(Collectors.toSet()))
                         .withGps(gps)
+                        .withComponentType(tsdbQuery.getComponentType())
                         .create(result);
                 observations.add(observation);
             }
@@ -256,5 +261,10 @@ public class TsdbAccessHBase implements TsdbAccess {
             }
         }
         return attributes;
+    }
+
+    @Override
+    public List<String> getSupportedDataTypes() {
+        return Arrays.asList("Number", "String", "Boolean", "ByteArray");
     }
 }

@@ -67,7 +67,7 @@ public class AdvancedDataInquiryServiceTest {
         assertEquals(accountId, response.getAccountId());
         assertEquals(0, response.getData().size());
         assertEquals(null, response.getRowCount());
-        Mockito.verify(dataDaoMock, Mockito.times(0)).scan(any(String.class), any(String.class), any(Long.class), any(Long.class), any(Boolean.class), any(String[].class));
+        Mockito.verify(dataDaoMock, Mockito.times(0)).scan(any(String.class), any(String.class), any(String.class), any(Long.class), any(Long.class), any(Boolean.class), any(String[].class));
     }
 
     @Test
@@ -81,11 +81,13 @@ public class AdvancedDataInquiryServiceTest {
         DeviceData deviceData = new DeviceData();
         AdvancedComponent advancedComponent = new AdvancedComponent();
         advancedComponent.setComponentId(observation.getCid());
+        advancedComponent.setDataType("Number");
         deviceData.setComponents(Arrays.asList(advancedComponent));
         request.setDeviceDataList(Arrays.asList(deviceData));
 
         Mockito.when(dataDaoMock.put(any(Observation[].class))).thenReturn(true);
         Mockito.when(dataDaoMock.scan(any(String.class),
+                any(String.class),
                 any(String.class),
                 any(Long.class),
                 any(Long.class),
@@ -131,12 +133,14 @@ public class AdvancedDataInquiryServiceTest {
         DeviceData deviceData = new DeviceData();
         AdvancedComponent advancedComponent = new AdvancedComponent();
         advancedComponent.setComponentId(observation.getCid());
+        advancedComponent.setDataType("Number");
         deviceData.setComponents(Arrays.asList(advancedComponent));
         request.setDeviceDataList(Arrays.asList(deviceData));
         request.setCountOnly(true);
 
         Mockito.when(dataDaoMock.put(any(Observation[].class))).thenReturn(true);
         Mockito.when(dataDaoMock.scan(any(String.class),
+                any(String.class),
                 any(String.class),
                 any(Long.class),
                 any(Long.class),

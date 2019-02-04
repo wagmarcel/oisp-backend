@@ -40,11 +40,11 @@ public class SampleAggregationDataRetriever implements SampleDataRetriever {
     }
 
     @Override
-    public List<List<String>> get(Observation[] observations, Long first, Long last) {
+    public List<List<Object>> get(Observation[] observations, Long first, Long last) {
         //group by getTimestamp bucket and count averages in each bucket.
         //Stream based solution could be easier to parallelize (and read).
 
-        List<List<String>> sampleObservationList = new ArrayList<>();
+        List<List<Object>> sampleObservationList = new ArrayList<>();
         if (observations.length == 0) {
             return sampleObservationList;
         }
@@ -74,11 +74,11 @@ public class SampleAggregationDataRetriever implements SampleDataRetriever {
         return sampleObservationList;
     }
 
-    private void createSample(double sumValue, long sumTime, long count, List<List<String>> sampleObservationList) {
+    private void createSample(double sumValue, long sumTime, long count, List<List<Object>> sampleObservationList) {
         double avgValue = sumValue / count;
         long avgTime = sumTime / count;
         logger.debug("Avgs for bucket for component are: getValue={} time={} count={}", avgValue, avgTime, count);
-        List<String> samples = new ArrayList<>();
+        List<Object> samples = new ArrayList<>();
         samples.add(String.valueOf(avgTime));
         samples.add(String.valueOf(avgValue));
         sampleObservationList.add(samples);

@@ -35,6 +35,7 @@ public class Observation {
     private Long on;
     private Long systemOn;
     private String value;
+    private byte[] bValue;
     private List<Double> loc;
     private Map<String, String> attributes;
     private String dataType;
@@ -130,5 +131,17 @@ public class Observation {
 
     public void setSystemOn(Long systemOn) {
         this.systemOn = systemOn;
+    }
+
+    public byte[] getbValue() {
+        return bValue;
+    }
+
+    public void setbValue(byte[] bValue) {
+        this.bValue = bValue;
+    }
+
+    public boolean isBinary() {
+        return "ByteArray".equals(dataType);
     }
 }

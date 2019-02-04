@@ -90,7 +90,7 @@ public class FirstLastTimestampTest {
         List<String> componentsList = new ArrayList<>();
         componentsList.add("test");
 
-        Mockito.when(dataDaoMock.scan(accountId, "test", 0L, Long.MAX_VALUE, false, null, true, 1)).thenReturn(new Observation[0]);
+        Mockito.when(dataDaoMock.scan(accountId, "test", "Number", 0L, Long.MAX_VALUE, false, null, true, 1)).thenReturn(new Observation[0]);
 
         FirstLastTimestampRequest request = new FirstLastTimestampRequest();
         request.setComponents(new ArrayList<String>());
@@ -114,8 +114,8 @@ public class FirstLastTimestampTest {
 
         Observation[] observations = new Observation[]{new Observation("aid", "cid", 1, "val")};
 
-        Mockito.when(dataDaoMock.scan(accountId, "test", 0L, Long.MAX_VALUE, false, null, true, 1)).thenReturn(observations);
-        Mockito.when(dataDaoMock.scan(accountId, "test", 0L, Long.MAX_VALUE, false, null, false, 1)).thenReturn(observations);
+        Mockito.when(dataDaoMock.scan(accountId, "test", "ByteArray", 0L, Long.MAX_VALUE, false, null, true, 1)).thenReturn(observations);
+        Mockito.when(dataDaoMock.scan(accountId, "test", "ByteArray",0L, Long.MAX_VALUE, false, null, false, 1)).thenReturn(observations);
 
         FirstLastTimestampRequest request = new FirstLastTimestampRequest();
         request.setComponents(new ArrayList<String>());

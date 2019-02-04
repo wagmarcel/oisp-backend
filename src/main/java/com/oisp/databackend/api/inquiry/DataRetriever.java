@@ -20,6 +20,7 @@ import com.oisp.databackend.api.inquiry.advanced.filters.ObservationFilterSelect
 import com.oisp.databackend.datasources.DataDao;
 import com.oisp.databackend.datastructures.ComponentDataType;
 import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.exceptions.IllegalDataInquiryArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,13 +46,18 @@ public class DataRetriever {
         this.dataRetrieveParams = dataRetrieveParams;
     }
 
-    public void retrieveAndCount(ObservationFilterSelector filter) {
+    public void retrieveAndCount(ObservationFilterSelector filter) throws IllegalDataInquiryArgumentException {
         Map<String, Observation[]> componentObservations = new HashMap<>();
         Collection<String> components = dataRetrieveParams.getComponentsMetadata().keySet();
         rowCount = 0L;
         for (String component : components) {
+            if (dataRetrieveParams.getComponentsMetadata().get((String) component) == null
+                     || !dataRetrieveParams.getComponentsMetadata().get((String) component).isValidType()) {
+                throw new IllegalDataInquiryArgumentException("Invalid ComponentType.");
+            }
             Observation[] observations = hbase.scan(dataRetrieveParams.getAccountId(),
                     component,
+                    dataRetrieveParams.getComponentsMetadata().get((String) component).getDataType(),
                     dataRetrieveParams.getStartDate(),
                     dataRetrieveParams.getEndDate(),
                     dataRetrieveParams.isQueryMeasureLocation(),

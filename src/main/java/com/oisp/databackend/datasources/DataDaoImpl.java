@@ -71,11 +71,12 @@ public class DataDaoImpl implements DataDao {
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributeList) {
+    public Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributeList) {
         logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
         TsdbQuery tsdbQuery = new TsdbQuery()
                 .withAid(accountId)
                 .withCid(componentId)
+                .withComponentType(componentType)
                 .withLocationInfo(gps)
                 .withAttributes(attributeList)
                 .withStart(start)
@@ -84,13 +85,14 @@ public class DataDaoImpl implements DataDao {
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps,
+    public Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps,
                               String[] attributeList, boolean forward, int limit) {
         logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {} with limit: {}",
                 accountId, componentId, start, stop, gps, limit);
         TsdbQuery tsdbQuery = new TsdbQuery()
                 .withAid(accountId)
                 .withCid(componentId)
+                .withComponentType(componentType)
                 .withLocationInfo(gps)
                 .withAttributes(attributeList)
                 .withStart(start)
@@ -117,5 +119,10 @@ public class DataDaoImpl implements DataDao {
                         && !s.equals(DataFormatter.gpsValueToString(1))
                         && !s.equals(DataFormatter.gpsValueToString(2))).toArray(String[]::new);*/
         return attributesArray;
+    }
+
+    @Override
+    public List<String> getSupportedDataTypes() {
+        return tsdbAccess.getSupportedDataTypes();
     }
 }

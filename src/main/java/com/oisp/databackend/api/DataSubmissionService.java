@@ -30,6 +30,7 @@ import static org.springframework.web.context.WebApplicationContext.SCOPE_REQUES
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 @org.springframework.stereotype.Service
 @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
 public class DataSubmissionService implements Service<DataSubmissionRequest, DataSubmissionResponse> {
@@ -56,10 +57,11 @@ public class DataSubmissionService implements Service<DataSubmissionRequest, Dat
 
     @Override
     public DataSubmissionResponse invoke() throws MissingDataSubmissionArgumentException {
-        logger.error("=============DataSubmissionResponse");
+        logger.debug("=============DataSubmissionResponse");
         if (request.getData() == null) {
             throw new MissingDataSubmissionArgumentException("Missing \"data\" field in request");
         }
+
         for (Observation o : request.getData()) {
             o.setAid(accountId);
             o.setSystemOn(this.request.getSystemOn());
