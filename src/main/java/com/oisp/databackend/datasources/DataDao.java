@@ -19,16 +19,19 @@ package com.oisp.databackend.datasources;
 import com.oisp.databackend.datastructures.Observation;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface DataDao {
 
 
     boolean put(Observation[] o);
 
-    Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributes);
+    Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes);
 
-    Observation[] scan(String accountId, String componentId, long start, long stop, Boolean gps, String[] attributes,
+    Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes,
                        boolean forward, int limit);
 
     String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException;
+
+    List<String> getSupportedDataTypes();
 }

@@ -31,14 +31,18 @@ public class SamplePlainDataRetriever implements SampleDataRetriever {
     }
 
     @Override
-    public List<List<String>> get(Observation[] observations, Long first, Long last) {
-        List<List<String>> sampleObservationList = new ArrayList<>();
+    public List<List<Object>> get(Observation[] observations, Long first, Long last) {
+        List<List<Object>> sampleObservationList = new ArrayList<>();
         int maxCoordinatesCount = Common.getMaxCoordinatesCount(observations);
         for (Long i = first; i < last; i++) {
             Observation observation = observations[i.intValue()];
-            List<String> samples = new ArrayList<>();
-            samples.add(observation.getOn().toString());
-            samples.add(observation.getValue());
+            List<Object> samples = new ArrayList<>();
+            samples.add(observation.getOn());
+            if (observation.isBinary()) {
+                samples.add(observation.getbValue());
+            } else {
+                samples.add(observation.getValue());
+            }
             sampleObservationList.add(samples);
             Common.addObservationLocation(observation, samples, maxCoordinatesCount);
             addObservationAttributes(observation, samples);
@@ -47,7 +51,7 @@ public class SamplePlainDataRetriever implements SampleDataRetriever {
 
     }
 
-    private void addObservationAttributes(Observation observation, List<String> samples) {
+    private void addObservationAttributes(Observation observation, List<Object> samples) {
         if (observationAttributes != null) {
             for (String attrName : observationAttributes) {
                 String attrValue = observation.getAttributes().get(attrName);

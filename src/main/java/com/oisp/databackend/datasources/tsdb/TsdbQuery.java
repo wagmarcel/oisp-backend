@@ -7,6 +7,7 @@ import java.util.List;
 public class TsdbQuery {
     private String aid;
     private String cid;
+    private String componentType;
     private List<String>  attributes;
     private boolean locationInfo;
     private long start;
@@ -15,6 +16,7 @@ public class TsdbQuery {
     public TsdbQuery(String aid, String cid, List<String> attributes, boolean locationInfo, long start, long stop) {
         this.aid = aid;
         this.cid = cid;
+        this.componentType = null;
         this.attributes = attributes;
         this.locationInfo = locationInfo;
         this.start = start;
@@ -23,6 +25,7 @@ public class TsdbQuery {
 
     public TsdbQuery() {
         this.locationInfo = false;
+        this.componentType = null;
         this.attributes = new ArrayList<>();
     }
 
@@ -33,6 +36,11 @@ public class TsdbQuery {
 
     public TsdbQuery withCid(String cid) {
         this.cid = cid;
+        return this;
+    }
+
+    public TsdbQuery withComponentType(String componentType) {
+        this.componentType = componentType;
         return this;
     }
 
@@ -112,5 +120,13 @@ public class TsdbQuery {
 
     public long getStop() {
         return stop;
+    }
+
+    public String getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(String componentType) {
+        this.componentType = componentType;
     }
 }

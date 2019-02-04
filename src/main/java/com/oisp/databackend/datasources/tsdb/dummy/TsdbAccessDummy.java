@@ -55,4 +55,9 @@ public class TsdbAccessDummy implements TsdbAccess {
         return new String[0];
     }
 
+    @Override
+    public List<String> getSupportedDataTypes() {
+        return Arrays.asList("Number", "String", "Boolean", "ByteArray");
+    }
+
 }

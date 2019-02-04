@@ -22,5 +22,5 @@ import java.util.List;
 
 public interface SampleDataRetriever {
 
-    List<List<String>> get(Observation[] observations, Long first, Long last);
+    List<List<Object>> get(Observation[] observations, Long first, Long last);
 }

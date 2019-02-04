@@ -30,23 +30,28 @@ public class ObservationCreator {
 
     public static final short GPS_COLUMN_SIZE = 3;
     private Observation observation;
-    //private TsdbObject tsdbObject;
     private Result result;
     private static final Logger logger = LoggerFactory.getLogger(ObservationCreator.class);
     private final String accountId;
     private final String componentId;
+    private String componentType;
     private Boolean hasGps;
     private Set<String> attributes;
 
     public ObservationCreator(String accountId, String componentId) {
         this.accountId = accountId;
         this.componentId = componentId;
+        this.componentType = null;
         this.hasGps = false;
-
     }
 
     public ObservationCreator withGps(boolean hasGps) {
         this.hasGps = hasGps;
+        return this;
+    }
+
+    public ObservationCreator withComponentType(String componentType) {
+        this.componentType = componentType;
         return this;
     }
 
@@ -60,18 +65,23 @@ public class ObservationCreator {
         this.result = result;
         addBasicInformation();
         addAdditionalInformation();
-        //logger.info("========================Observation");
         return observation;
     }
 
     private void addBasicInformation() {
         String key = Bytes.toString(result.getRow());
-        String value = Bytes.toString(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
+        if ("ByteArray".equals(componentType)) {
+            byte[] bValue = result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN));
+            observation.setbValue(bValue);
+        } else {
+            String value = Bytes.toString(result.getValue(Columns.BYTES_COLUMN_FAMILY, Bytes.toBytes(Columns.DATA_COLUMN)));
+            observation.setValue(value);
+        }
         observation.setCid(componentId);
         observation.setAid(accountId);
         observation.setOn(HbaseDataFormatter.getTimeFromKey(key)); //0L;
-        observation.setValue(value);
         observation.setAttributes(new HashMap<String, String>());
+        observation.setDataType(componentType);
     }
 
     private void addAdditionalInformation() {
