@@ -16,7 +16,8 @@
 
 package com.oisp.databackend.datasources.tsdb.hbase;
 
-import com.oisp.databackend.config.oisp.TsdbHBaseCondition;
+import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
@@ -31,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
@@ -44,14 +44,16 @@ import java.util.stream.Collectors;
 
 @Primary
 @Repository
-@Conditional(TsdbHBaseCondition.class)
 public class TsdbAccessHBase implements TsdbAccess {
     private static final Logger logger = LoggerFactory.getLogger(TsdbAccessHBase.class);
     private final String tableName;
     private final byte[] tableNameBytes;
     private static final String DEVICE_MEASUREMENT = "_DEVICE_MEASUREMENT";
     private static final String SEPARATOR = ".";
+    private static final String ONLYMETADATA = "1";
 
+    @Autowired
+    private OispConfig oispConfig;
     private Connection connection;
     @Autowired
     private HbaseConnManger hbaseConnManger;
@@ -83,6 +85,12 @@ public class TsdbAccessHBase implements TsdbAccess {
 
     @PostConstruct
     public boolean createTables() throws IOException {
+        //Make sure that this bean is only initiated when needed
+        if (!oispConfig.getBackendConfig()
+                .getTsdbName()
+                .equals(oispConfig.OISP_BACKEND_TSDB_NAME_HBASE)) {
+            return false;
+        }
         Admin admin = null;
         logger.info("Try to create {} in HBase.", tableName);
         try {
@@ -107,13 +115,13 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public boolean put(List<Observation> observations) {
+    public boolean put(List<Observation> observations, boolean onlyMetadata) {
 
         try (Table table = getHbaseTable()) {
 
             List<Put> puts = new ArrayList<Put>();
             for (Observation obs : observations) {
-                puts.add(getPutForObservation(obs));
+                puts.add(getPutForObservation(obs, onlyMetadata));
             }
             table.put(puts);
         } catch (IOException ex) {
@@ -123,11 +131,11 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public boolean put(Observation observation) {
+    public boolean put(Observation observation, boolean onlyMetadata) {
 
         List<Observation> puts = new ArrayList<Observation>();
         puts.add(observation);
-        return put(puts);
+        return put(puts, onlyMetadata);
     }
 
 
@@ -139,12 +147,30 @@ public class TsdbAccessHBase implements TsdbAccess {
         return Bytes.toBytes(tsdbQuery.getAid() + SEPARATOR + tsdbQuery.getCid());
     }
 
-    private Put getPutForObservation(Observation observation) {
+    private byte[] addColumn(Observation o, Boolean onlyMetadata, Boolean isBinary) {
+        byte[] putValue = null;
+        if (onlyMetadata) {
+            putValue = Bytes.toBytes((String) ONLYMETADATA);
+        } else {
+            if (isBinary) {
+                putValue = o.getbValue();
+            } else {
+                putValue = Bytes.toBytes((String) o.getValue());
+            }
+        }
+        return putValue;
+    }
+
+    private Put getPutForObservation(Observation observation, boolean onlyMetadata) {
         Put put = new Put(getRowKey(observation));
         if (observation.isBinary()) {
-            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, observation.getbValue());
+            //when onlyMetadata is specified only a default value is sent
+
+            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN,
+                    addColumn(observation, onlyMetadata, true));
         } else {
-            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) observation.getValue()));
+            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN,
+                    addColumn(observation, onlyMetadata, false));
         }
         Map<String, String> attributes = observation.getAttributes();
         // In hbase, we treat gps coordinates as special columns
@@ -264,7 +290,7 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public List<String> getSupportedDataTypes() {
-        return Arrays.asList("Number", "String", "Boolean", "ByteArray");
+    public List<DataType.Types> getSupportedDataTypes() {
+        return Arrays.asList(DataType.Types.Number, DataType.Types.String, DataType.Types.Boolean, DataType.Types.ByteArray);
     }
 }

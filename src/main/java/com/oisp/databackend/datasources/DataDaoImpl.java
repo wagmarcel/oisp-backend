@@ -18,6 +18,7 @@ package com.oisp.databackend.datasources;
 
 
 import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.objectstore.ObjectStoreAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
@@ -31,6 +32,8 @@ import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Repository
 @Configuration
@@ -39,6 +42,9 @@ public class DataDaoImpl implements DataDao {
     private static final Logger logger = LoggerFactory.getLogger(DataDaoImpl.class);
 
     private TsdbAccess tsdbAccess;
+    private ObjectStoreAccess objectStoreAccess;
+
+    private List<DataType.Types> supportedTsdbTypes;
 
     @Autowired
     private OispConfig oispConfig;
@@ -59,14 +65,46 @@ public class DataDaoImpl implements DataDao {
             logger.info("TSDB backend: openTSDB");
             this.tsdbAccess = (TsdbAccess) context.getBean("tsdbAccessOpenTsdb");
         } else {
-            throw new ConfigEnvironmentException("Could not find the backend with name " + tsdbName);
+            throw new ConfigEnvironmentException("Could not find the tsdb backend with name " + tsdbName);
+        }
+        supportedTsdbTypes = this.tsdbAccess.getSupportedDataTypes();
+    }
+
+    @Autowired
+    public void selectObjectStoragePlugin() throws ConfigEnvironmentException {
+        this.objectStoreAccess = null;
+        String objectStoreName = oispConfig.getBackendConfig().getObjectStoreName();
+        if (objectStoreName == null || objectStoreName.isEmpty()) {
+            return;
+        }
+        if (oispConfig.OISP_BACKEND_OBJECT_STORE_MINIO.equals(objectStoreName)) {
+            logger.info("Object store backend: minio");
+            this.objectStoreAccess = (ObjectStoreAccess) context.getBean("objectAccessMinio");
+        } else {
+            throw new ConfigEnvironmentException("Could not find the object store backend with name " + objectStoreName);
         }
     }
 
     @Override
     public boolean put(final Observation[] observations) {
 
-        tsdbAccess.put(Arrays.asList(observations));
+        List<String> supportedTsdbTypesAsString = DataType.getTypesStringList(supportedTsdbTypes);
+        //filter out the observations which the tsdb backend supports
+        Predicate<Observation> supportedPred = o -> supportedTsdbTypesAsString.stream().anyMatch(s -> s.equals(o.getDataType()));
+        Predicate<Observation> unsupportedPred = o -> !supportedTsdbTypesAsString.stream().anyMatch(s -> s.equals(o.getDataType()));
+        List<Observation> supportedObservations = Arrays.asList(observations).stream().filter(supportedPred)
+                .collect(Collectors.toList());
+        List<Observation> unsupportedObservations = Arrays.asList(observations).stream().filter(unsupportedPred)
+                .collect(Collectors.toList());
+
+        if (!supportedObservations.isEmpty()) {
+            tsdbAccess.put(supportedObservations, false);
+        }
+        if (!unsupportedObservations.isEmpty()) {
+            tsdbAccess.put(unsupportedObservations, true);
+            objectStoreAccess.put(unsupportedObservations);
+        }
+
         return true;
     }
 
@@ -81,7 +119,19 @@ public class DataDaoImpl implements DataDao {
                 .withAttributes(attributeList)
                 .withStart(start)
                 .withStop(stop);
-        return tsdbAccess.scan(tsdbQuery);
+        Observation[] observations = tsdbAccess.scan(tsdbQuery);
+        if (observations != null && observations.length > 0) {
+            //Check whether dataType is not supported by tsdb
+            DataType.Types type = DataType.getType(componentType);
+            Boolean isUncovered = !DataType.getUncoveredDataTypes(supportedTsdbTypes)
+                    .stream()
+                    .filter(t -> t == type)
+                    .collect(Collectors.toSet()).isEmpty();
+            if (isUncovered) {
+                objectStoreAccess.get(observations);
+            }
+        }
+        return observations;
     }
 
     @Override
@@ -122,7 +172,15 @@ public class DataDaoImpl implements DataDao {
     }
 
     @Override
-    public List<String> getSupportedDataTypes() {
-        return tsdbAccess.getSupportedDataTypes();
+    public List<DataType.Types> getSupportedDataTypes() {
+        // if all is covered by TSDB - no need to look at object store
+        // if no objectStore is defined, return tsdbAccess
+        if (DataType.getUncoveredDataTypes(tsdbAccess.getSupportedDataTypes()).isEmpty() || objectStoreAccess == null) {
+            return tsdbAccess.getSupportedDataTypes();
+        } else {
+            // if there are gaps in TSDB but there is an object store, it is used for all backup cases which TSDB
+            // does not support, so all is covered
+            return DataType.getAllTypes();
+        }
     }
 }

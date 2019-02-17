@@ -33,5 +33,5 @@ public interface DataDao {
 
     String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException;
 
-    List<String> getSupportedDataTypes();
+    List<DataType.Types> getSupportedDataTypes();
 }

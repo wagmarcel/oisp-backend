@@ -3,7 +3,6 @@ USER root
 RUN apt update && apt install -y make
 
 ADD ./build.gradle /app/build.gradle
-#RUN cd /app && gradle build -x test --continue
 
 ADD . /app
 WORKDIR /app
