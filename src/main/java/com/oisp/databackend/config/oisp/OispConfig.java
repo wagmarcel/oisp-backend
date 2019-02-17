@@ -15,12 +15,27 @@ import java.util.*;
 
 @Service
 public class OispConfig {
+    //TSDB types
     public static final String OISP_BACKEND_TSDB_NAME_DUMMY = "dummy";
     public static final String OISP_BACKEND_TSDB_NAME_HBASE = "hbase";
     public static final String OISP_BACKEND_TSDB_NAME_OPENTSDB = "openTSDB";
+
+    //Object Store types
+    public static final String OISP_BACKEND_OBJECT_STORAGE_MINIO = "minio";
+
+    //Properties for HBASE module
     public static final String OISP_HBASE_TABLE_PREFIX = "oisp";
+
+    //Properties for TSDB backend
     public static final String OISP_BACKEND_TSDB_URI = "uri";
     public static final String OISP_BACKEND_TSDB_PORT = "port";
+
+    //Properties for Minio Object Store
+    public static final String OISP_BACKEND_OS_URI = "endPoint";
+    public static final String OISP_BACKEND_OS_PORT = "port";
+    public static final String OISP_BACKEND_OS_USESSL = "useSSL";
+    public static final String OISP_BACKEND_OS_ACCESSKEY = "accessKey";
+    public static final String OISP_BACKEND_OS_SECRETKEY = "secretKey";
 
     private static final String OISP_BACKEND_CONFIG = "OISP_BACKEND_CONFIG";
     private static final String OISP_KAFKA_CONFIG = "OISP_KAFKA_CONFIG";

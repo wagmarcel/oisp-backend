@@ -28,12 +28,12 @@ import java.util.*;
 public class TsdbAccessDummy implements TsdbAccess {
 
     @Override
-    public boolean put(List<Observation> observations) {
+    public boolean put(List<Observation> observations, boolean onlyMetadata) {
         return true;
     }
 
     @Override
-    public boolean put(Observation observation) {
+    public boolean put(Observation observation, boolean onlyMetadata) {
         return true;
     }
 

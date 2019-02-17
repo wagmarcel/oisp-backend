@@ -18,6 +18,7 @@ package com.oisp.databackend.datasources;
 
 
 import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.objectStorage.ObjectAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
@@ -30,7 +31,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Repository
 @Configuration
@@ -39,6 +43,9 @@ public class DataDaoImpl implements DataDao {
     private static final Logger logger = LoggerFactory.getLogger(DataDaoImpl.class);
 
     private TsdbAccess tsdbAccess;
+    private ObjectAccess objectAccess;
+
+    private List<String> supportedTsdbTypes;
 
     @Autowired
     private OispConfig oispConfig;
@@ -59,12 +66,32 @@ public class DataDaoImpl implements DataDao {
             logger.info("TSDB backend: openTSDB");
             this.tsdbAccess = (TsdbAccess) context.getBean("tsdbAccessOpenTsdb");
         } else {
-            throw new ConfigEnvironmentException("Could not find the backend with name " + tsdbName);
+            throw new ConfigEnvironmentException("Could not find the tsdb backend with name " + tsdbName);
+        }
+        supportedTsdbTypes = this.tsdbAccess.getSupportedDataTypes();
+    }
+
+    @Autowired
+    public void selectObjectStoragePlugin() throws ConfigEnvironmentException {
+        String objectStoreName = oispConfig.getBackendConfig().getObjectStoreName();
+        if (oispConfig.OISP_BACKEND_OBJECT_STORAGE_MINIO.equals(objectStoreName)) {
+            logger.info("Object store backend: minio");
+            this.tsdbAccess = (TsdbAccess) context.getBean("objectAccessMinio");
+        } else {
+            throw new ConfigEnvironmentException("Could not find the object store backend with name " +objectStoreName);
         }
     }
 
     @Override
     public boolean put(final Observation[] observations) {
+
+        //filter out the observations which the tsdb backend supports
+        Predicate<Observation> supportedPred = o -> supportedTsdbTypes.stream().anyMatch(s -> s.equals(o.getDataType()));
+        Predicate<Observation> unSupportedPred = o -> !supportedTsdbTypes.stream().anyMatch(s -> s.equals(o.getDataType()));
+        List<Observation> supportedObservations = Arrays.asList(observations).stream().filter(supportedPred)
+                .collect(Collectors.toList());
+        List<Observation> unSupportedObservations = Arrays.asList(observations).stream().filter(unSupportedPred)
+                .collect(Collectors.toList());
 
         tsdbAccess.put(Arrays.asList(observations));
         return true;

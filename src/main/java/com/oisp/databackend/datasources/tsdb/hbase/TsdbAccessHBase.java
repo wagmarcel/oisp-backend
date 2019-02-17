@@ -51,6 +51,7 @@ public class TsdbAccessHBase implements TsdbAccess {
     private final byte[] tableNameBytes;
     private static final String DEVICE_MEASUREMENT = "_DEVICE_MEASUREMENT";
     private static final String SEPARATOR = ".";
+    private static final String ONLYMETADATA = "1";
 
     private Connection connection;
     @Autowired
@@ -107,13 +108,13 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public boolean put(List<Observation> observations) {
+    public boolean put(List<Observation> observations, boolean onlyMetadata) {
 
         try (Table table = getHbaseTable()) {
 
             List<Put> puts = new ArrayList<Put>();
             for (Observation obs : observations) {
-                puts.add(getPutForObservation(obs));
+                puts.add(getPutForObservation(obs, onlyMetadata));
             }
             table.put(puts);
         } catch (IOException ex) {
@@ -123,11 +124,11 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public boolean put(Observation observation) {
+    public boolean put(Observation observation, boolean onlyMetadata) {
 
         List<Observation> puts = new ArrayList<Observation>();
         puts.add(observation);
-        return put(puts);
+        return put(puts, onlyMetadata);
     }
 
 
@@ -139,12 +140,15 @@ public class TsdbAccessHBase implements TsdbAccess {
         return Bytes.toBytes(tsdbQuery.getAid() + SEPARATOR + tsdbQuery.getCid());
     }
 
-    private Put getPutForObservation(Observation observation) {
+    private Put getPutForObservation(Observation observation, boolean onlyMetadata) {
         Put put = new Put(getRowKey(observation));
         if (observation.isBinary()) {
-            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, observation.getbValue());
+            //when onlyMetadata is specified only a default value is sent
+            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN,
+                    onlyMetadata? Bytes.toBytes((String) ONLYMETADATA) : observation.getbValue());
         } else {
-            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN, Bytes.toBytes((String) observation.getValue()));
+            put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN,
+                    onlyMetadata? Bytes.toBytes((String) ONLYMETADATA) : Bytes.toBytes((String) observation.getValue()));
         }
         Map<String, String> attributes = observation.getAttributes();
         // In hbase, we treat gps coordinates as special columns
@@ -265,6 +269,6 @@ public class TsdbAccessHBase implements TsdbAccess {
 
     @Override
     public List<String> getSupportedDataTypes() {
-        return Arrays.asList("Number", "String", "Boolean", "ByteArray");
+        return Arrays.asList("Number", "String", "Boolean");
     }
 }

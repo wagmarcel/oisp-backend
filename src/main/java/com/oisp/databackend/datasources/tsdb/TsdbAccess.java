@@ -32,16 +32,18 @@ public interface TsdbAccess {
     /**
      *
      * @param observation A single Observation to send the the data backend
+     * @param onlyMetadata if true, only gps values and attributes are stored, no values (needed to manage binary data)
      * @return true if successful, false otherwise
      */
-    boolean put(Observation observation);
+    boolean put(Observation observation, boolean onlyMetadata);
 
     /**
      *
      * @param observationList A list of Observations to send to the data backend
+     * @param onlyMetadata if true, only gps values and attributes are stored, no values (needed to manage binary data)
      * @return true if successful, false otherwise
      */
-    boolean put(List<Observation> observationList);
+    boolean put(List<Observation> observationList, boolean onlyMetadata);
 
     /**
      *

@@ -55,19 +55,19 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     }
 
     @Override
-    public boolean put(List<Observation> observations) {
-        List<TsdbObject> tsdbObjects = TsdbObjectBuilder.createTsdbObjectsFromObservations(observations);
+    public boolean put(List<Observation> observations, boolean onlyMetadata) {
+        List<TsdbObject> tsdbObjects = TsdbObjectBuilder.createTsdbObjectsFromObservations(observations, onlyMetadata);
 
         return api.put(tsdbObjects, true);
     }
 
     @Override
-    public boolean put(Observation observation) {
+    public boolean put(Observation observation, boolean onlyMetadata) {
 
         List<Observation> list = new ArrayList<Observation>();
         list.add(observation);
 
-        return put(list);
+        return put(list, onlyMetadata);
     }
 
     @Override
