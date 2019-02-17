@@ -10,6 +10,7 @@ import java.util.Properties;
 public class BackendConfig {
 
     private String tsdbName;
+    private String objectStoreName;
     private String hbaseTablePrefix;
 
     @JsonIgnore
@@ -24,6 +25,9 @@ public class BackendConfig {
     private Properties tsdbProperties;
     @JsonIgnore
     private JaegerConfig jaegerConfig;
+
+    @JsonIgnore
+    private Properties objectStoreProperties;
 
     public JaegerConfig getJaegerConfig() {
         return jaegerConfig;
@@ -87,5 +91,20 @@ public class BackendConfig {
 
     public void setHbaseConfig(HBaseConfig hbaseConfig) {
         this.hbaseConfig = hbaseConfig;
+    }
+    public Properties getObjectStoreProperties() {
+        return objectStoreProperties;
+    }
+
+    public void setObjectStoreProperties(Properties objectStoreProperties) {
+        this.objectStoreProperties = objectStoreProperties;
+    }
+
+    public String getObjectStoreName() {
+        return objectStoreName;
+    }
+
+    public void setObjectStoreName(String objectStoreName) {
+        this.objectStoreName = objectStoreName;
     }
 }

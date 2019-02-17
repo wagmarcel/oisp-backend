@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.datasources.tsdb.dummy;
 
+import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
@@ -28,12 +29,12 @@ import java.util.*;
 public class TsdbAccessDummy implements TsdbAccess {
 
     @Override
-    public boolean put(List<Observation> observations) {
+    public boolean put(List<Observation> observations, boolean onlyMetadata) {
         return true;
     }
 
     @Override
-    public boolean put(Observation observation) {
+    public boolean put(Observation observation, boolean onlyMetadata) {
         return true;
     }
 
@@ -56,8 +57,8 @@ public class TsdbAccessDummy implements TsdbAccess {
     }
 
     @Override
-    public List<String> getSupportedDataTypes() {
-        return Arrays.asList("Number", "String", "Boolean", "ByteArray");
+    public List<DataType.Types> getSupportedDataTypes() {
+        return Arrays.asList(DataType.Types.Number, DataType.Types.String, DataType.Types.Boolean, DataType.Types.ByteArray);
     }
 
 }

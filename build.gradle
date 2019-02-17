@@ -124,11 +124,7 @@ dependencies {
     compile group: 'io.jaegertracing', name: 'jaeger-core', version: '0.31.0'
     compile group: 'io.jaegertracing', name: 'jaeger-thrift', version: '0.31.0'
     compile group: 'org.springframework.boot', name: 'spring-boot-autoconfigure', version: "${springBootVersion}"
-
-
-
-
-
+    compile 'io.minio:minio:4.0.2'
 
     compile("org.apache.hbase:hbase:$hbaseVersion")
     compile("org.apache.hbase:hbase-client:$hbaseVersion")
