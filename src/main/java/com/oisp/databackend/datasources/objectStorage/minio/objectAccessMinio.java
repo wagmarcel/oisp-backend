@@ -19,9 +19,8 @@ public class objectAccessMinio implements ObjectStoreAccess {
     @PostConstruct
     public void init() throws URISyntaxException {
         //Make sure that this bean is only initiated when needed
-        if (!oispConfig.getBackendConfig()
-                .getObjectStoreName()
-                .equals(oispConfig.OISP_BACKEND_OBJECT_STORE_MINIO)) {
+        if (oispConfig.getBackendConfig().getObjectStoreName() == null ||
+                !oispConfig.getBackendConfig().getObjectStoreName().equals(oispConfig.OISP_BACKEND_OBJECT_STORE_MINIO)) {
             return;
         }
         //otherwise do the init here
