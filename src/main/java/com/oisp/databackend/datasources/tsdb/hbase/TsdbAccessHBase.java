@@ -16,7 +16,8 @@
 
 package com.oisp.databackend.datasources.tsdb.hbase;
 
-import com.oisp.databackend.config.oisp.TsdbHBaseCondition;
+import com.oisp.databackend.config.oisp.OispConfig;
+import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
@@ -31,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
 
 @Primary
 @Repository
-@Conditional(TsdbHBaseCondition.class)
 public class TsdbAccessHBase implements TsdbAccess {
     private static final Logger logger = LoggerFactory.getLogger(TsdbAccessHBase.class);
     private final String tableName;
@@ -53,6 +52,8 @@ public class TsdbAccessHBase implements TsdbAccess {
     private static final String SEPARATOR = ".";
     private static final String ONLYMETADATA = "1";
 
+    @Autowired
+    private OispConfig oispConfig;
     private Connection connection;
     @Autowired
     private HbaseConnManger hbaseConnManger;
@@ -84,6 +85,12 @@ public class TsdbAccessHBase implements TsdbAccess {
 
     @PostConstruct
     public boolean createTables() throws IOException {
+        //Make sure that this bean is only initiated when needed
+        if (!oispConfig.getBackendConfig()
+                .getTsdbName()
+                .equals(oispConfig.OISP_BACKEND_TSDB_NAME_HBASE)) {
+            return false;
+        }
         Admin admin = null;
         logger.info("Try to create {} in HBase.", tableName);
         try {
@@ -268,7 +275,7 @@ public class TsdbAccessHBase implements TsdbAccess {
     }
 
     @Override
-    public List<String> getSupportedDataTypes() {
-        return Arrays.asList("Number", "String", "Boolean");
+    public List<DataType.Types> getSupportedDataTypes() {
+        return Arrays.asList(DataType.Types.Number, DataType.Types.String, DataType.Types.Boolean);
     }
 }

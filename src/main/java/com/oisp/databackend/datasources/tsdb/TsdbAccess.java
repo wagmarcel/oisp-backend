@@ -17,6 +17,7 @@
 package com.oisp.databackend.datasources.tsdb;
 
 import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datasources.DataType;
 
 import java.io.IOException;
 import java.util.List;
@@ -74,5 +75,5 @@ public interface TsdbAccess {
     /**
      * Get list of data types which are supported by tsdb backend
      */
-    List<String> getSupportedDataTypes();
+    List<DataType.Types> getSupportedDataTypes();
 }

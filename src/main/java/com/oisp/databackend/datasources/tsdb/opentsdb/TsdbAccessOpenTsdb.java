@@ -18,6 +18,7 @@ package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataFormatter;
+import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.Query;
@@ -113,7 +114,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     }
 
     @Override
-    public List<String> getSupportedDataTypes() {
-        return Arrays.asList("Number", "Boolean");
+    public List<DataType.Types> getSupportedDataTypes() {
+        return Arrays.asList(DataType.Types.Boolean, DataType.Types.Number);
     }
 }

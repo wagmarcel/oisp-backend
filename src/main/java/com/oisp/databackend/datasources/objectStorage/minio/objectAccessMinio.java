@@ -1,8 +1,7 @@
 package com.oisp.databackend.datasources.objectStorage.minio;
 
 import com.oisp.databackend.config.oisp.OispConfig;
-import com.oisp.databackend.datasources.objectStorage.ObjectAccess;
-import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.RestApi;
+import com.oisp.databackend.datasources.objectStorage.ObjectStoreAccess;
 import com.oisp.databackend.datastructures.Observation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -12,7 +11,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 @Repository
-public class objectAccessMinio implements ObjectAccess {
+public class objectAccessMinio implements ObjectStoreAccess {
 
     @Autowired
     private OispConfig oispConfig;
@@ -22,7 +21,7 @@ public class objectAccessMinio implements ObjectAccess {
         //Make sure that this bean is only initiated when needed
         if (!oispConfig.getBackendConfig()
                 .getObjectStoreName()
-                .equals(oispConfig.OISP_BACKEND_OBJECT_STORAGE_MINIO)) {
+                .equals(oispConfig.OISP_BACKEND_OBJECT_STORE_MINIO)) {
             return;
         }
         //otherwise do the init here

@@ -26,7 +26,7 @@ import java.util.List;
  * Currently work in progress, not stable API yet
  * @version 0.1
  */
-public interface ObjectAccess {
+public interface ObjectStoreAccess {
 
     /**
      *

@@ -21,7 +21,7 @@ public class OispConfig {
     public static final String OISP_BACKEND_TSDB_NAME_OPENTSDB = "openTSDB";
 
     //Object Store types
-    public static final String OISP_BACKEND_OBJECT_STORAGE_MINIO = "minio";
+    public static final String OISP_BACKEND_OBJECT_STORE_MINIO = "minio";
 
     //Properties for HBASE module
     public static final String OISP_HBASE_TABLE_PREFIX = "oisp";
