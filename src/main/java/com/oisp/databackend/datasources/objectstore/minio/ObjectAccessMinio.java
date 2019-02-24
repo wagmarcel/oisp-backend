@@ -1,18 +1,15 @@
-package com.oisp.databackend.datasources.objectStore.minio;
+package com.oisp.databackend.datasources.objectstore.minio;
 
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataType;
-import com.oisp.databackend.datasources.objectStore.ObjectStoreAccess;
+import com.oisp.databackend.datasources.objectstore.ObjectStoreAccess;
 import com.oisp.databackend.datastructures.Observation;
-import io.minio.MinioClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +27,13 @@ public class ObjectAccessMinio implements ObjectStoreAccess {
     @Autowired
     private OispConfig oispConfig;
 
-    MinioManager minioManager;
+    private MinioManager minioManager;
 
     @PostConstruct
     public void init() throws URISyntaxException {
         //Make sure that this bean is only initiated when needed
-        if (oispConfig.getBackendConfig().getObjectStoreName() == null ||
-                !oispConfig.getBackendConfig().getObjectStoreName().equals(oispConfig.OISP_BACKEND_OBJECT_STORE_MINIO)) {
+        if (oispConfig.getBackendConfig().getObjectStoreName() == null
+                || !oispConfig.getBackendConfig().getObjectStoreName().equals(oispConfig.OISP_BACKEND_OBJECT_STORE_MINIO)) {
             return;
         }
         //otherwise do the init here
@@ -44,7 +41,7 @@ public class ObjectAccessMinio implements ObjectStoreAccess {
     }
 
     @Override
-    public boolean put(Observation observation){
+    public boolean put(Observation observation) {
         List<Observation> list = new ArrayList<Observation>();
         list.add(observation);
 
@@ -54,18 +51,18 @@ public class ObjectAccessMinio implements ObjectStoreAccess {
     @Override
     public boolean put(List<Observation> observationList) {
         try {
-           minioManager.connect();
-            for(Observation o: observationList) {
+            minioManager.connect();
+            for (Observation o: observationList) {
                 minioManager.putObject(o);
             }
-        } catch(MinioException | java.security.NoSuchAlgorithmException | IOException | InvalidKeyException | XmlPullParserException e) {
-            logger.error("Object store exception: " + e);
+        } catch (MinioException | NoSuchAlgorithmException | IOException | InvalidKeyException | XmlPullParserException e) {
+            logger.error("Object store put exception: " + e);
             return false;
         }
         return true;
     }
     @Override
-    public void get(Observation[] observations){
+    public void get(Observation[] observations) {
         try {
             minioManager.connect();
 
@@ -77,8 +74,8 @@ public class ObjectAccessMinio implements ObjectStoreAccess {
                     observation.setValue(new String(minioManager.getObject(observation)));
                 }
             }
-        } catch(MinioException |  NoSuchAlgorithmException | IOException | InvalidKeyException | XmlPullParserException e) {
-            logger.error("Object store exception: " + e);
+        } catch (MinioException |  NoSuchAlgorithmException | IOException | InvalidKeyException | XmlPullParserException e) {
+            logger.error("Object store get exception: " + e);
         }
     }
 }

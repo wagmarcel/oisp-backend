@@ -1,4 +1,4 @@
-package com.oisp.databackend.datasources.objectStore.minio;
+package com.oisp.databackend.datasources.objectstore.minio;
 
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataType;
@@ -18,15 +18,16 @@ import org.xmlpull.v1.XmlPullParserException;
 
 public class MinioManager {
 
-    OispConfig oispConfig;
-    MinioClient minioClient;
+    private static final int cidSubLength = 23;
+    private OispConfig oispConfig;
+    private MinioClient minioClient;
 
     MinioManager(OispConfig oispConfig) {
         this.oispConfig = oispConfig;
     }
 
     String getBucketName(Observation o) {
-        return o.getAid() + "." + o.getCid().substring(0,23);
+        return o.getAid() + "." + o.getCid().substring(0, cidSubLength);
     }
 
     String getObjectName(Observation o) {

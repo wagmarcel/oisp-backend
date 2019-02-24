@@ -18,7 +18,7 @@ package com.oisp.databackend.datasources;
 
 
 import com.oisp.databackend.config.oisp.OispConfig;
-import com.oisp.databackend.datasources.objectStore.ObjectStoreAccess;
+import com.oisp.databackend.datasources.objectstore.ObjectStoreAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
@@ -175,9 +175,9 @@ public class DataDaoImpl implements DataDao {
     public List<DataType.Types> getSupportedDataTypes() {
         // if all is covered by TSDB - no need to look at object store
         // if no objectStore is defined, return tsdbAccess
-        if (DataType.getUncoveredDataTypes(tsdbAccess.getSupportedDataTypes()).isEmpty() || objectStoreAccess == null)
+        if (DataType.getUncoveredDataTypes(tsdbAccess.getSupportedDataTypes()).isEmpty() || objectStoreAccess == null) {
             return tsdbAccess.getSupportedDataTypes();
-        else {
+        } else {
             // if there are gaps in TSDB but there is an object store, it is used for all backup cases which TSDB
             // does not support, so all is covered
             return DataType.getAllTypes();

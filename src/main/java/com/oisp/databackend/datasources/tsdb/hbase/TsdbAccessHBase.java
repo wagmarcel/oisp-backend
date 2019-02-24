@@ -147,15 +147,30 @@ public class TsdbAccessHBase implements TsdbAccess {
         return Bytes.toBytes(tsdbQuery.getAid() + SEPARATOR + tsdbQuery.getCid());
     }
 
+    private byte[] addColumn(Observation o, Boolean onlyMetadata, Boolean isBinary) {
+        byte[] putValue = null;
+        if (onlyMetadata) {
+            putValue = Bytes.toBytes((String) ONLYMETADATA);
+        } else {
+            if (isBinary) {
+                putValue = o.getbValue();
+            } else {
+                putValue = Bytes.toBytes((String) o.getValue());
+            }
+        }
+        return putValue;
+    }
+
     private Put getPutForObservation(Observation observation, boolean onlyMetadata) {
         Put put = new Put(getRowKey(observation));
         if (observation.isBinary()) {
             //when onlyMetadata is specified only a default value is sent
+
             put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN,
-                    onlyMetadata? Bytes.toBytes((String) ONLYMETADATA) : observation.getbValue());
+                    addColumn(observation, onlyMetadata, true));
         } else {
             put.addColumn(Columns.BYTES_COLUMN_FAMILY, Columns.BYTES_DATA_COLUMN,
-                    onlyMetadata? Bytes.toBytes((String) ONLYMETADATA) : Bytes.toBytes((String) observation.getValue()));
+                    addColumn(observation, onlyMetadata, false));
         }
         Map<String, String> attributes = observation.getAttributes();
         // In hbase, we treat gps coordinates as special columns
