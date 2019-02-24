@@ -98,7 +98,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
         if (queryResponses == null) {
             return null;
         }
-        return ObservationBuilder.createObservationFromQueryResponses(queryResponses);
+        return ObservationBuilder.createObservationFromQueryResponses(queryResponses, tsdbQuery);
     }
 
 

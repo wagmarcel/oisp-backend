@@ -276,6 +276,6 @@ public class TsdbAccessHBase implements TsdbAccess {
 
     @Override
     public List<DataType.Types> getSupportedDataTypes() {
-        return Arrays.asList(DataType.Types.Number, DataType.Types.String, DataType.Types.Boolean);
+        return Arrays.asList(DataType.Types.Number, DataType.Types.String, DataType.Types.Boolean, DataType.Types.ByteArray);
     }
 }

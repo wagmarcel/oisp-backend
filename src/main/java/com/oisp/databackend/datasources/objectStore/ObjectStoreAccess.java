@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oisp.databackend.datasources.objectStorage;
+package com.oisp.databackend.datasources.objectStore;
 
 import com.oisp.databackend.datastructures.Observation;
 

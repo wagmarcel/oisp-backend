@@ -18,7 +18,7 @@ package com.oisp.databackend.datasources;
 
 
 import com.oisp.databackend.config.oisp.OispConfig;
-import com.oisp.databackend.datasources.objectStorage.ObjectStoreAccess;
+import com.oisp.databackend.datasources.objectStore.ObjectStoreAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
@@ -119,7 +119,19 @@ public class DataDaoImpl implements DataDao {
                 .withAttributes(attributeList)
                 .withStart(start)
                 .withStop(stop);
-        return tsdbAccess.scan(tsdbQuery);
+        Observation[] observations = tsdbAccess.scan(tsdbQuery);
+        if (observations != null && observations.length > 0) {
+            //Check whether dataType is not supported by tsdb
+            DataType.Types type = DataType.getType(componentType);
+            Boolean isUncovered = !DataType.getUncoveredDataTypes(supportedTsdbTypes)
+                    .stream()
+                    .filter(t -> t == type)
+                    .collect(Collectors.toSet()).isEmpty();
+            if (isUncovered) {
+                objectStoreAccess.get(observations);
+            }
+        }
+        return observations;
     }
 
     @Override
