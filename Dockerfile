@@ -6,7 +6,7 @@ RUN wget https://services.gradle.org/distributions/gradle-5.1.1-bin.zip -P /tmp 
 RUN export PATH=$PATH:/opt/gradle/bin
 
 ADD ./build.gradle /app/build.gradle
-RUN export PATH=$PATH:/opt/gradle/bin && cd /app && gradle build -x test --continue
+#RUN export PATH=$PATH:/opt/gradle/bin && cd /app && gradle build -x test --continue
 
 ADD . /app
 WORKDIR /app
