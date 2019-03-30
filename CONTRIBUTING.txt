@@ -1,4 +1,4 @@
-Contributing to Open-IoT-Service-Platform
+CCContributing to Open-IoT-Service-Platform
 =========================================
 
 The Open-IoT-Service-Platform is an opensource project and we are actively looking for people to help
