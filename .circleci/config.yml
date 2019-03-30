@@ -34,16 +34,8 @@ jobs:
               echo "Commit is not signedoff"
               exit 1
             fi
-            
 
-      - run:
-          shell: /bin/bash
-          name: Install dependencies
-          command: |
-            cd public-interface
-            npm install
-
-      # run tests!
+      # run tessts!
       - run:
           shell: /bin/bash
           name: Run linting and tests
