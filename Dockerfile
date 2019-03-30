@@ -1,16 +1,13 @@
-FROM ubuntu:18.04
-RUN apt-get update -qq && apt-get upgrade -y
-
-RUN apt-get install -y curl unzip build-essential openjdk-8-jdk-headless wget
-RUN wget https://services.gradle.org/distributions/gradle-5.1.1-bin.zip -P /tmp && unzip -d /opt/gradle /tmp/gradle-*.zip && mv /opt/gradle/gradle-*/* /opt/gradle/
-RUN export PATH=$PATH:/opt/gradle/bin
+FROM gradle:5.3.1-jdk
+USER root
+RUN apt update && apt install -y make
 
 ADD ./build.gradle /app/build.gradle
-RUN export PATH=$PATH:/opt/gradle/bin && cd /app && gradle build -x test --continue
+#RUN cd /app && gradle build -x test --continue
 
 ADD . /app
 WORKDIR /app
-RUN export PATH=$PATH:/opt/gradle/bin && make build
+RUN make build
 
 FROM anapsix/alpine-java:8
 
