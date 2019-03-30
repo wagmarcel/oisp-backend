@@ -39,4 +39,4 @@ jobs:
       - run:
           shell: /bin/bash
           name: Build, unit-tests, static analysis and linting
-          command: make test
+          command: make build
