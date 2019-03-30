@@ -38,5 +38,5 @@ jobs:
       # run tessts!
       - run:
           shell: /bin/bash
-          name: Run linting and tests
+          name: Build, unit-tests, static analysis and linting
           command: make test
