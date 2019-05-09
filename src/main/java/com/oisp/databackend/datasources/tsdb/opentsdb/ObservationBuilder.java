@@ -1,6 +1,7 @@
 package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import com.oisp.databackend.datasources.DataFormatter;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.QueryResponse;
 import com.oisp.databackend.datastructures.Observation;
 
@@ -54,7 +55,7 @@ public final class ObservationBuilder {
             }
         }
     }
-    private static SortedMap<Long, Observation> createBaseObservations(QueryResponse[] queryResponses) {
+    private static SortedMap<Long, Observation> createBaseObservations(QueryResponse[] queryResponses, TsdbQuery tsdbQuery) {
 
         SortedMap<Long, Observation> observationMap = new TreeMap<>();
 
@@ -70,17 +71,18 @@ public final class ObservationBuilder {
                 Observation observation = new Observation(DataFormatter.getAccountFromMetric(metric),
                         DataFormatter.getCidFromMetric(metric),
                         timestamp, value, new ArrayList<Double>(), new HashMap<String, String>());
+                observation.setDataType(tsdbQuery.getComponentType());
                 observationMap.put(timestamp, observation);
             }
         }
         return observationMap;
     }
 
-    public static Observation[] createObservationFromQueryResponses(QueryResponse[] queryResponses) {
+    public static Observation[] createObservationFromQueryResponses(QueryResponse[] queryResponses, TsdbQuery tsdbQuery) {
 
         //first create the base objets with the value types
         SortedMap<Long, Observation> observationMap
-                = createBaseObservations(queryResponses);
+                = createBaseObservations(queryResponses, tsdbQuery);
 
         //Now add the gps tags if any
         addGpsFromQuery(observationMap, queryResponses);

@@ -41,19 +41,24 @@ public final class TsdbObjectBuilder {
         return tsdbObjects;
     }
 
-    public static List<TsdbObject> createTsdbObjectsFromObservations(List<Observation> observations) {
+    public static List<TsdbObject> createTsdbObjectsFromObservations(List<Observation> observations, boolean onlyMetadata) {
         return observations.stream()
                 .flatMap(element
-                        -> getTsdbObjectsfromObservation(element).stream())
+                        -> getTsdbObjectsfromObservation(element, onlyMetadata).stream())
                 .collect(Collectors.toList());
     }
 
-    public static List<TsdbObject> getTsdbObjectsfromObservation(Observation o) {
+    public static List<TsdbObject> getTsdbObjectsfromObservation(Observation o, boolean onlyMetadata) {
 
         List<TsdbObject> tsdbObjects = new ArrayList<TsdbObject>();
         String metric = DataFormatter.createMetric(o.getAid(), o.getCid());
         long timestamp = o.getOn();
-        String value = o.getValue();
+        String value;
+        if (onlyMetadata) {
+            value = "1";
+        } else {
+            value = o.getValue();
+        }
         TsdbObject put = new TsdbObject()
                 .withMetric(metric)
                 .withTimestamp(timestamp)

@@ -18,6 +18,7 @@ package com.oisp.databackend.datasources.tsdb.opentsdb;
 
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataFormatter;
+import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.Query;
@@ -55,19 +56,19 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     }
 
     @Override
-    public boolean put(List<Observation> observations) {
-        List<TsdbObject> tsdbObjects = TsdbObjectBuilder.createTsdbObjectsFromObservations(observations);
+    public boolean put(List<Observation> observations, boolean onlyMetadata) {
+        List<TsdbObject> tsdbObjects = TsdbObjectBuilder.createTsdbObjectsFromObservations(observations, onlyMetadata);
 
         return api.put(tsdbObjects, true);
     }
 
     @Override
-    public boolean put(Observation observation) {
+    public boolean put(Observation observation, boolean onlyMetadata) {
 
         List<Observation> list = new ArrayList<Observation>();
         list.add(observation);
 
-        return put(list);
+        return put(list, onlyMetadata);
     }
 
     @Override
@@ -97,7 +98,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
         if (queryResponses == null) {
             return null;
         }
-        return ObservationBuilder.createObservationFromQueryResponses(queryResponses);
+        return ObservationBuilder.createObservationFromQueryResponses(queryResponses, tsdbQuery);
     }
 
 
@@ -113,7 +114,7 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
     }
 
     @Override
-    public List<String> getSupportedDataTypes() {
-        return Arrays.asList("Number", "Boolean");
+    public List<DataType.Types> getSupportedDataTypes() {
+        return Arrays.asList(DataType.Types.Boolean, DataType.Types.Number);
     }
 }

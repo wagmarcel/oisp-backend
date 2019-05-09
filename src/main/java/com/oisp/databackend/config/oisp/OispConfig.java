@@ -15,12 +15,28 @@ import java.util.*;
 
 @Service
 public class OispConfig {
+    private static final String PORT = "port";
+    //TSDB types
     public static final String OISP_BACKEND_TSDB_NAME_DUMMY = "dummy";
     public static final String OISP_BACKEND_TSDB_NAME_HBASE = "hbase";
     public static final String OISP_BACKEND_TSDB_NAME_OPENTSDB = "openTSDB";
+
+    //Object Store types
+    public static final String OISP_BACKEND_OBJECT_STORE_MINIO = "minio";
+
+    //Properties for HBASE module
     public static final String OISP_HBASE_TABLE_PREFIX = "oisp";
+
+    //Properties for TSDB backend
     public static final String OISP_BACKEND_TSDB_URI = "uri";
-    public static final String OISP_BACKEND_TSDB_PORT = "port";
+    public static final String OISP_BACKEND_TSDB_PORT = PORT;
+
+    //Properties for Minio Object Store
+    public static final String OISP_BACKEND_MINIO_URI = "endPoint";
+    public static final String OISP_BACKEND_MINIO_PORT = PORT;
+    public static final String OISP_BACKEND_MINIO_USESSL = "useSSL";
+    public static final String OISP_BACKEND_MINIO_ACCESSKEY = "accessKey";
+    public static final String OISP_BACKEND_MINIO_SECRETKEY = "secretKey";
 
     private static final String OISP_BACKEND_CONFIG = "OISP_BACKEND_CONFIG";
     private static final String OISP_KAFKA_CONFIG = "OISP_KAFKA_CONFIG";
@@ -32,6 +48,7 @@ public class OispConfig {
     private static final String OISP_LINK_PREFIX = "@@";
     private static final String OISP_PROPERTY_PREFIX = "%%";
     private static final String SET = "set";
+
 
     private static final Map<String, String> varClass = ImmutableMap.<String, String>builder()
         .put(OISP_BACKEND_CONFIG, "com.oisp.databackend.config.oisp.BackendConfig")
