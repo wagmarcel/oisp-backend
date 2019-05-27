@@ -12,7 +12,8 @@ FROM anapsix/alpine-java:8
 
 RUN apk add make
 
-COPY --from=0 /app /app
+COPY --from=0 /app/build/libs /app/build/libs/
+COPY --from=0 /app/Makefile /app/wait-for-it.sh /app/
 RUN rm -rf /app/build/distributions
 WORKDIR /app
 
