@@ -97,15 +97,16 @@ public class DataDaoImpl implements DataDao {
         List<Observation> unsupportedObservations = Arrays.asList(observations).stream().filter(unsupportedPred)
                 .collect(Collectors.toList());
 
+        boolean result = true;
         if (!supportedObservations.isEmpty()) {
-            tsdbAccess.put(supportedObservations, false);
+            result = tsdbAccess.put(supportedObservations, false);
         }
         if (!unsupportedObservations.isEmpty()) {
             tsdbAccess.put(unsupportedObservations, true);
-            objectStoreAccess.put(unsupportedObservations);
+            result &=  objectStoreAccess.put(unsupportedObservations);
         }
 
-        return true;
+        return result;
     }
 
     @Override
