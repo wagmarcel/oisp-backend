@@ -22,6 +22,7 @@ import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.datastructures.requests.DataSubmissionRequest;
 import com.oisp.databackend.datastructures.responses.DataSubmissionResponse;
 import com.oisp.databackend.exceptions.MissingDataSubmissionArgumentException;
+import com.oisp.databackend.exceptions.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
@@ -56,7 +57,7 @@ public class DataSubmissionService implements Service<DataSubmissionRequest, Dat
     }
 
     @Override
-    public DataSubmissionResponse invoke() throws MissingDataSubmissionArgumentException {
+    public DataSubmissionResponse invoke() throws MissingDataSubmissionArgumentException, ServiceException {
         logger.debug("=============DataSubmissionResponse");
         if (request.getData() == null) {
             throw new MissingDataSubmissionArgumentException("Missing \"data\" field in request");
@@ -67,7 +68,9 @@ public class DataSubmissionService implements Service<DataSubmissionRequest, Dat
             o.setSystemOn(this.request.getSystemOn());
         }
 
-        dataDao.put(request.getData().toArray(new Observation[request.getData().size()]));
+        if (!dataDao.put(request.getData().toArray(new Observation[request.getData().size()]))) {
+            throw new ServiceException("Data store error.");
+        }
 
         kafkaService.send(request.getData());
 
