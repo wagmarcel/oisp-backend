@@ -14,10 +14,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.InvalidKeyException;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class MinioManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(MinioManager.class);
     private static final int cidSubLength = 23;
     private OispConfig oispConfig;
     private MinioClient minioClient;
@@ -51,9 +54,14 @@ public class MinioManager {
 
         String bucketName = getBucketName(o);
         String objectName = getObjectName(o);
+
         boolean isExist = minioClient.bucketExists(bucketName);
         if (!isExist) {
-            minioClient.makeBucket(bucketName);
+            try {
+                minioClient.makeBucket(bucketName);
+            } catch (MinioException e) {
+                logger.warn("Race condition: tried to recreate an existing bucket. Ignoring.");
+            }
         }
         DataType.Types type = DataType.getType(o.getDataType());
         if (type == DataType.Types.ByteArray) {
