@@ -20,6 +20,7 @@ package com.oisp.databackend.datasources;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.objectstore.ObjectStoreAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
+import com.oisp.databackend.datastructures.Aggregation;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
@@ -183,5 +184,20 @@ public class DataDaoImpl implements DataDao {
             // does not support, so all is covered
             return DataType.getAllTypes();
         }
+    }
+
+    @Override
+    public Observation aggregate(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes, Aggregation aggr){
+        TsdbQuery tsdbQuery = new TsdbQuery()
+                .withAid(accountId)
+                .withCid(componentId)
+                .withComponentType(componentType)
+                .withLocationInfo(gps)
+                .withAttributes(attributes)
+                .withStart(start)
+                .withStop(stop)
+                .withAggregation(aggr);
+
+        return new Observation();
     }
 }

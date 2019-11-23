@@ -1,5 +1,7 @@
 package com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi;
 
+import com.oisp.databackend.datastructures.Aggregation;
+
 import java.util.HashMap;
 import java.util.Map;
 

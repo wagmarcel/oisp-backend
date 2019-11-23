@@ -73,6 +73,32 @@ public class DataRetriever {
         this.componentObservations = componentObservations;
     }
 
+    public void countOnly(ObservationFilterSelector filter) throws IllegalDataInquiryArgumentException {
+        Collection<String> components = dataRetrieveParams.getComponentsMetadata().keySet();
+        rowCount = 0L;
+        for (String component : components) {
+            if (dataRetrieveParams.getComponentsMetadata().get((String) component) == null
+                    || !dataRetrieveParams.getComponentsMetadata().get((String) component).isValidType()) {
+                throw new IllegalDataInquiryArgumentException("Invalid ComponentType.");
+            }
+            Observation[] observations = hbase.scan(dataRetrieveParams.getAccountId(),
+                    component,
+                    dataRetrieveParams.getComponentsMetadata().get((String) component).getDataType(),
+                    dataRetrieveParams.getStartDate(),
+                    dataRetrieveParams.getEndDate(),
+                    dataRetrieveParams.isQueryMeasureLocation(),
+                    dataRetrieveParams.getComponentsAttributes());
+            if (observations == null) {
+                logger.debug("No observations retrieved for component: {}", component);
+                continue;
+            }
+            observations = filter.filter(observations, getComponentMetadata(component));
+            componentObservations.put(component, observations);
+            updateRowCount(observations);
+        }
+        this.componentObservations = componentObservations;
+    }
+
     public Map<String, Observation[]> getComponentObservations() {
         return componentObservations;
     }

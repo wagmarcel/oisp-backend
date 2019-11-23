@@ -16,11 +16,13 @@
 
 package com.oisp.databackend.datasources.tsdb;
 
+import com.oisp.databackend.datastructures.Aggregation;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.datasources.DataType;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -52,6 +54,13 @@ public interface TsdbAccess {
      * @return list of retrieved TSDB objects
      */
     Observation[] scan(TsdbQuery tsdbQuery);
+
+    /**
+     *
+     * @param tsdbQuery Query for aggregated observations to be retrieved.
+     * @return Aggregation Map
+     */
+    Observation aggregate(TsdbQuery tsdbQuery);
 
     /**
      * Can be used to scan a fixed number of samples from a timestamp, e.g. to show the 1000 most recent values

@@ -26,6 +26,7 @@ import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.QueryResponse;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.RestApi;
 import com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi.SubQuery;
 
+import com.oisp.databackend.datastructures.Aggregation;
 import com.oisp.databackend.datastructures.Observation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -99,6 +100,36 @@ public class TsdbAccessOpenTsdb implements TsdbAccess {
             return null;
         }
         return ObservationBuilder.createObservationFromQueryResponses(queryResponses, tsdbQuery);
+    }
+
+    @Override
+    public Observation aggregate(TsdbQuery tsdbQuery) {
+        SubQuery subQuery = new SubQuery()
+                .withAggregator(tsdbQuery.getAggregation().getValue())
+                .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
+                        tsdbQuery.getCid()));
+
+        // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
+        // openTSDB?)
+        if (!tsdbQuery.getAttributes().isEmpty()) {
+            StringBuffer tag = new StringBuffer(TsdbObjectBuilder.VALUE);
+            if (tsdbQuery.isLocationInfo()) {
+                tag.append(
+                        OR + DataFormatter.gpsValueToString(0)
+                                + OR + DataFormatter.gpsValueToString(1)
+                                + OR + DataFormatter.gpsValueToString(2)
+                );
+            }
+            subQuery.withTag(TsdbObjectBuilder.TYPE, tag.toString());
+        }
+        Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
+        query.addQuery(subQuery);
+
+        QueryResponse[] queryResponses = api.query(query);
+        if (queryResponses == null) {
+            return null;
+        }
+        return ObservationBuilder.createAggregatedObservationFromQueryResponses(queryResponses, tsdbQuery);
     }
 
 

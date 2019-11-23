@@ -16,10 +16,12 @@
 
 package com.oisp.databackend.datasources;
 
+import com.oisp.databackend.datastructures.Aggregation;
 import com.oisp.databackend.datastructures.Observation;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface DataDao {
 
@@ -30,6 +32,8 @@ public interface DataDao {
 
     Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes,
                        boolean forward, int limit);
+
+    Observation aggregate(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes, Aggregation aggr);
 
     String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException;
 

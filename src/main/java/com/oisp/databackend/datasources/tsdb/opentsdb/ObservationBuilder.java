@@ -95,6 +95,12 @@ public final class ObservationBuilder {
         return observationMap.values().toArray(new Observation[0]);
     }
 
+    public static Observation createAggregatedObservationFromQueryResponses(QueryResponse[] queryResponses, TsdbQuery tsdbQuery) {
+
+        // collect finally objects in an array
+        return new Observation();
+    }
+
     private static void convertGpsAttributesToLoc(SortedMap<Long, Observation> observationMap) {
         for (Observation observation: observationMap.values()) {
             Map<String, String> attributes = observation.getAttributes();
