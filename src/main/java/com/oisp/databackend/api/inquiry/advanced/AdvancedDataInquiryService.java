@@ -94,13 +94,15 @@ public class AdvancedDataInquiryService implements Service<AdvDataInquiryRequest
 
             dataRetrieveParams.setComponentsAttributes(Arrays.asList(measureAttributes));
             dataRetrieveParams.setComponentsMetadata(componentsMetadata);
-            dataRetriever.retrieveAndCount(observationFilterSelector);
 
             if (!dataInquiryRequest.isCountOnly()) {
+                dataRetriever.retrieveAndCount(observationFilterSelector);
                 ComponentsBuilderParams parameters = new ComponentsBuilderParams(dataInquiryRequest, measureAttributes);
                 AdvancedComponentsBuilder advancedComponentsBuilder =
                         new AdvancedComponentsBuilder(componentsMetadata, dataRetriever.getComponentObservations());
                 advancedComponentsBuilder.appendComponentsDetails(devicesData, parameters);
+            } else {
+                dataRetriever.countOnly(observationFilterSelector);
             }
 
             responseBuilder.build(dataRetriever.getRowCount(), devicesData);

@@ -54,6 +54,13 @@ public interface TsdbAccess {
     Observation[] scan(TsdbQuery tsdbQuery);
 
     /**
+     *
+     * @param tsdbQuery Query for aggregated observations to be retrieved.
+     * @return Aggregation Map
+     */
+    Long count(TsdbQuery tsdbQuery);
+
+    /**
      * Can be used to scan a fixed number of samples from a timestamp, e.g. to show the 1000 most recent values
      * Useful for user interfaces with live data updates
      * @param tsdbQuery query for Observations to be retrieved.

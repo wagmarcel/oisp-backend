@@ -1,5 +1,6 @@
 package com.oisp.databackend.datasources.tsdb.opentsdb.opentsdbapi;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,11 +12,13 @@ public class SubQuery {
 
     private String aggregator;
     private String metric;
+    private String downsample;
     private Map<String, String> tags;
 
 
     public SubQuery() {
         tags = new HashMap<String, String>();
+        downsample = null;
     }
 
     public SubQuery withMetric(String metric) {
@@ -30,6 +33,11 @@ public class SubQuery {
 
     public SubQuery withTag(String tagK, String tagV) {
         this.tags.put(tagK, tagV);
+        return this;
+    }
+
+    public SubQuery withDownsample(String downsample) {
+        this.downsample = downsample;
         return this;
     }
 
@@ -55,5 +63,13 @@ public class SubQuery {
 
     public String getMetric() {
         return metric;
+    }
+
+    public String getDownsample() {
+        return downsample;
+    }
+
+    public void setDownsample(String downsample) {
+        this.downsample = downsample;
     }
 }

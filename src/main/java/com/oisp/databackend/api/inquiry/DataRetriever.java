@@ -30,6 +30,7 @@ import java.util.Map;
 
 public class DataRetriever {
 
+    private static final String errINVCOMPTYPE = "Invalid ComponentType.";
     private static final Logger logger = LoggerFactory.getLogger(DataRetriever.class);
 
     private final DataDao hbase;
@@ -53,7 +54,7 @@ public class DataRetriever {
         for (String component : components) {
             if (dataRetrieveParams.getComponentsMetadata().get((String) component) == null
                      || !dataRetrieveParams.getComponentsMetadata().get((String) component).isValidType()) {
-                throw new IllegalDataInquiryArgumentException("Invalid ComponentType.");
+                throw new IllegalDataInquiryArgumentException(errINVCOMPTYPE);
             }
             Observation[] observations = hbase.scan(dataRetrieveParams.getAccountId(),
                     component,
@@ -73,6 +74,26 @@ public class DataRetriever {
         this.componentObservations = componentObservations;
     }
 
+    public void countOnly(ObservationFilterSelector filter) throws IllegalDataInquiryArgumentException {
+        Collection<String> components = dataRetrieveParams.getComponentsMetadata().keySet();
+        rowCount = 0L;
+        for (String component : components) {
+            if (dataRetrieveParams.getComponentsMetadata().get((String) component) == null
+                    || !dataRetrieveParams.getComponentsMetadata().get((String) component).isValidType()) {
+                throw new IllegalDataInquiryArgumentException(errINVCOMPTYPE);
+            }
+            Long count = hbase.count(dataRetrieveParams.getAccountId(),
+                    component,
+                    dataRetrieveParams.getComponentsMetadata().get((String) component).getDataType(),
+                    dataRetrieveParams.getStartDate(),
+                    dataRetrieveParams.getEndDate(),
+                    dataRetrieveParams.isQueryMeasureLocation(),
+                    dataRetrieveParams.getComponentsAttributes());
+            updateRowCountOnly(count);
+        }
+        this.componentObservations = null;
+    }
+
     public Map<String, Observation[]> getComponentObservations() {
         return componentObservations;
     }
@@ -83,6 +104,9 @@ public class DataRetriever {
 
     private void updateRowCount(Observation[] obs) {
         rowCount += obs.length;
+    }
+    private void updateRowCountOnly(Long count) {
+        rowCount += count;
     }
 
     private ComponentDataType getComponentMetadata(String component) {

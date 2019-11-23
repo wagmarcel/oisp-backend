@@ -1,5 +1,7 @@
 package com.oisp.databackend.datasources.tsdb;
 
+import com.oisp.databackend.datastructures.Aggregation;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +14,7 @@ public class TsdbQuery {
     private boolean locationInfo;
     private long start;
     private long stop;
+    private Aggregation.Type aggregation;
 
     public TsdbQuery(String aid, String cid, List<String> attributes, boolean locationInfo, long start, long stop) {
         this.aid = aid;
@@ -21,6 +24,7 @@ public class TsdbQuery {
         this.locationInfo = locationInfo;
         this.start = start;
         this.stop = stop;
+        this.aggregation = Aggregation.Type.NONE;
     }
 
     public TsdbQuery() {
@@ -70,6 +74,11 @@ public class TsdbQuery {
 
     public TsdbQuery withStop(long stop) {
         this.stop = stop;
+        return this;
+    }
+
+    public TsdbQuery withAggregation(Aggregation.Type aggr) {
+        this.aggregation = aggr;
         return this;
     }
 
@@ -128,5 +137,13 @@ public class TsdbQuery {
 
     public void setComponentType(String componentType) {
         this.componentType = componentType;
+    }
+
+    public Aggregation.Type getAggregation() {
+        return aggregation;
+    }
+
+    public void setAggregation(Aggregation.Type aggregation) {
+        this.aggregation = aggregation;
     }
 }

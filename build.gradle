@@ -48,14 +48,14 @@ apply plugin: 'pmd'
 
 apply plugin: 'jacoco'
 apply plugin: 'com.palantir.jacoco-coverage'
-apply plugin: 'com.palantir.jacoco-full-report'
+//apply plugin: 'com.palantir.jacoco-full-report'
 
 jacoco {
     toolVersion = "0.7.6.201602180812"
 }
 
 jacocoCoverage {
-    reportThreshold  0.2, LINE
+    reportThreshold  0.1, LINE
 }
 
 checkstyle {

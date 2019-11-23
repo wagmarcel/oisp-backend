@@ -31,6 +31,8 @@ public interface DataDao {
     Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes,
                        boolean forward, int limit);
 
+    Long count(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes);
+
     String[] scanForAttributeNames(String accountId, String componentId, long start, long stop) throws IOException;
 
     List<DataType.Types> getSupportedDataTypes();
