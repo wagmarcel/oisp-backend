@@ -56,6 +56,10 @@ public class TsdbAccessDummy implements TsdbAccess {
         return new String[0];
     }
 
+    public Long count(TsdbQuery tsdbQuery) {
+        return 0L;
+    }
+
     @Override
     public List<DataType.Types> getSupportedDataTypes() {
         return Arrays.asList(DataType.Types.Number, DataType.Types.String, DataType.Types.Boolean, DataType.Types.ByteArray);

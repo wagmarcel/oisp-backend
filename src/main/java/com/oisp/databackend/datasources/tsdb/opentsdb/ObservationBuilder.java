@@ -95,6 +95,7 @@ public final class ObservationBuilder {
         return observationMap.values().toArray(new Observation[0]);
     }
 
+
     private static void convertGpsAttributesToLoc(SortedMap<Long, Observation> observationMap) {
         for (Observation observation: observationMap.values()) {
             Map<String, String> attributes = observation.getAttributes();
