@@ -16,15 +16,28 @@
 
 package com.oisp.databackend;
 
+import com.oisp.databackend.config.oisp.BackendConfig;
+import com.oisp.databackend.config.oisp.OispPropertyInitializer;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.annotation.ComponentScan;
 
 
+/*@ComponentScan(basePackageClasses = {
+        BackendConfig.class })*/
 @SpringBootApplication
 public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        //SpringApplication.run(Application.class, args);
+        //SpringApplication sp = new SpringApplication();
+        //sp.addInitializers(new OispPropertyInitializer());
+        //System.out.println("Web app " + sp.getWebApplicationType());
+        //sp.run(Application.class, args);
+        new SpringApplicationBuilder(Application.class).initializers(new OispPropertyInitializer()).web(WebApplicationType.SERVLET).run(args);
     }
 
     @Override

@@ -64,13 +64,14 @@ public class OispConfig {
     private Map<String, Object> foundMaps;
 
     @PostConstruct
-    public void init() throws ConfigEnvironmentException {
+    public BackendConfig init() throws ConfigEnvironmentException {
 
         foundVars = new Hashtable<String, Object>();
         foundMaps = new Hashtable<String, Object>();
 
         backendConfig = (BackendConfig) getObjectFromVar(OISP_BACKEND_CONFIG);
 
+        return backendConfig;
     }
 
 

@@ -3,9 +3,11 @@ package com.oisp.databackend.config.oisp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Properties;
 
+@ConfigurationProperties(prefix = "backendConfig")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BackendConfig {
 
