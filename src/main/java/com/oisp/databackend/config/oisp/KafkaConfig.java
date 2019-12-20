@@ -12,6 +12,7 @@ public class KafkaConfig {
     private String topicsRuleEngine;
     private String topicsHeartbeatName;
     private int topicsHeartbeatInterval;
+    private int maxPayloadSize;
 
     public String getUri() {
         return uri;
@@ -75,5 +76,13 @@ public class KafkaConfig {
 
     public void setTopicsHeartbeatInterval(int topicsHeartbeatInterval) {
         this.topicsHeartbeatInterval = topicsHeartbeatInterval;
+    }
+
+    public int getMaxPayloadSize() {
+        return maxPayloadSize;
+    }
+
+    public void setMaxPayloadSize(int maxPayloadSize) {
+        this.maxPayloadSize = maxPayloadSize;
     }
 }

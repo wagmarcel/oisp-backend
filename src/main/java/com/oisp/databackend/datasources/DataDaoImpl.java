@@ -54,6 +54,11 @@ public class DataDaoImpl implements DataDao {
     private ApplicationContext context;
 
     @Autowired
+    DataDaoImpl() {
+        logger.info("Marcel: created!");
+    }
+
+    @Autowired
     public void selectDAOPlugin() throws ConfigEnvironmentException {
         String tsdbName = oispConfig.getBackendConfig().getTsdbName();
         if (oispConfig.OISP_BACKEND_TSDB_NAME_DUMMY.equals(tsdbName)) {
