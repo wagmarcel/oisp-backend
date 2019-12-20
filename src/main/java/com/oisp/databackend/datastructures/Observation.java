@@ -17,6 +17,7 @@
 package com.oisp.databackend.datastructures;
 
 import com.cedarsoftware.util.io.JsonWriter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -141,6 +142,7 @@ public class Observation {
         this.bValue = bValue;
     }
 
+    @JsonIgnore
     public boolean isBinary() {
         return "ByteArray".equals(dataType);
     }
