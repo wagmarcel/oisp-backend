@@ -18,6 +18,8 @@ package com.oisp.databackend.api.kafka;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serializer;
@@ -25,6 +27,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.KafkaAdmin;
 
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +62,29 @@ public class KafkaConfig {
         props.put(ProducerConfig.RETRIES_CONFIG, 0);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, oispConfig.getBackendConfig().getKafkaConfig().getMaxPayloadSize());
         return new KafkaProducer<String, String>(props);
     }
+
+    @Bean
+    public KafkaAdmin kafkaAdmin() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, oispConfig.getBackendConfig().getKafkaConfig().getUri());
+        return new KafkaAdmin(configs);
+    }
+
+    @Bean
+    public NewTopic metrics() {
+        return new NewTopic(oispConfig.getBackendConfig().getKafkaConfig().getTopicsObservations(),
+                oispConfig.getBackendConfig().getKafkaConfig().getPartitions(),
+                (short) oispConfig.getBackendConfig().getKafkaConfig().getReplication());
+    }
+
+    @Bean
+    public NewTopic heartbeat() {
+        return new NewTopic(oispConfig.getBackendConfig().getKafkaConfig().getTopicsHeartbeatName(),
+                oispConfig.getBackendConfig().getKafkaConfig().getPartitions(),
+                (short) oispConfig.getBackendConfig().getKafkaConfig().getReplication());
+    }
+
 }

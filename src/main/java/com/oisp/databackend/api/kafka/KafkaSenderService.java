@@ -31,6 +31,7 @@ import kafka.utils.ZkUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -45,6 +46,7 @@ public class KafkaSenderService implements KafkaService {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaService.class);
 
+    @Value("#{oispConfig.getBackendConfig().getKafkaConfig().getTopicsObservations()}")
     private String topic;
 
     @Autowired
@@ -55,7 +57,7 @@ public class KafkaSenderService implements KafkaService {
         this.kafkaProducer = kafkaProducer;
     }
 
-    @PostConstruct
+    /*@PostConstruct
     public void createTopic() {
         if (kafkaProducer != null) {
             ZkClient zkClient = null;
@@ -90,7 +92,7 @@ public class KafkaSenderService implements KafkaService {
                 }
             }
         }
-    }
+    }*/
 
     @Override
     public void send(List<Observation> observations) {

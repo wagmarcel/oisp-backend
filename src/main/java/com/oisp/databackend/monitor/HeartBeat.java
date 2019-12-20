@@ -48,8 +48,8 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
         s.setThreadNamePrefix("HeatBeat");
         s.initialize();
         logger.info("================= Ready1");
-
-        createTopic();
+        topic = oispConfig.getBackendConfig().getKafkaConfig().getTopicsHeartbeatName();
+        //createTopic();
  
         logger.info("================= Ready2");
 
@@ -66,7 +66,7 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
         }
     }
 
-    private void createTopic()  {
+    /*private void createTopic()  {
         if (kafkaProducer != null) {
             ZkClient zkClient = null;
             String brokerURI = null;
@@ -98,7 +98,7 @@ public class HeartBeat implements ApplicationListener<ApplicationReadyEvent>, Ru
                 }
             }
         }
-    }
+    }*/
 
     @PreDestroy
     protected void close() {

@@ -68,9 +68,6 @@ public class DataSubmissionService implements Service<DataSubmissionRequest, Dat
             o.setSystemOn(this.request.getSystemOn());
         }
 
-        if (!dataDao.put(request.getData().toArray(new Observation[request.getData().size()]))) {
-            throw new ServiceException("Data store error.");
-        }
 
         kafkaService.send(request.getData());
 
