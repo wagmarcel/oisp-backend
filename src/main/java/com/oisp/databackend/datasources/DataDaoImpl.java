@@ -55,7 +55,7 @@ public class DataDaoImpl implements DataDao {
 
     @Autowired
     DataDaoImpl() {
-        logger.info("Marcel: created!");
+        logger.info("Dao created!");
     }
 
     @Autowired
@@ -70,6 +70,9 @@ public class DataDaoImpl implements DataDao {
         } else if (oispConfig.OISP_BACKEND_TSDB_NAME_OPENTSDB.equals(tsdbName)) {
             logger.info("TSDB backend: openTSDB");
             this.tsdbAccess = (TsdbAccess) context.getBean("tsdbAccessOpenTsdb");
+        } else if (oispConfig.OISP_BACKEND_TSDB_NAME_KAIROSDB.equals(tsdbName)) {
+            logger.info("TSDB backend: kairosDB");
+            this.tsdbAccess = (TsdbAccess) context.getBean("tsdbAccessKairosDb");
         } else {
             throw new ConfigEnvironmentException("Could not find the tsdb backend with name " + tsdbName);
         }
