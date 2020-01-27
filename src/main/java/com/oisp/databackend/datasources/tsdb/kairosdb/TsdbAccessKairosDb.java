@@ -146,6 +146,6 @@ public class TsdbAccessKairosDb implements TsdbAccess {
 
     @Override
     public List<DataType.Types> getSupportedDataTypes() {
-        return Arrays.asList(DataType.Types.Boolean, DataType.Types.Number);
+        return Arrays.asList(DataType.Types.Boolean, DataType.Types.Number, DataType.Types.String);
     }
 }

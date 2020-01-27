@@ -48,7 +48,7 @@ public class RestApi {
 
         putUri = new URIBuilder()
                 .setScheme(scheme)
-                .setPath("/api/put")
+                .setPath("/api/v1/datapoints")
                 .setHost(host)
                 .setPort(port)
                 .build();

@@ -1,7 +1,9 @@
 package com.oisp.databackend.datasources.tsdb.kairosdb;
 
 import com.oisp.databackend.datasources.DataFormatter;
+import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.handlers.Data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,9 +61,20 @@ public final class TsdbObjectBuilder {
         } else {
             value = o.getValue();
         }
+        String type;
+        DataType.Types otype = DataType.getType(o.getDataType());
+        if (otype == DataType.Types.Boolean) {
+            type = "long";
+        } else if (otype == DataType.Types.String) {
+            type = "string";
+        } else {
+            type = "double";
+        }
+
         TsdbObject put = new TsdbObject()
                 .withMetric(metric)
                 .withTimestamp(timestamp)
+                .withType(type)
                 .withValue(value);
         Map<String, String> attributes = o.getAttributes();
         if (attributes == null) {

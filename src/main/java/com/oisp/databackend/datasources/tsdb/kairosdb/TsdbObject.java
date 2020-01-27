@@ -5,24 +5,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Main abstraction for TSDB objects
+ * Main abstraction for Kairos TSDB objects
  *
  */
 public class TsdbObject implements Serializable {
-    private String metric;
+    private String name;
     private String value;
+    private String type;
     private long timestamp;
     private Map<String, String> attributes;
 
     public TsdbObject(String metric, String value, long timestamp, Map<String, String> attributes) {
-        this.metric = metric;
+        this.name = metric;
         this.value  = value;
         this.timestamp = timestamp;
         this.attributes = attributes;
     }
 
     public TsdbObject(String metric, String value, long timestamp) {
-        this.metric = metric;
+        this.name = metric;
         this.value  = value;
         this.timestamp = timestamp;
         this.attributes = new HashMap<String, String>();
@@ -33,14 +34,14 @@ public class TsdbObject implements Serializable {
     }
 
     public TsdbObject(TsdbObject o) {
-        this.metric = o.getMetric();
+        this.name = o.getName();
         this.value = o.getValue();
         this.timestamp = o.getTimestamp();
         this.attributes = new HashMap<String, String>();
     }
 
     public TsdbObject withMetric(String metric) {
-        this.setMetric(metric);
+        this.setName(metric);
         return this;
     }
 
@@ -49,13 +50,18 @@ public class TsdbObject implements Serializable {
         return this;
     }
 
+    public TsdbObject withType(String type) {
+        this.type = type;
+        return this;
+    }
+
     public TsdbObject withTimestamp(long timestamp) {
         this.timestamp = timestamp;
         return this;
     }
 
-    public void setMetric(String metric) {
-        this.metric = metric;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setValue(String value) {
@@ -74,8 +80,8 @@ public class TsdbObject implements Serializable {
         this.attributes = attributes;
     }
 
-    public String getMetric() {
-        return metric;
+    public String getName() {
+        return name;
     }
 
     public String getValue() {
@@ -88,5 +94,13 @@ public class TsdbObject implements Serializable {
 
     public Map<String, String> getAttributes() {
         return attributes;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
