@@ -54,7 +54,7 @@ public class RestApi {
                 .build();
         queryUri = new URIBuilder()
                 .setScheme(scheme)
-                .setPath("/api/query")
+                .setPath("/api/v1/datapoints/query")
                 .setHost(host)
                 .setPort(port)
                 .setParameter("ms", null)
@@ -123,7 +123,7 @@ public class RestApi {
         return resultObjects;
     }
 
-    public QueryResponse[] query(Query query) {
+    public QueryResponse query(Query query) {
         String jsonObject = query.toString();
         String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote(ATTRIBUTES), TAGS);
         CloseableHttpClient client = HttpClients.createDefault();
@@ -148,6 +148,7 @@ public class RestApi {
             if (responseEntity != null) {
                 body = EntityUtils.toString(responseEntity);
             }
+
         } catch (IOException e) {
             logger.error("Could not create JSON payload for query POST request: " + e);
             return null;
@@ -155,11 +156,11 @@ public class RestApi {
         return queryResponsefromString(body);
     }
 
-    public QueryResponse[] queryResponsefromString(String jsonString) {
-        QueryResponse[] obj;
+    public QueryResponse queryResponsefromString(String jsonString) {
+        QueryResponse obj;
         try {
             ObjectMapper mapper = new ObjectMapper();
-            obj = mapper.readValue(jsonString, QueryResponse[].class);
+            obj = mapper.readValue(jsonString, QueryResponse.class);
         } catch (IOException e) {
             return null;
         }

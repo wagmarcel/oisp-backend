@@ -7,59 +7,59 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Query {
-    private long start;
-    private long end;
-    private List<SubQuery> queries;
-    private boolean msResolution;
+    private long start_absolute;
+    private long end_absolute;
+    private List<SubQuery> metrics;
+    //private boolean msResolution;
 
     public Query() {
-        this.queries = new ArrayList<SubQuery>();
-        this.msResolution = true;
+        this.metrics = new ArrayList<SubQuery>();
+      //  this.msResolution = true;
     }
     public Query withStart(long start) {
-        this.start = start;
+        this.start_absolute = start;
         return this;
     }
 
     public Query withEnd(long end) {
-        this.end = end;
+        this.end_absolute = end;
         return this;
     }
-    public void setEnd(long end) {
-        this.end = end;
+    public void setEnd_absolute(long end_absolute) {
+        this.end_absolute = end_absolute;
     }
 
-    public void setQueries(List<SubQuery> queries) {
-        this.queries = queries;
+    public void setMetrics(List<SubQuery> metrics) {
+        this.metrics = metrics;
     }
 
-    public void setStart(long start) {
-        this.start = start;
+    public void setStart_absolute(long start_absolute) {
+        this.start_absolute = start_absolute;
     }
 
-    public void setMsResolution(boolean msResolution) {
+    /*public void setMsResolution(boolean msResolution) {
         this.msResolution = msResolution;
+    }*/
+
+    public long getEnd_absolute() {
+        return end_absolute;
     }
 
-    public long getEnd() {
-        return end;
+    public long getStart_absolute() {
+        return start_absolute;
     }
 
-    public long getStart() {
-        return start;
-    }
-
-    public List<SubQuery> getQueries() {
-        return queries;
+    public List<SubQuery> getMetrics() {
+        return metrics;
     }
 
     public void addQuery(SubQuery subQuery) {
-        this.queries.add(subQuery);
+        this.metrics.add(subQuery);
     }
 
-    public boolean isMsResolution() {
+    /*public boolean isMsResolution() {
         return msResolution;
-    }
+    }*/
 
     @Override
     public String toString() {
