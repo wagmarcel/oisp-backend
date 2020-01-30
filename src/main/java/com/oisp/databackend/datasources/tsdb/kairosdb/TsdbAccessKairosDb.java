@@ -82,17 +82,19 @@ public class TsdbAccessKairosDb implements TsdbAccess {
 
         // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
         // openTSDB?)
-        if (!tsdbQuery.getAttributes().isEmpty()) {
-            StringBuffer tag = new StringBuffer(TsdbObjectBuilder.VALUE);
+        //if (!tsdbQuery.getAttributes().isEmpty()) {
+            List<String> types = new ArrayList<String>();
+            List<String> tagNames = new ArrayList<String>();
+            tagNames.add(TsdbObjectBuilder.TYPE);
+            types.add(TsdbObjectBuilder.VALUE);
             if (tsdbQuery.isLocationInfo()) {
-                tag.append(
-                        OR + DataFormatter.gpsValueToString(0)
-                        + OR + DataFormatter.gpsValueToString(1)
-                        + OR + DataFormatter.gpsValueToString(2)
-                );
+                types.add(DataFormatter.gpsValueToString(0));
+                types.add(DataFormatter.gpsValueToString(1));
+                types.add(DataFormatter.gpsValueToString(2));
             }
-            subQuery.withTag(TsdbObjectBuilder.TYPE, tag.toString());
-        }
+            subQuery.withTag(TsdbObjectBuilder.TYPE, types);
+            subQuery.withGroupByTags(tagNames);
+        //}
         Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
 
@@ -113,8 +115,9 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
         // openTSDB?)
         if (!tsdbQuery.getAttributes().isEmpty()) {
-            StringBuffer tag = new StringBuffer(TsdbObjectBuilder.VALUE);
-            subQuery.withTag(TsdbObjectBuilder.TYPE, tag.toString())
+            List<String> tag = new ArrayList<String>();
+            tag.add(TsdbObjectBuilder.VALUE);
+            subQuery.withTag(TsdbObjectBuilder.TYPE, tag)
                     .withDownsample("0all-count");
         }
         Query query = new Query()
