@@ -101,15 +101,14 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                 query.addQuery(subQuery);
                 QueryResponse queryResponses = api.queryTags(query);
                 if (queryResponses != null) {
-                    System.out.println("Marcel254:" + queryResponses.getQueries().get(0).getResults().get(0).getTags().toString());
                     requestedTags = new ArrayList<String>(queryResponses.getQueries().get(0).getResults().get(0).getTags().keySet());
                 }
             } else {
+                // tags are given explicit. No additional tag query needed
                 requestedTags = tsdbQuery.getAttributes();
             }
             List<String> mergedNames = Stream.of(tagNames, requestedTags).flatMap(x -> x.stream()).collect(Collectors.toList());
             tagNames = mergedNames;
-            System.out.println("Marcel043 " + tagNames.toString());
         }
         subQuery.withTag(TsdbObjectBuilder.TYPE, types);
         subQuery.withGroupByTags(tagNames);
