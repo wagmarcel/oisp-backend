@@ -3,7 +3,6 @@ package com.oisp.databackend.datasources.tsdb.kairosdb;
 import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datastructures.Observation;
-import com.oisp.databackend.handlers.Data;
 
 import java.util.ArrayList;
 import java.util.HashMap;

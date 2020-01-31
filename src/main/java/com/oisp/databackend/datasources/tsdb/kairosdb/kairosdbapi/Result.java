@@ -1,12 +1,14 @@
 package com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi;
 
-import java.util.HashMap;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Map;
 import java.util.List;
 
 public class Result {
     private String name;
-    private List<GroupBy> group_by;
-    private HashMap<String,List<String>> tags;
+    private List<GroupBy> groupBy;
+    private Map<String, List<String>> tags;
     private List<Object[]> values;
 
     public String getName() {
@@ -17,19 +19,20 @@ public class Result {
         this.name = name;
     }
 
-    public List<GroupBy> getGroup_by() {
-        return group_by;
+    @JsonProperty("group_by")
+    public List<GroupBy> getGroupBy() {
+        return groupBy;
     }
 
-    public void setGroup_by(List<GroupBy> group_by) {
-        this.group_by = group_by;
+    public void setGroupBy(List<GroupBy> groupBy) {
+        this.groupBy = groupBy;
     }
 
-    public HashMap<String, List<String>> getTags() {
+    public Map<String, List<String>> getTags() {
         return tags;
     }
 
-    public void setTags(HashMap<String, List<String>> tags) {
+    public void setTags(Map<String, List<String>> tags) {
         this.tags = tags;
     }
 

@@ -1,8 +1,6 @@
 package com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi;
 
-import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
-
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Aggregator {
     public static final String AGGREGATOR_COUNT = "count";
@@ -12,16 +10,16 @@ public class Aggregator {
 
     private String name;
     private Sampling sampling;
-    private Boolean align_sampling;
-    private Boolean align_start_time;
-    private Boolean align_end_time;
+    private Boolean alignSampling;
+    private Boolean alignStartTime;
+    private Boolean alignEndTime;
 
-    public Aggregator(String name){
+    public Aggregator(String name) {
         this.name = name;
         sampling = null;
-        align_end_time = false;
-        align_sampling = false;
-        align_start_time = false;
+        alignEndTime = false;
+        alignSampling = false;
+        alignStartTime = false;
     }
 
     public Aggregator withSampling(Sampling sampling) {
@@ -43,5 +41,32 @@ public class Aggregator {
 
     public void setSampling(Sampling sampling) {
         this.sampling = sampling;
+    }
+
+    @JsonProperty("align_sampling")
+    public Boolean getAlignSampling() {
+        return alignSampling;
+    }
+
+    public void setAlignSampling(Boolean alignSampling) {
+        this.alignSampling = alignSampling;
+    }
+
+    @JsonProperty("align_start_time")
+    public Boolean getAlignStartTime() {
+        return alignStartTime;
+    }
+
+    public void setAlignStartTime(Boolean alignStartTime) {
+        this.alignStartTime = alignStartTime;
+    }
+
+    @JsonProperty("align_end_time")
+    public Boolean getAlignEndTime() {
+        return alignEndTime;
+    }
+
+    public void setAlignEndTime(Boolean alignEndTime) {
+        this.alignEndTime = alignEndTime;
     }
 }

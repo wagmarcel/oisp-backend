@@ -16,7 +16,6 @@
 
 package com.oisp.databackend.datasources.tsdb.kairosdb;
 
-import com.google.api.client.util.Lists;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.DataType;
@@ -24,14 +23,12 @@ import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Aggregator;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Query;
-import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Queries;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.QueryResponse;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.RestApi;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Sampling;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.SubQuery;
 
 import com.oisp.databackend.datastructures.Observation;
-import org.apache.avro.generic.GenericData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -46,7 +43,8 @@ import java.util.stream.Stream;
 @Repository
 public class TsdbAccessKairosDb implements TsdbAccess {
 
-    private static final String OR = "|";
+    private static final String STAR = "*";
+    private static final Long MAX_YEARS_COUNT_AGGREGATION = 10L; //max count over 10 years
     private RestApi api;
     @Autowired
     private OispConfig oispConfig;
@@ -94,9 +92,9 @@ public class TsdbAccessKairosDb implements TsdbAccess {
             types.add(DataFormatter.gpsValueToString(1));
             types.add(DataFormatter.gpsValueToString(2));
         }
-        if (!tsdbQuery.getAttributes().isEmpty()){
+        if (!tsdbQuery.getAttributes().isEmpty()) {
             List<String> requestedTags = new ArrayList<String>();
-            if (tsdbQuery.getAttributes().get(0) == "*") {
+            if (tsdbQuery.getAttributes().get(0).equals(STAR)) {
                 // tags are not known yet, but all tags are requested
                 // Therefore we need to query all relevant tags from Kairosdb
                 Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
@@ -129,7 +127,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
     public Long count(TsdbQuery tsdbQuery) {
         SubQuery subQuery = new SubQuery()
                 .withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT)
-                        .withSampling(new Sampling(10L, "years"))) //max count over 10 years
+                        .withSampling(new Sampling(MAX_YEARS_COUNT_AGGREGATION, "years")))
                 .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
                         tsdbQuery.getCid()));
 
@@ -141,10 +139,8 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         List<String> tags = new ArrayList<String>();
         tags.add(TsdbObjectBuilder.VALUE);
 
-        if (!tsdbQuery.getAttributes().isEmpty()) {
-            if (tsdbQuery.getAttributes().get(0) != "*") {
-                tags = Stream.of(tags, tsdbQuery.getAttributes()).flatMap(x -> x.stream()).collect(Collectors.toList());
-            }
+        if (!tsdbQuery.getAttributes().isEmpty() && tsdbQuery.getAttributes().get(0).equals(STAR)) {
+            tags = Stream.of(tags, tsdbQuery.getAttributes()).flatMap(x -> x.stream()).collect(Collectors.toList());
         }
 
         subQuery.withTag(TsdbObjectBuilder.TYPE, tags);
@@ -158,9 +154,9 @@ public class TsdbAccessKairosDb implements TsdbAccess {
             return 0L;
         }
         Long count = queryResponses.getQueries().stream()
-                .flatMap( x -> x.getResults().stream())
+                .flatMap(x -> x.getResults().stream())
                 .flatMap(qr -> qr.getValues().stream())
-                .map(obj -> new Long((Integer)obj[1]))
+                .map(obj -> new Long((Integer) obj[1]))
                 .reduce(0L, (e1, e2) -> e1 + e2);
         return count;
         //return 0L;
@@ -175,7 +171,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
 
 
     public String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException {
-        return new String[]{"*"};
+        return new String[]{STAR};
     }
 
     @Override

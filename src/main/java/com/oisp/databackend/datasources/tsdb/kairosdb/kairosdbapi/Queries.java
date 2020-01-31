@@ -1,22 +1,23 @@
 package com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
-import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Queries {
 
-    private Integer sample_size;
+    private Integer sampleSize;
     private List<Result> results;
 
-    public Integer getSample_size() {
-        return sample_size;
+    @JsonProperty("sample_size")
+    public Integer getSampleSize() {
+        return sampleSize;
     }
 
-    public void setSample_size(Integer sample_size) {
-        this.sample_size = sample_size;
+    public void setSampleSize(Integer sampleSize) {
+        this.sampleSize = sampleSize;
     }
 
     public List<Result> getResults() {

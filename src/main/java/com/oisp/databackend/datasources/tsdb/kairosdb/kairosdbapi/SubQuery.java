@@ -2,9 +2,9 @@ package com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,24 +16,24 @@ public class SubQuery {
 
     private List<Aggregator> aggregators;
     private String name;
-    //private String downsample;
     private Integer limit;
     private Map<String, List<String>> tags;
-    private List<GroupBy> group_by;
+    private List<GroupBy> groupBy;
 
-    public List<GroupBy> getGroup_by() {
-        return group_by;
+    @JsonProperty("group_by")
+    public List<GroupBy> getGroupBy() {
+        return groupBy;
     }
 
-    public void setGroup_by(List<GroupBy> group_by) {
-        this.group_by = group_by;
+    public void setGroupBy(List<GroupBy> groupBy) {
+        this.groupBy = groupBy;
     }
 
     public SubQuery withGroupByTags(List<String> tags) {
         GroupBy gb = new GroupBy();
         gb.setName("tag");
         gb.setTags(tags);
-        this.group_by.add(gb);
+        this.groupBy.add(gb);
         return this;
     }
 
@@ -41,7 +41,7 @@ public class SubQuery {
         tags = new HashMap<String, List<String>>();
         aggregators = new ArrayList<>();
         limit = MAX_NUMBER_OF_SAMPLES;
-        group_by = new ArrayList<GroupBy>();
+        groupBy = new ArrayList<GroupBy>();
     }
 
     public SubQuery withMetric(String metric) {

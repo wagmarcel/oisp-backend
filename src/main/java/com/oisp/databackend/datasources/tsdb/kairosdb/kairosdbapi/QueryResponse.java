@@ -3,7 +3,7 @@ package com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi;
 import java.util.List;
 
 public class QueryResponse {
-    List<Queries> queries;
+    private List<Queries> queries;
 
     public List<Queries> getQueries() {
         return queries;

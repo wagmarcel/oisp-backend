@@ -180,7 +180,7 @@ public class RestApi {
             httpPost.setHeader(CONTENTTYPE, CONTENT_TYPE_JSON);
             CloseableHttpResponse response = client.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
-            logger.debug("StatusCode of query response: " + statusCode);
+            logger.debug("StatusCode of queryTags response: " + statusCode);
             if (statusCode != QUERYOK) {
                 return null;
             }
@@ -191,7 +191,7 @@ public class RestApi {
             }
 
         } catch (IOException e) {
-            logger.error("Could not create JSON payload for query POST request: " + e);
+            logger.error("Could not create JSON payload for queryTags POST request: " + e);
             return null;
         }
         return queryResponsefromString(body);

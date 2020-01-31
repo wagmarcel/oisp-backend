@@ -17,7 +17,7 @@ public final class ObservationBuilder {
 
     private static void addTagsFromQuery(SortedMap<Long, Observation> observationsMap, QueryResponse queryResponse) {
         for (Queries queries : queryResponse.getQueries()) {
-            if (queries.getSample_size() == 0) {
+            if (queries.getSampleSize() == 0) {
                 continue;
             }
             for (Result result: queries.getResults()) {
@@ -45,7 +45,7 @@ public final class ObservationBuilder {
         for (Queries queries : queryResponse.getQueries()) {
 
             for (Result result: queries.getResults()) {
-                if (queries.getSample_size() == 0) {
+                if (queries.getSampleSize() == 0) {
                     continue;
                 }
                 String type = result.getTags().get(TsdbObjectBuilder.TYPE).get(0); // type is unique there cannot be different types
@@ -57,9 +57,9 @@ public final class ObservationBuilder {
                 List<Object[]> dps = result.getValues();
                 for (Object[] value: dps) {
                     Long timestamp = (Long) value[0];
-                    String final_value = value[1].toString();
+                    String finalValue = value[1].toString();
                     if (observationsMap.get(timestamp) != null) {
-                        observationsMap.get(timestamp).getAttributes().put(type, final_value);
+                        observationsMap.get(timestamp).getAttributes().put(type, finalValue);
                     }
                 }
             }
@@ -71,21 +71,21 @@ public final class ObservationBuilder {
         SortedMap<Long, Observation> observationMap = new TreeMap<>();
 
         for (Queries queries: queryResponse.getQueries()) {
-            if (queries.getSample_size() == 0) {
+            if (queries.getSampleSize() == 0) {
                 continue;
             }
             for (Result result: queries.getResults()) {
                 if (result.getTags().get(TsdbObjectBuilder.TYPE).stream().filter(f -> f.equals(TsdbObjectBuilder.VALUE)).findAny().orElse(null) == null) {
-                continue;
+                    continue;
                 }
                 String metric = result.getName();
                 List<Object[]> dps = result.getValues();
                 for (Object[] value: dps) {
                     Long timestamp = (Long) value[0];
-                    String final_value = value[1].toString();
+                    String finalValue = value[1].toString();
                     Observation observation = new Observation(DataFormatter.getAccountFromMetric(metric),
                             DataFormatter.getCidFromMetric(metric),
-                            timestamp, final_value, new ArrayList<Double>(), new HashMap<String, String>());
+                            timestamp, finalValue, new ArrayList<Double>(), new HashMap<String, String>());
                     observation.setDataType(tsdbQuery.getComponentType());
                     observationMap.put(timestamp, observation);
                 }

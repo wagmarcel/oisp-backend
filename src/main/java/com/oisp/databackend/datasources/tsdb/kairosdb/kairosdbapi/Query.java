@@ -1,5 +1,6 @@
 package com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -7,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Query {
-    private long start_absolute;
-    private long end_absolute;
+    private long startAbsolute;
+    private long endAbsolute;
     private List<SubQuery> metrics;
     //private boolean msResolution;
 
@@ -17,36 +18,34 @@ public class Query {
       //  this.msResolution = true;
     }
     public Query withStart(long start) {
-        this.start_absolute = start;
+        this.startAbsolute = start;
         return this;
     }
 
     public Query withEnd(long end) {
-        this.end_absolute = end;
+        this.endAbsolute = end;
         return this;
     }
-    public void setEnd_absolute(long end_absolute) {
-        this.end_absolute = end_absolute;
+    public void setEndAbsolute(long endAbsolute) {
+        this.endAbsolute = endAbsolute;
     }
 
     public void setMetrics(List<SubQuery> metrics) {
         this.metrics = metrics;
     }
 
-    public void setStart_absolute(long start_absolute) {
-        this.start_absolute = start_absolute;
+    public void setStartAbsolute(long startAbsolute) {
+        this.startAbsolute = startAbsolute;
     }
 
-    /*public void setMsResolution(boolean msResolution) {
-        this.msResolution = msResolution;
-    }*/
-
-    public long getEnd_absolute() {
-        return end_absolute;
+    @JsonProperty("end_absolute")
+    public long getEndAbsolute() {
+        return endAbsolute;
     }
 
-    public long getStart_absolute() {
-        return start_absolute;
+    @JsonProperty("start_absolute")
+    public long getStartAbsolute() {
+        return startAbsolute;
     }
 
     public List<SubQuery> getMetrics() {
