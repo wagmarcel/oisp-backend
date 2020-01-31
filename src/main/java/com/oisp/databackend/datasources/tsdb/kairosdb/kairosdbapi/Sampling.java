@@ -1,14 +1,24 @@
 package com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi;
 
 public class Sampling {
-    Integer value;
+    Long value;
     String unit;
 
-    public Integer getValue() {
+    public Sampling() {
+        value = 1L;
+        unit = "milliseconds";
+    }
+
+    public Sampling(Long value, String unit) {
+        this.value = value;
+        this.unit = "years";
+    }
+
+    public Long getValue() {
         return value;
     }
 
-    public void setValue(Integer value) {
+    public void setValue(Long value) {
         this.value = value;
     }
 

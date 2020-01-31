@@ -22,10 +22,12 @@ import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
+import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Aggregator;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Query;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Queries;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.QueryResponse;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.RestApi;
+import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Sampling;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.SubQuery;
 
 import com.oisp.databackend.datastructures.Observation;
@@ -104,7 +106,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                     requestedTags = new ArrayList<String>(queryResponses.getQueries().get(0).getResults().get(0).getTags().keySet());
                 }
             } else {
-                // tags are given explicit. No additional tag query needed
+                // tags are given explicitly. No additional tag query needed
                 requestedTags = tsdbQuery.getAttributes();
             }
             List<String> mergedNames = Stream.of(tagNames, requestedTags).flatMap(x -> x.stream()).collect(Collectors.toList());
@@ -126,18 +128,26 @@ public class TsdbAccessKairosDb implements TsdbAccess {
     @Override
     public Long count(TsdbQuery tsdbQuery) {
         SubQuery subQuery = new SubQuery()
-                //.withAggregator(SubQuery.AGGREGATOR_NONE)
+                .withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT)
+                        .withSampling(new Sampling(10L, "years"))) //max count over 10 years
                 .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
                         tsdbQuery.getCid()));
 
-        // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
-        // openTSDB?)
+
+        // Tag list contains at least "type = value" to count only "true" values (and e.g. not gps coordinates)
+        // When more attributes are given, only the samples additionally containing the attribute are count.
+        // e.g. when sample1 has attribute(key1=value1) and sample2 (key2=value2) and sample3 (key2=value3) then if key2
+        // is given only sample2 and sample3 are considered
+        List<String> tags = new ArrayList<String>();
+        tags.add(TsdbObjectBuilder.VALUE);
+
         if (!tsdbQuery.getAttributes().isEmpty()) {
-            List<String> tag = new ArrayList<String>();
-            tag.add(TsdbObjectBuilder.VALUE);
-            subQuery.withTag(TsdbObjectBuilder.TYPE, tag)
-                    .withDownsample("0all-count");
+            if (tsdbQuery.getAttributes().get(0) != "*") {
+                tags = Stream.of(tags, tsdbQuery.getAttributes()).flatMap(x -> x.stream()).collect(Collectors.toList());
+            }
         }
+
+        subQuery.withTag(TsdbObjectBuilder.TYPE, tags);
         Query query = new Query()
                 .withStart(tsdbQuery.getStart())
                 .withEnd(tsdbQuery.getStop());
@@ -147,12 +157,13 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         if (queryResponses == null) {
             return 0L;
         }
-        /*Long count = Arrays.stream(queryResponses).
-                map(qr -> qr.getDps().values()).
-                flatMap(num -> num.stream().map(x -> new Long(Math.round(Float.parseFloat(x))))).
-                reduce(0L, (e1, e2) -> e1 + e2);*/
-        //return count;
-        return 0L;
+        Long count = queryResponses.getQueries().stream()
+                .flatMap( x -> x.getResults().stream())
+                .flatMap(qr -> qr.getValues().stream())
+                .map(obj -> new Long((Integer)obj[1]))
+                .reduce(0L, (e1, e2) -> e1 + e2);
+        return count;
+        //return 0L;
     }
 
 

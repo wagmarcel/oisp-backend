@@ -12,10 +12,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SubQuery {
 
-    public static final String AGGREGATOR_MAX = "max";
-    public static final String AGGREGATOR_MIN = "min";
-    public static final String AGGREGATOR_NONE = "none";
-    public static final Integer MAX_NUMBER_OF_SAMPLES = 1024;
+    public static final Integer MAX_NUMBER_OF_SAMPLES = 1024 * 10;
 
     private List<Aggregator> aggregators;
     private String name;
@@ -62,15 +59,6 @@ public class SubQuery {
         return this;
     }
 
-    public SubQuery withDownsample(String downsample) {
-        //this.downsample = downsample;
-        return this;
-    }
-
-    public void setAggregator(Aggregator aggregator) {
-        this.aggregators = Arrays.asList(aggregator);
-    }
-
     public Integer getLimit() {
         return limit;
     }
@@ -91,19 +79,15 @@ public class SubQuery {
         return tags;
     }
 
-    public List<Aggregator> getAggregator() {
+    public List<Aggregator> getAggregators() {
         return aggregators;
+    }
+
+    public void setAggregators(List<Aggregator> aggregators) {
+        this.aggregators = aggregators;
     }
 
     public String getName() {
         return name;
     }
-
-    /*public String getDownsample() {
-        return downsample;
-    }
-
-    public void setDownsample(String downsample) {
-        this.downsample = downsample;
-    }*/
 }
