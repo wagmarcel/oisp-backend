@@ -26,4 +26,5 @@ public class Queries {
     public void setResults(List<Result> results) {
         this.results = results;
     }
+
 }

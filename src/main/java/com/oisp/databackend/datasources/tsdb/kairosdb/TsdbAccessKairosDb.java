@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.datasources.tsdb.kairosdb;
 
+import com.google.api.client.util.Lists;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.DataType;
@@ -28,6 +29,7 @@ import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.RestApi;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.SubQuery;
 
 import com.oisp.databackend.datastructures.Observation;
+import org.apache.avro.generic.GenericData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -35,6 +37,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Repository
@@ -79,22 +83,37 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                 //.withAggregator(SubQuery.AGGREGATOR_NONE)
                 .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
                         tsdbQuery.getCid()));
-
-        // If other than type tag/attrbiute is requested we have to go with empty tag/attribute list (there is not "or" between tags in
-        // openTSDB?)
-        //if (!tsdbQuery.getAttributes().isEmpty()) {
-            List<String> types = new ArrayList<String>();
-            List<String> tagNames = new ArrayList<String>();
-            tagNames.add(TsdbObjectBuilder.TYPE);
-            types.add(TsdbObjectBuilder.VALUE);
-            if (tsdbQuery.isLocationInfo()) {
-                types.add(DataFormatter.gpsValueToString(0));
-                types.add(DataFormatter.gpsValueToString(1));
-                types.add(DataFormatter.gpsValueToString(2));
+        List<String> types = new ArrayList<String>();
+        List<String> tagNames = new ArrayList<String>();
+        tagNames.add(TsdbObjectBuilder.TYPE);
+        types.add(TsdbObjectBuilder.VALUE);
+        if (tsdbQuery.isLocationInfo()) {
+            types.add(DataFormatter.gpsValueToString(0));
+            types.add(DataFormatter.gpsValueToString(1));
+            types.add(DataFormatter.gpsValueToString(2));
+        }
+        if (!tsdbQuery.getAttributes().isEmpty()){
+            List<String> requestedTags = new ArrayList<String>();
+            if (tsdbQuery.getAttributes().get(0) == "*") {
+                // tags are not known yet, but all tags are requested
+                // Therefore we need to query all relevant tags from Kairosdb
+                Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
+                query.addQuery(subQuery);
+                QueryResponse queryResponses = api.queryTags(query);
+                if (queryResponses != null) {
+                    System.out.println("Marcel254:" + queryResponses.getQueries().get(0).getResults().get(0).getTags().toString());
+                    requestedTags = new ArrayList<String>(queryResponses.getQueries().get(0).getResults().get(0).getTags().keySet());
+                }
+            } else {
+                requestedTags = tsdbQuery.getAttributes();
             }
-            subQuery.withTag(TsdbObjectBuilder.TYPE, types);
-            subQuery.withGroupByTags(tagNames);
-        //}
+            List<String> mergedNames = Stream.of(tagNames, requestedTags).flatMap(x -> x.stream()).collect(Collectors.toList());
+            tagNames = mergedNames;
+            System.out.println("Marcel043 " + tagNames.toString());
+        }
+        subQuery.withTag(TsdbObjectBuilder.TYPE, types);
+        subQuery.withGroupByTags(tagNames);
+
         Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
 

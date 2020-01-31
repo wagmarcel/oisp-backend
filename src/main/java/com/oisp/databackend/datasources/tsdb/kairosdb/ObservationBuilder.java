@@ -17,6 +17,9 @@ public final class ObservationBuilder {
 
     private static void addTagsFromQuery(SortedMap<Long, Observation> observationsMap, QueryResponse queryResponse) {
         for (Queries queries : queryResponse.getQueries()) {
+            if (queries.getSample_size() == 0) {
+                continue;
+            }
             for (Result result: queries.getResults()) {
                 Map<String, List<String>> types = result.getTags();
                 List<Object[]> dps = result.getValues();
@@ -40,7 +43,11 @@ public final class ObservationBuilder {
 
     private static void addGpsFromQuery(SortedMap<Long, Observation> observationsMap, QueryResponse queryResponse) {
         for (Queries queries : queryResponse.getQueries()) {
+
             for (Result result: queries.getResults()) {
+                if (queries.getSample_size() == 0) {
+                    continue;
+                }
                 String type = result.getTags().get(TsdbObjectBuilder.TYPE).get(0); // type is unique there cannot be different types
                 if (!type.equals(DataFormatter.gpsValueToString(0))
                         && !type.equals(DataFormatter.gpsValueToString(1))
@@ -64,6 +71,9 @@ public final class ObservationBuilder {
         SortedMap<Long, Observation> observationMap = new TreeMap<>();
 
         for (Queries queries: queryResponse.getQueries()) {
+            if (queries.getSample_size() == 0) {
+                continue;
+            }
             for (Result result: queries.getResults()) {
                 if (result.getTags().get(TsdbObjectBuilder.TYPE).stream().filter(f -> f.equals(TsdbObjectBuilder.VALUE)).findAny().orElse(null) == null) {
                 continue;

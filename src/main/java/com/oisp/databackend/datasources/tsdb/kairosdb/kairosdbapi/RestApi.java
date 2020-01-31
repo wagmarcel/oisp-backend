@@ -36,6 +36,8 @@ public class RestApi {
 
     private URI putUri;
     private URI queryUri;
+    private URI queryTagsUri;
+
     public static final int MAXCHUNKSIZE = 4000;
 
     public RestApi(OispConfig oispConfig) throws URISyntaxException {
@@ -59,7 +61,13 @@ public class RestApi {
                 .setPort(port)
                 .setParameter("ms", null)
                 .build();
-
+        queryTagsUri = new URIBuilder()
+                .setScheme(scheme)
+                .setPath("/api/v1/datapoints/query/tags")
+                .setHost(host)
+                .setPort(port)
+                //.setParameter("ms", null)
+                .build();
     }
 
 
@@ -129,6 +137,39 @@ public class RestApi {
         CloseableHttpClient client = HttpClients.createDefault();
 
         HttpPost httpPost = new HttpPost(queryUri);
+        StringEntity entity = null;
+        String body = null;
+        try {
+            entity = new StringEntity(jsonObjectWithTags);
+
+            httpPost.setEntity(entity);
+            httpPost.setHeader(ACCEPT, CONTENT_TYPE_JSON);
+            httpPost.setHeader(CONTENTTYPE, CONTENT_TYPE_JSON);
+            CloseableHttpResponse response = client.execute(httpPost);
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.debug("StatusCode of query response: " + statusCode);
+            if (statusCode != QUERYOK) {
+                return null;
+            }
+            HttpEntity responseEntity = response.getEntity();
+
+            if (responseEntity != null) {
+                body = EntityUtils.toString(responseEntity);
+            }
+
+        } catch (IOException e) {
+            logger.error("Could not create JSON payload for query POST request: " + e);
+            return null;
+        }
+        return queryResponsefromString(body);
+    }
+
+    public QueryResponse queryTags(Query query) {
+        String jsonObject = query.toString();
+        String jsonObjectWithTags = jsonObject.replaceAll(Pattern.quote(ATTRIBUTES), TAGS);
+        CloseableHttpClient client = HttpClients.createDefault();
+
+        HttpPost httpPost = new HttpPost(queryTagsUri);
         StringEntity entity = null;
         String body = null;
         try {
