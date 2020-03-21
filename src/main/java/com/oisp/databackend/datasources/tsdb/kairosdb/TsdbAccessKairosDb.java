@@ -45,6 +45,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
 
     private static final String STAR = "*";
     private static final Long MAX_YEARS_COUNT_AGGREGATION = 10L; //max count over 10 years
+    private static final Long MAX_NUMBER_OF_SAMPLES = 60L * 60 * 24 * 365 * 10; // 10 years of 1Hz samples
     private RestApi api;
     @Autowired
     private OispConfig oispConfig;
@@ -130,11 +131,17 @@ public class TsdbAccessKairosDb implements TsdbAccess {
 
     @Override
     public Long count(TsdbQuery tsdbQuery) {
-        SubQuery subQuery = new SubQuery()
-                .withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT)
+
+        List<SubQuery> subQueries = tsdbQuery
+                .getCids()
+                .stream()
+                .map(item -> new SubQuery()
+                    .withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT)
                         .withSampling(new Sampling(MAX_YEARS_COUNT_AGGREGATION, "years")))
-                .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
-                        tsdbQuery.getCid()));
+                        .withLimit(MAX_NUMBER_OF_SAMPLES)
+                    .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
+                        item)))
+                .collect(Collectors.toList());
 
 
         // Tag list contains at least "type = value" to count only "true" values (and e.g. not gps coordinates)
@@ -143,28 +150,26 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         // is given only sample2 and sample3 are considered
         List<String> tags = new ArrayList<String>();
         tags.add(TsdbObjectBuilder.VALUE);
-
         if (!tsdbQuery.getAttributes().isEmpty() && tsdbQuery.getAttributes().get(0).equals(STAR)) {
             tags = Stream.of(tags, tsdbQuery.getAttributes()).flatMap(x -> x.stream()).collect(Collectors.toList());
         }
+        for (SubQuery subQuery : subQueries) {
+            subQuery.withTag(TsdbObjectBuilder.TYPE, tags);
+        }
 
-        subQuery.withTag(TsdbObjectBuilder.TYPE, tags);
         Query query = new Query()
                 .withStart(tsdbQuery.getStart())
                 .withEnd(tsdbQuery.getStop());
-        query.addQuery(subQuery);
-
+        query.addQueries(subQueries);
         QueryResponse queryResponses = api.query(query);
         if (queryResponses == null) {
             return 0L;
         }
-        Long count = queryResponses.getQueries().stream()
+        return queryResponses.getQueries().stream()
                 .flatMap(x -> x.getResults().stream())
                 .flatMap(qr -> qr.getValues().stream())
-                .map(obj -> new Long((Integer) obj[1]))
+                .map(obj -> Long.valueOf((Integer) obj[1]))
                 .reduce(0L, (e1, e2) -> e1 + e2);
-        return count;
-        //return 0L;
     }
     
     public String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException {
