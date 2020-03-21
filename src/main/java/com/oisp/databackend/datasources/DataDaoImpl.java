@@ -195,11 +195,11 @@ public class DataDaoImpl implements DataDao {
     }
 
     @Override
-    public Long count(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes) {
+    public Long count(String accountId, List<String> componentIds, List<String> componentTypes, long start, long stop, Boolean gps, String[] attributes) {
         TsdbQuery tsdbQuery = new TsdbQuery()
                 .withAid(accountId)
-                .withCid(componentId)
-                .withComponentType(componentType)
+                .withCids(componentIds)
+                .withComponentTypes(componentTypes)
                 .withLocationInfo(gps)
                 .withAttributes(attributes)
                 .withStart(start)

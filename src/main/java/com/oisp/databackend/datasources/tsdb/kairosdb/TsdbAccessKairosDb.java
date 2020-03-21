@@ -45,6 +45,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
 
     private static final String STAR = "*";
     private static final Long MAX_YEARS_COUNT_AGGREGATION = 10L; //max count over 10 years
+    private static final Long MAX_NUMBER_OF_SAMPLES = 60L * 60 * 24 * 365 * 10; // 10 years of 1Hz samples
     private RestApi api;
     @Autowired
     private OispConfig oispConfig;
@@ -130,11 +131,15 @@ public class TsdbAccessKairosDb implements TsdbAccess {
 
     @Override
     public Long count(TsdbQuery tsdbQuery) {
-        SubQuery subQuery = new SubQuery()
-                .withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT)
+
+        List<SubQuery> subQueries = tsdbQuery
+                .getCids()
+                .stream()
+                .map(item -> new SubQuery()
+                    .withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT)
                         .withSampling(new Sampling(MAX_YEARS_COUNT_AGGREGATION, "years")))
-                .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
-                        tsdbQuery.getCid()));
+                    .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
+                        item))).collect(Collectors.toList());
 
 
         // Tag list contains at least "type = value" to count only "true" values (and e.g. not gps coordinates)
@@ -144,15 +149,21 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         List<String> tags = new ArrayList<String>();
         tags.add(TsdbObjectBuilder.VALUE);
 
-        if (!tsdbQuery.getAttributes().isEmpty() && tsdbQuery.getAttributes().get(0).equals(STAR)) {
-            tags = Stream.of(tags, tsdbQuery.getAttributes()).flatMap(x -> x.stream()).collect(Collectors.toList());
+        for (SubQuery subquery : subQueries) {
+            if (!tsdbQuery.getAttributes().isEmpty() && tsdbQuery.getAttributes().get(0).equals(STAR)) {
+                List<String> tagsSub = Stream.of(tags, tsdbQuery.getAttributes())
+                        .flatMap(x -> x.stream())
+                        .collect(Collectors.toList());
+                tags = Stream.concat(tagsSub.stream(), tags.stream()).collect(Collectors.toList());
+                subquery.withTag(TsdbObjectBuilder.TYPE, tags);
+                subquery.setLimit(MAX_NUMBER_OF_SAMPLES);
+            }
         }
 
-        subQuery.withTag(TsdbObjectBuilder.TYPE, tags);
         Query query = new Query()
                 .withStart(tsdbQuery.getStart())
                 .withEnd(tsdbQuery.getStop());
-        query.addQuery(subQuery);
+        query.addQueries(subQueries);
 
         QueryResponse queryResponses = api.query(query);
         if (queryResponses == null) {
