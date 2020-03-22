@@ -61,10 +61,9 @@ pmd {
 
 mainClassName = "com.oisp.databackend.Application"
 sourceCompatibility = 1.8
-ext.cdhVersion = "cdh5.13.1"
-ext.hbaseVersion = "1.2.0-$cdhVersion"
-ext.hadoopVersion = "2.6.0-$cdhVersion"
-
+ext.cdhVersion = "cdh5.16.99"
+ext.hbaseVersion = "1.2.12"
+ext.hadoopVersion = "2.6.5"
 
 jar {
     baseName 'databackend'

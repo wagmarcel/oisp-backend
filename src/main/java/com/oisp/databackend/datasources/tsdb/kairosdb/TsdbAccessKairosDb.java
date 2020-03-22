@@ -172,7 +172,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         return queryResponses.getQueries().stream()
                 .flatMap(x -> x.getResults().stream())
                 .flatMap(qr -> qr.getValues().stream())
-                .map(obj -> new Long((Integer) obj[1]))
+                .map(obj -> Long.valueOf((Integer) obj[1]))
                 .reduce(0L, (e1, e2) -> e1 + e2);
     }
     
