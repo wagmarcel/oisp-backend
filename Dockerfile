@@ -8,7 +8,7 @@ ADD . /app
 WORKDIR /app
 RUN make build
 USER appuser
-FROM anapsix/alpine-java:8
+FROM anapsix/alpine-java:11
 
 RUN apk --no-cache add make && rm -rf /var/cache/apk/*
 

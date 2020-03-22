@@ -169,13 +169,11 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         if (queryResponses == null) {
             return 0L;
         }
-        Long count = queryResponses.getQueries().stream()
+        return queryResponses.getQueries().stream()
                 .flatMap(x -> x.getResults().stream())
                 .flatMap(qr -> qr.getValues().stream())
                 .map(obj -> new Long((Integer) obj[1]))
                 .reduce(0L, (e1, e2) -> e1 + e2);
-        return count;
-        //return 0L;
     }
     
     public String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException {

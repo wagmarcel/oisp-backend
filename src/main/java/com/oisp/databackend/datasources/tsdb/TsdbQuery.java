@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("PMD.TooManyMethods")
 public class TsdbQuery {
     private String aid;
     private List<String> cid;
