@@ -36,14 +36,18 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 
 @Repository
 public class TsdbAccessKairosDb implements TsdbAccess {
 
     private static final String STAR = "*";
+    private static final int QUERY_PARTITION_SIZE = 10;
     private static final Long MAX_YEARS_COUNT_AGGREGATION = 10L; //max count over 10 years
     private static final Long MAX_NUMBER_OF_SAMPLES = 60L * 60 * 24 * 365 * 10; // 10 years of 1Hz samples
     private RestApi api;
@@ -108,7 +112,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                 // tags are given explicitly. No additional tag query needed
                 requestedTags = tsdbQuery.getAttributes();
             }
-            List<String> mergedNames = Stream.of(tagNames, requestedTags).flatMap(x -> x.stream()).collect(Collectors.toList());
+            List<String> mergedNames = Stream.of(tagNames, requestedTags).flatMap(x -> x.stream()).collect(toList());
             tagNames = mergedNames;
         }
         subQuery.withTag(TsdbObjectBuilder.TYPE, types);
@@ -141,7 +145,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                         .withLimit(MAX_NUMBER_OF_SAMPLES)
                     .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
                         item)))
-                .collect(Collectors.toList());
+                .collect(toList());
 
 
         // Tag list contains at least "type = value" to count only "true" values (and e.g. not gps coordinates)
@@ -151,25 +155,35 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         List<String> tags = new ArrayList<String>();
         tags.add(TsdbObjectBuilder.VALUE);
         if (!tsdbQuery.getAttributes().isEmpty() && tsdbQuery.getAttributes().get(0).equals(STAR)) {
-            tags = Stream.of(tags, tsdbQuery.getAttributes()).flatMap(x -> x.stream()).collect(Collectors.toList());
+            tags = Stream.of(tags, tsdbQuery.getAttributes()).flatMap(x -> x.stream()).collect(toList());
         }
         for (SubQuery subQuery : subQueries) {
             subQuery.withTag(TsdbObjectBuilder.TYPE, tags);
         }
 
-        Query query = new Query()
-                .withStart(tsdbQuery.getStart())
-                .withEnd(tsdbQuery.getStop());
-        query.addQueries(subQueries);
-        QueryResponse queryResponses = api.query(query);
-        if (queryResponses == null) {
-            return 0L;
-        }
-        return queryResponses.getQueries().stream()
-                .flatMap(x -> x.getResults().stream())
-                .flatMap(qr -> qr.getValues().stream())
-                .map(obj -> Long.valueOf((Integer) obj[1]))
-                .reduce(0L, (e1, e2) -> e1 + e2);
+        // we partition the subqueries into smaller chunks to avoid Kairosdb to create too large batches
+        // partition size: QUERY_PARTITION_SIZE
+        final AtomicInteger counter = new AtomicInteger();
+        Collection<List<SubQuery>> subqueryCollection = subQueries.stream()
+                .collect(Collectors.groupingBy(sq -> counter.getAndIncrement() / QUERY_PARTITION_SIZE, toList())).values();
+
+        List<Long> queryResponseList = subqueryCollection.stream().map(queryList -> {
+                Query query = new Query()
+                        .withStart(tsdbQuery.getStart())
+                        .withEnd(tsdbQuery.getStop());
+                query.addQueries(queryList);
+                QueryResponse queryResponses = api.query(query);
+                if (queryResponses == null) {
+                    return 0L;
+                }
+                return queryResponses.getQueries().stream()
+                        .flatMap(x -> x.getResults().stream())
+                        .flatMap(qr -> qr.getValues().stream())
+                        .map(obj -> Long.valueOf((Integer) obj[1]))
+                        .reduce(0L, (e1, e2) -> e1 + e2);
+            }).collect(toList());
+
+        return queryResponseList.stream().reduce(0L, (e1, e2) -> e1 + e2);
     }
     
     public String[] scanForAttributeNames(TsdbQuery tsdbQuery) throws IOException {
