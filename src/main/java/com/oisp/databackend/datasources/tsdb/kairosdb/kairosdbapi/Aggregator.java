@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Aggregator {
     public static final String AGGREGATOR_COUNT = "count";
     public static final String AGGREGATOR_SUM = "sum";
+    public static final String AGGREGATOR_AVG = "avg";
     //public static final String AGGREGATOR_MIN = "min";
     //public static final String AGGREGATOR_NONE = "none";
 

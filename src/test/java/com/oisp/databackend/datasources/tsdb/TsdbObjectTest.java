@@ -1,7 +1,5 @@
 package com.oisp.databackend.datasources.tsdb;
 
-import static org.mockito.Mockito.verify;
-
 import com.oisp.databackend.datasources.tsdb.opentsdb.TsdbObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +38,6 @@ public class TsdbObjectTest {
         TsdbObject tsdbObject2 = new TsdbObject(metric, value, timestamp, attributes);
         TsdbObject tsdbObject3 = new TsdbObject(metric, value, timestamp);
         TsdbObject tsdbObject4 = new TsdbObject();
-        TsdbObject tsdbObject5 = new TsdbObject(tsdbObject2);
 
         tsdbObject4.setMetric(metric);
         tsdbObject4.setValue(value);

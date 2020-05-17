@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Intel Corporation
+ * Copyright (c) 2018-2020 Intel Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,9 @@ public class TsdbAccessKairosDb implements TsdbAccess {
     private static final int QUERY_PARTITION_SIZE = 10;
     private static final Long MAX_YEARS_COUNT_AGGREGATION = 10L; //max count over 10 years
     private static final Long MAX_NUMBER_OF_SAMPLES = 60L * 60 * 24 * 365 * 10; // 10 years of 1Hz samples
+    private static final int MAX_NUMBER_OF_ESTIMATED_DIV = 100; // estimated max amount of samples per second per component
+                                                                // needed to estimate need for down sampling
+                                                                // 1000 (ms)/ 10samples
     private RestApi api;
     @Autowired
     private OispConfig oispConfig;
@@ -82,6 +85,53 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         return put(list, onlyMetadata);
     }
 
+    private void checkNumberOfSamples(TsdbQuery tsdbQuery, SubQuery subQuery, Query query) {
+        // check whether count samples it reasonable (assume that there are no more than 10 samples second)
+        // Later on, this will be configurable
+        // if estimated number of samples is smaller than limit, skip the count
+        // estimate max 10 samples per second
+        Long searchLength = Math.round((tsdbQuery.getStop() - tsdbQuery.getStart() + 1) / (double) MAX_NUMBER_OF_ESTIMATED_DIV);
+        if (searchLength > subQuery.getLimit()) {
+            // store original limit to reset later
+            Long originalLimit = subQuery.getLimit();
+            // set much larger limit for counting
+            subQuery.setLimit(MAX_NUMBER_OF_SAMPLES);
+            // first we count the number of expected samples
+            // If the number of samples is larger than the maximal allowed number
+            // a downsampling needs to be applied. For now, we use "avg" but this will be configurable
+            // in future (e.g. downsampling_if_needed: "avg", "max", "min", "none")
+            Sampling sampling = new Sampling();
+            // we assume here "milliseconds" as unit
+            // +1 to cover the whole time including end-time.
+            sampling.setValue(tsdbQuery.getStop() - tsdbQuery.getStart() + 1);
+            subQuery.withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT).withSampling(sampling));
+
+            QueryResponse countQueryResponses = api.query(query);
+            // retrieve count of samples
+            Long count = countQueryResponses.getQueries().stream()
+                            .flatMap(x -> x.getResults().stream())
+                            .flatMap(qr -> qr.getValues().stream())
+                            .map(obj -> Long.valueOf((Integer) obj[1]))
+                            .reduce(0L, (e1, e2) -> e1 + e2);
+            Long aggregationInterval = 0L;
+            if (countQueryResponses != null && count > originalLimit) {
+                // adjust aggregator
+                //aggregation interval is max-time divided by samples
+                aggregationInterval = Math.round(Math.ceil((tsdbQuery.getStop() - tsdbQuery.getStart()) / (double) originalLimit));
+            }
+
+            if (aggregationInterval == 0L) {
+                subQuery.getAggregators().remove(0);
+            } else {
+                subQuery.getAggregators().get(0).getSampling().setValue(aggregationInterval);
+                subQuery.getAggregators().get(0).setName(Aggregator.AGGREGATOR_AVG);
+            }
+
+            if (count > 0L) {
+                subQuery.setLimit(count);
+            }
+        }
+    }
     @Override
     public Observation[] scan(TsdbQuery tsdbQuery) {
         SubQuery subQuery = new SubQuery()
@@ -117,10 +167,12 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         }
         subQuery.withTag(TsdbObjectBuilder.TYPE, types);
         subQuery.withGroupByTags(tagNames);
-
         Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
 
+        checkNumberOfSamples(tsdbQuery, subQuery, query);
+
+        // do full query
         QueryResponse queryResponses = api.query(query);
         if (queryResponses == null) {
             return null;
@@ -177,10 +229,10 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                     return 0L;
                 }
                 return queryResponses.getQueries().stream()
-                        .flatMap(x -> x.getResults().stream())
-                        .flatMap(qr -> qr.getValues().stream())
-                        .map(obj -> Long.valueOf((Integer) obj[1]))
-                        .reduce(0L, (e1, e2) -> e1 + e2);
+                    .flatMap(x -> x.getResults().stream())
+                    .flatMap(qr -> qr.getValues().stream())
+                    .map(obj -> Long.valueOf((Integer) obj[1]))
+                    .reduce(0L, (e1, e2) -> e1 + e2);
             }).collect(toList());
 
         return queryResponseList.stream().reduce(0L, (e1, e2) -> e1 + e2);
