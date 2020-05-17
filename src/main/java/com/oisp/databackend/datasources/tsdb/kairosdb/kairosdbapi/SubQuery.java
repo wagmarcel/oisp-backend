@@ -12,7 +12,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SubQuery {
 
-    public static final Long MAX_NUMBER_OF_SAMPLES = 1024L * 10;
+    public static final Long MAX_NUMBER_OF_SAMPLES = 1000L * 4;
 
     private List<Aggregator> aggregators;
     private String name;

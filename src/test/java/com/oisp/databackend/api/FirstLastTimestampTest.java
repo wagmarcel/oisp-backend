@@ -47,7 +47,6 @@ public class FirstLastTimestampTest {
     @Test
     public void Invoke_EmptyComponentsListInDb_ReturnsOkResponseWithEmptyList() throws Exception {
         //ARRANGE
-        List<String> emptyList = new ArrayList<>();
 
         FirstLastTimestampRequest request = new FirstLastTimestampRequest();
         request.setComponents(new ArrayList<String>());
