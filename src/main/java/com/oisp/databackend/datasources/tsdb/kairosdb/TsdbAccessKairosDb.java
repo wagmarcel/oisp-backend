@@ -117,10 +117,50 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         }
         subQuery.withTag(TsdbObjectBuilder.TYPE, types);
         subQuery.withGroupByTags(tagNames);
-
+        // check whether count samples it reasonable (assume that there are no more than 10 samples second)
+        // Later on, this will be configurable
+        // if estimated number of samples is smaller than limit, skip the count
+        // estimate max 10 samples per second
+        Long searchLength = Math.round((tsdbQuery.getStop() - tsdbQuery.getStart() + 1) / 100.0);
         Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
+        if (searchLength < subQuery.getLimit()) {
+            // first we count the number of expected samples
+            // If the number of samples is larger than the maximal allowed number
+            // a downsampling needs to be applied. For now, we use "avg" but this will be configurable
+            // in future (e.g. downsampling_if_needed: "avg", "max", "min", "none")
+            Sampling sampling = new Sampling();
+            // we assume here "milliseconds" as unit
+            // +1 to cover the whole time including end-time.
+            sampling.setValue(tsdbQuery.getStop() - tsdbQuery.getStart() + 1);
+            subQuery.withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT).withSampling(sampling));
 
+            QueryResponse countQueryResponses = api.query(query);
+            if (countQueryResponses == null) {
+                return null;
+            }
+            // retrieve count of samples
+            Long count = countQueryResponses.getQueries().stream()
+                    .flatMap(x -> x.getResults().stream())
+                    .flatMap(qr -> qr.getValues().stream())
+                    .map(obj -> Long.valueOf((Integer) obj[1]))
+                    .reduce(0L, (e1, e2) -> e1 + e2);
+
+            // adjust aggregator
+            Long limit = subQuery.getLimit();
+            Long aggregationInterval = 0L;
+            if (count > limit) {
+                aggregationInterval = Math.round(Math.ceil((double) limit / count));
+            }
+
+            if (aggregationInterval == 0L) {
+                subQuery.getAggregators().remove(0);
+            } else {
+                subQuery.getAggregators().get(0).getSampling().setValue(aggregationInterval);
+                subQuery.getAggregators().get(0).setName(Aggregator.AGGREGATOR_AVG);
+            }
+        }
+        // do full query
         QueryResponse queryResponses = api.query(query);
         if (queryResponses == null) {
             return null;
@@ -177,10 +217,10 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                     return 0L;
                 }
                 return queryResponses.getQueries().stream()
-                        .flatMap(x -> x.getResults().stream())
-                        .flatMap(qr -> qr.getValues().stream())
-                        .map(obj -> Long.valueOf((Integer) obj[1]))
-                        .reduce(0L, (e1, e2) -> e1 + e2);
+                    .flatMap(x -> x.getResults().stream())
+                    .flatMap(qr -> qr.getValues().stream())
+                    .map(obj -> Long.valueOf((Integer) obj[1]))
+                    .reduce(0L, (e1, e2) -> e1 + e2);
             }).collect(toList());
 
         return queryResponseList.stream().reduce(0L, (e1, e2) -> e1 + e2);
