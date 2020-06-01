@@ -119,7 +119,7 @@ public class DataDaoImpl implements DataDao {
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributeList) {
+    public Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributeList, Long maxPoints) {
         logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
         TsdbQuery tsdbQuery = new TsdbQuery()
                 .withAid(accountId)
@@ -128,7 +128,8 @@ public class DataDaoImpl implements DataDao {
                 .withLocationInfo(gps)
                 .withAttributes(attributeList)
                 .withStart(start)
-                .withStop(stop);
+                .withStop(stop)
+                .withMaxPoints(maxPoints);
         Observation[] observations = tsdbAccess.scan(tsdbQuery);
         if (observations != null && observations.length > 0) {
             //Check whether dataType is not supported by tsdb

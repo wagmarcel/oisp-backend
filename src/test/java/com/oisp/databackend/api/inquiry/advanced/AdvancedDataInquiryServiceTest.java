@@ -67,7 +67,7 @@ public class AdvancedDataInquiryServiceTest {
         assertEquals(accountId, response.getAccountId());
         assertEquals(0, response.getData().size());
         assertEquals(null, response.getRowCount());
-        Mockito.verify(dataDaoMock, Mockito.times(0)).scan(any(String.class), any(String.class), any(String.class), any(Long.class), any(Long.class), any(Boolean.class), any(String[].class));
+        Mockito.verify(dataDaoMock, Mockito.times(0)).scan(any(String.class), any(String.class), any(String.class), any(Long.class), any(Long.class), any(Boolean.class), any(String[].class), any(Long.class));
     }
 
     @Test
@@ -92,7 +92,8 @@ public class AdvancedDataInquiryServiceTest {
                 any(Long.class),
                 any(Long.class),
                 any(Boolean.class),
-                any(String[].class))).thenReturn(observations);
+                any(String[].class),
+                any(Long.class))).thenReturn(observations);
 
         Mockito.when(dataDaoMock.scanForAttributeNames(any(String.class),
                 any(String.class),
@@ -145,7 +146,8 @@ public class AdvancedDataInquiryServiceTest {
                 any(Long.class),
                 any(Long.class),
                 any(Boolean.class),
-                any(String[].class))).thenReturn(observations);
+                any(String[].class),
+                any(Long.class))).thenReturn(observations);
 
         Mockito.when(dataDaoMock.scanForAttributeNames(any(String.class),
                 any(String.class),

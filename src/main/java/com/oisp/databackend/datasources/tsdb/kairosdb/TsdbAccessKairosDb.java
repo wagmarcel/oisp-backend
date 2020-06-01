@@ -165,8 +165,9 @@ public class TsdbAccessKairosDb implements TsdbAccess {
             List<String> mergedNames = Stream.of(tagNames, requestedTags).flatMap(x -> x.stream()).collect(toList());
             tagNames = mergedNames;
         }
-        subQuery.withTag(TsdbObjectBuilder.TYPE, types);
-        subQuery.withGroupByTags(tagNames);
+        subQuery.withTag(TsdbObjectBuilder.TYPE, types)
+                .withGroupByTags(tagNames)
+                .withLimit(tsdbQuery.getMaxPoints());
         Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
 

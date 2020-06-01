@@ -26,7 +26,7 @@ public interface DataDao {
 
     boolean put(Observation[] o);
 
-    Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes);
+    Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes, Long maxPoints);
 
     Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes,
                        boolean forward, int limit);

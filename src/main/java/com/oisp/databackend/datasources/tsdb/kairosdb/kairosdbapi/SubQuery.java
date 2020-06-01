@@ -60,7 +60,9 @@ public class SubQuery {
     }
 
     public SubQuery withLimit(Long limit) {
-        this.limit = limit;
+        if (limit != null) {
+            this.limit = limit;
+        }
         return this;
     }
 
