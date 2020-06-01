@@ -54,13 +54,15 @@ public class DataRetriever {
                      || !dataRetrieveParams.getComponentsMetadata().get((String) component).isValidType()) {
                 throw new IllegalDataInquiryArgumentException(errINVCOMPTYPE);
             }
+
             Observation[] observations = hbase.scan(dataRetrieveParams.getAccountId(),
                     component,
                     dataRetrieveParams.getComponentsMetadata().get((String) component).getDataType(),
                     dataRetrieveParams.getStartDate(),
                     dataRetrieveParams.getEndDate(),
                     dataRetrieveParams.isQueryMeasureLocation(),
-                    dataRetrieveParams.getComponentsAttributes());
+                    dataRetrieveParams.getComponentsAttributes(),
+                    dataRetrieveParams.getMaxPoints());
             if (observations == null) {
                 logger.debug("No observations retrieved for component: {}", component);
                 continue;

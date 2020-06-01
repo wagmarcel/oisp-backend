@@ -55,7 +55,7 @@ public class BasicDataInquiryServiceTest {
         observations[1] = new Observation("2", componentId, 4L, "6");
         firstObservation = observations[0];
         secondObservation = observations[1];
-        Mockito.when(dataDaoMock.scan(accountId, componentId, "Number", request.getStartDate(), request.getEndDate(), false, null)).thenReturn(observations);
+        Mockito.when(dataDaoMock.scan(accountId, componentId, "Number", request.getStartDate(), request.getEndDate(), false, null, null)).thenReturn(observations);
     }
 
     private Object getFirstObservationValue(DataInquiryResponse response) {
@@ -97,7 +97,7 @@ public class BasicDataInquiryServiceTest {
         request.setComponentsWithDataType(components);
 
         Observation[] observations = new Observation[2];
-        Mockito.when(dataDaoMock.scan(accountId, componentId, "Number", request.getStartDate(), request.getEndDate(), false, null)).thenReturn(observations);
+        Mockito.when(dataDaoMock.scan(accountId, componentId, "Number", request.getStartDate(), request.getEndDate(), false, null, null)).thenReturn(observations);
 
         basicDataInquiryService = basicDataInquiryService.withParams(accountId, request);
         //ACT

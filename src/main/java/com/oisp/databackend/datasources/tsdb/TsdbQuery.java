@@ -15,6 +15,7 @@ public class TsdbQuery {
     private boolean locationInfo;
     private long start;
     private long stop;
+    private Long maxPoints;
     private Aggregation.Type aggregation;
 
     public TsdbQuery(String aid, String cid, List<String> attributes, boolean locationInfo, long start, long stop) {
@@ -110,6 +111,19 @@ public class TsdbQuery {
     public TsdbQuery withAggregation(Aggregation.Type aggr) {
         this.aggregation = aggr;
         return this;
+    }
+
+    public TsdbQuery withMaxPoints(Long maxPoints) {
+        this.maxPoints = maxPoints;
+        return this;
+    }
+
+    public Long getMaxPoints() {
+        return maxPoints;
+    }
+
+    public void setMaxPoints(Long maxPoints) {
+        this.maxPoints = maxPoints;
     }
 
     public void setAid(String aid) {
