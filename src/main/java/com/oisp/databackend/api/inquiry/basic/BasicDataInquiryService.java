@@ -28,7 +28,6 @@ import com.oisp.databackend.api.inquiry.samples.SampleAggregationDataRetriever;
 import com.oisp.databackend.api.inquiry.samples.SampleDataRetriever;
 import com.oisp.databackend.api.inquiry.samples.SamplePlainDataRetriever;
 import com.oisp.databackend.datasources.DataDao;
-import com.oisp.databackend.datastructures.Aggregator;
 import com.oisp.databackend.datastructures.Component;
 import com.oisp.databackend.datastructures.ComponentDataType;
 import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
@@ -66,8 +65,6 @@ public class BasicDataInquiryService implements Service<DataInquiryRequest, Data
     private List<Component> outputComponents;
 
     private ObservationFilterSelector observationFilterSelector;
-
-    private Aggregator aggregator;
 
     @Autowired
     public BasicDataInquiryService(DataDao hbase) {

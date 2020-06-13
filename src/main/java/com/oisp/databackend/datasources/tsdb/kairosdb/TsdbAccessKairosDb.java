@@ -137,8 +137,8 @@ public class TsdbAccessKairosDb implements TsdbAccess {
             }
         }
     }
-    @Override
-    public Observation[] scan(TsdbQuery tsdbQuery) {
+
+    private SubQuery buildSubQuery(TsdbQuery tsdbQuery) {
         SubQuery subQuery = new SubQuery()
                 .withOrder(tsdbQuery.getOrder())
                 .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
@@ -173,6 +173,13 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         subQuery.withTag(TsdbObjectBuilder.TYPE, types)
                 .withGroupByTags(tagNames)
                 .withLimit(tsdbQuery.getMaxPoints());
+        return subQuery;
+    }
+
+    @Override
+    public Observation[] scan(TsdbQuery tsdbQuery) {
+
+        SubQuery subQuery = buildSubQuery(tsdbQuery);
         Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
 

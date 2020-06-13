@@ -17,6 +17,7 @@
 package com.oisp.databackend.api.inquiry.basic;
 
 import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.ComponentDataType;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
@@ -26,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +57,8 @@ public class BasicDataInquiryServiceTest {
         observations[1] = new Observation("2", componentId, 4L, "6");
         firstObservation = observations[0];
         secondObservation = observations[1];
-        Mockito.when(dataDaoMock.scan(accountId, componentId, "Number", request.getStartDate(), request.getEndDate(), false, null, null)).thenReturn(observations);
+        TsdbQuery tsdbQuery = new TsdbQuery(accountId, componentId, new ArrayList<String>(),false, request.getStartDate(), request.getEndDate());
+        Mockito.when(dataDaoMock.scan(tsdbQuery)).thenReturn(observations);
     }
 
     private Object getFirstObservationValue(DataInquiryResponse response) {
@@ -97,7 +100,8 @@ public class BasicDataInquiryServiceTest {
         request.setComponentsWithDataType(components);
 
         Observation[] observations = new Observation[2];
-        Mockito.when(dataDaoMock.scan(accountId, componentId, "Number", request.getStartDate(), request.getEndDate(), false, null, null)).thenReturn(observations);
+        TsdbQuery tsdbQuery = new TsdbQuery(accountId, componentId, new ArrayList<String>(),false, request.getStartDate(), request.getEndDate());
+        Mockito.when(dataDaoMock.scan(tsdbQuery)).thenReturn(observations);
 
         basicDataInquiryService = basicDataInquiryService.withParams(accountId, request);
         //ACT

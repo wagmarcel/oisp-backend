@@ -45,10 +45,6 @@ public class DataDaoImpl implements DataDao {
     private TsdbAccess tsdbAccess;
     private ObjectStoreAccess objectStoreAccess;
 
-    private Aggregator aggregator;
-    private Long maxPoints;
-    private String order;
-
     private List<DataType.Types> supportedTsdbTypes;
 
     @Autowired
@@ -194,20 +190,5 @@ public class DataDaoImpl implements DataDao {
                 .withStop(stop)
                 .withAggregator(new Aggregator().withType(Aggregator.Type.COUNT));
         return tsdbAccess.count(tsdbQuery);
-    }
-
-    public DataDao withAggregator(Aggregator aggregator) {
-        this.aggregator = aggregator;
-        return this;
-    }
-
-    public DataDao withOrder(String order) {
-        this.order = order;
-        return this;
-    }
-
-    public DataDao withMaxPoints(Long maxPoints) {
-        this.maxPoints = maxPoints;
-        return this;
     }
 }
