@@ -124,6 +124,6 @@ public class BasicDataInquiryService implements Service<DataInquiryRequest, Data
     }
 
     private boolean shouldGenerateAggregations() {
-        return dataInquiryRequest.getMaxPoints() != null && dataInquiryRequest.getMaxPoints() > 0;
+        return false; // aggregation is nowadays made by e.g. KairosDB - the build in aggregation is deprecated
     }
 }

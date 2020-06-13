@@ -20,7 +20,7 @@ package com.oisp.databackend.datasources;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.objectstore.ObjectStoreAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
-import com.oisp.databackend.datastructures.Aggregation;
+import com.oisp.databackend.datastructures.Aggregator;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
@@ -119,21 +119,13 @@ public class DataDaoImpl implements DataDao {
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributeList, Long maxPoints) {
-        logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
-        TsdbQuery tsdbQuery = new TsdbQuery()
-                .withAid(accountId)
-                .withCid(componentId)
-                .withComponentType(componentType)
-                .withLocationInfo(gps)
-                .withAttributes(attributeList)
-                .withStart(start)
-                .withStop(stop)
-                .withMaxPoints(maxPoints);
+    public Observation[] scan(TsdbQuery tsdbQuery) {
+        logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", tsdbQuery.getAid(),
+                tsdbQuery.getCid(), tsdbQuery.getStart(), tsdbQuery.getStop(), tsdbQuery.isLocationInfo());
         Observation[] observations = tsdbAccess.scan(tsdbQuery);
         if (observations != null && observations.length > 0) {
             //Check whether dataType is not supported by tsdb
-            DataType.Types type = DataType.getType(componentType);
+            DataType.Types type = DataType.getType(tsdbQuery.getComponentType());
             Boolean isUncovered = !DataType.getUncoveredDataTypes(supportedTsdbTypes)
                     .stream()
                     .filter(t -> t == type)
@@ -196,7 +188,7 @@ public class DataDaoImpl implements DataDao {
                 .withAttributes(attributes)
                 .withStart(start)
                 .withStop(stop)
-                .withAggregation(Aggregation.Type.COUNT);
+                .withAggregator(new Aggregator().withType(Aggregator.Type.COUNT));
         return tsdbAccess.count(tsdbQuery);
     }
 }

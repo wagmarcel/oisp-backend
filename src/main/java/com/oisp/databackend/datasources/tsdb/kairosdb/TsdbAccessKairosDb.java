@@ -21,14 +21,14 @@ import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
-import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Aggregator;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Query;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.QueryResponse;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.RestApi;
-import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Sampling;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.SubQuery;
 
 import com.oisp.databackend.datastructures.Observation;
+import com.oisp.databackend.datastructures.Aggregator;
+import com.oisp.databackend.datastructures.Sampling;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -85,7 +85,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         return put(list, onlyMetadata);
     }
 
-    private void checkNumberOfSamples(TsdbQuery tsdbQuery, SubQuery subQuery, Query query) {
+    private void createAdaptiveAggregation(TsdbQuery tsdbQuery, SubQuery subQuery, Query query) {
         // check whether count samples it reasonable (assume that there are no more than 10 samples second)
         // Later on, this will be configurable
         // if estimated number of samples is smaller than limit, skip the count
@@ -104,15 +104,18 @@ public class TsdbAccessKairosDb implements TsdbAccess {
             // we assume here "milliseconds" as unit
             // +1 to cover the whole time including end-time.
             sampling.setValue(tsdbQuery.getStop() - tsdbQuery.getStart() + 1);
-            subQuery.withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT).withSampling(sampling));
+            subQuery.withAggregator(new Aggregator().withType(Aggregator.Type.COUNT).withSampling(sampling));
 
             QueryResponse countQueryResponses = api.query(query);
             // retrieve count of samples
-            Long count = countQueryResponses.getQueries().stream()
-                            .flatMap(x -> x.getResults().stream())
-                            .flatMap(qr -> qr.getValues().stream())
-                            .map(obj -> Long.valueOf((Integer) obj[1]))
-                            .reduce(0L, (e1, e2) -> e1 + e2);
+            Long count = 0L;
+            if (countQueryResponses != null) {
+                count = countQueryResponses.getQueries().stream()
+                        .flatMap(x -> x.getResults().stream())
+                        .flatMap(qr -> qr.getValues().stream())
+                        .map(obj -> Long.valueOf((Integer) obj[1]))
+                        .reduce(0L, (e1, e2) -> e1 + e2);
+            }
             Long aggregationInterval = 0L;
             if (countQueryResponses != null && count > originalLimit) {
                 // adjust aggregator
@@ -124,18 +127,20 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                 subQuery.getAggregators().remove(0);
             } else {
                 subQuery.getAggregators().get(0).getSampling().setValue(aggregationInterval);
-                subQuery.getAggregators().get(0).setName(Aggregator.AGGREGATOR_AVG);
+                subQuery.getAggregators().get(0).setName(tsdbQuery.getAggregator().getName());
             }
 
             if (count > 0L) {
                 subQuery.setLimit(count);
+            } else {
+                subQuery.setLimit(originalLimit);
             }
         }
     }
-    @Override
-    public Observation[] scan(TsdbQuery tsdbQuery) {
+
+    private SubQuery buildSubQuery(TsdbQuery tsdbQuery) {
         SubQuery subQuery = new SubQuery()
-                //.withAggregator(SubQuery.AGGREGATOR_NONE)
+                .withOrder(tsdbQuery.getOrder())
                 .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),
                         tsdbQuery.getCid()));
         List<String> types = new ArrayList<String>();
@@ -168,10 +173,30 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         subQuery.withTag(TsdbObjectBuilder.TYPE, types)
                 .withGroupByTags(tagNames)
                 .withLimit(tsdbQuery.getMaxPoints());
+        return subQuery;
+    }
+
+    @Override
+    public Observation[] scan(TsdbQuery tsdbQuery) {
+
+        SubQuery subQuery = buildSubQuery(tsdbQuery);
         Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
 
-        checkNumberOfSamples(tsdbQuery, subQuery, query);
+        Boolean isNoneOperator = true;
+        if (tsdbQuery.getAggregator() != null) {
+            isNoneOperator =
+                    tsdbQuery.getAggregator().getName().equals(Aggregator.getTypeAsName(Aggregator.Type.NONE));
+        }
+        if (tsdbQuery.getAggregator() != null
+            && !isNoneOperator
+            && tsdbQuery.getAggregator().getSampling() == null) {
+            // when aggregator is set and not NONE but no sampling interval, it will trigger automated aggregation
+            createAdaptiveAggregation(tsdbQuery, subQuery, query);
+        } else if (tsdbQuery.getAggregator() != null && !isNoneOperator) {
+            // When aggregator is set and not NONE and sampling exists
+            subQuery.withAggregator(tsdbQuery.getAggregator());
+        }
 
         // do full query
         QueryResponse queryResponses = api.query(query);
@@ -193,7 +218,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
                 .getCids()
                 .stream()
                 .map(item -> new SubQuery()
-                    .withAggregator(new Aggregator(Aggregator.AGGREGATOR_COUNT)
+                    .withAggregator(new Aggregator(Aggregator.Type.COUNT)
                         .withSampling(new Sampling(MAX_YEARS_COUNT_AGGREGATION, "years")))
                         .withLimit(MAX_NUMBER_OF_SAMPLES)
                     .withMetric(DataFormatter.createMetric(tsdbQuery.getAid(),

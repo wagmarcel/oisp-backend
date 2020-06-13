@@ -17,6 +17,7 @@
 package com.oisp.databackend.api.inquiry.advanced;
 
 import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.AdvancedComponent;
 import com.oisp.databackend.datastructures.DeviceData;
 import com.oisp.databackend.datastructures.Observation;
@@ -67,7 +68,7 @@ public class AdvancedDataInquiryServiceTest {
         assertEquals(accountId, response.getAccountId());
         assertEquals(0, response.getData().size());
         assertEquals(null, response.getRowCount());
-        Mockito.verify(dataDaoMock, Mockito.times(0)).scan(any(String.class), any(String.class), any(String.class), any(Long.class), any(Long.class), any(Boolean.class), any(String[].class), any(Long.class));
+        Mockito.verify(dataDaoMock, Mockito.times(0)).scan(any(TsdbQuery.class));
     }
 
     @Test
@@ -86,14 +87,7 @@ public class AdvancedDataInquiryServiceTest {
         request.setDeviceDataList(Arrays.asList(deviceData));
 
         Mockito.when(dataDaoMock.put(any(Observation[].class))).thenReturn(true);
-        Mockito.when(dataDaoMock.scan(any(String.class),
-                any(String.class),
-                any(String.class),
-                any(Long.class),
-                any(Long.class),
-                any(Boolean.class),
-                any(String[].class),
-                any(Long.class))).thenReturn(observations);
+        Mockito.when(dataDaoMock.scan(any(TsdbQuery.class))).thenReturn(observations);
 
         Mockito.when(dataDaoMock.scanForAttributeNames(any(String.class),
                 any(String.class),
@@ -140,14 +134,7 @@ public class AdvancedDataInquiryServiceTest {
         request.setCountOnly(true);
 
         Mockito.when(dataDaoMock.put(any(Observation[].class))).thenReturn(true);
-        Mockito.when(dataDaoMock.scan(any(String.class),
-                any(String.class),
-                any(String.class),
-                any(Long.class),
-                any(Long.class),
-                any(Boolean.class),
-                any(String[].class),
-                any(Long.class))).thenReturn(observations);
+        Mockito.when(dataDaoMock.scan(any(TsdbQuery.class))).thenReturn(observations);
 
         Mockito.when(dataDaoMock.scanForAttributeNames(any(String.class),
                 any(String.class),

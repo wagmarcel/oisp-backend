@@ -94,4 +94,8 @@ public class DataRetrieveParams {
     public void setComponentsMetadata(Map<String, ComponentDataType> componentsMetadata) {
         this.componentsMetadata = componentsMetadata;
     }
+
+    public Boolean getQueryMeasureLocation() {
+        return queryMeasureLocation;
+    }
 }
