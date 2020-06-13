@@ -17,6 +17,7 @@
 package com.oisp.databackend.datastructures.requests;
 
 import com.cedarsoftware.util.io.JsonWriter;
+import com.oisp.databackend.datastructures.Aggregator;
 import com.oisp.databackend.datastructures.ComponentDataType;
 
 import java.util.List;
@@ -37,6 +38,16 @@ public class DataInquiryRequest {
     private List<String> componentAttributes;
 
     private Boolean queryMeasureLocation;
+
+    private Aggregator aggregator;
+
+    public Aggregator getAggregator() {
+        return aggregator;
+    }
+
+    public void setAggregator(Aggregator aggregator) {
+        this.aggregator = aggregator;
+    }
 
     public String toString() {
         return JsonWriter.objectToJson(this);

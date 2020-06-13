@@ -33,6 +33,8 @@ public class ComponentDataType {
     private String componentName;
     private String dataType;
     private String format;
+    private String order;
+    private Aggregator aggregator;
 
     public String getComponentId() {
         return componentId;
@@ -98,6 +100,22 @@ public class ComponentDataType {
                 || getDataType().equals(STRING)
                 || getDataType().equals(BOOLEAN)
                 || getDataType().equals(BYTEARRAY);
+    }
+
+    public String getOrder() {
+        return order;
+    }
+
+    public void setOrder(String order) {
+        this.order = order;
+    }
+
+    public Aggregator getAggregator() {
+        return aggregator;
+    }
+
+    public void setAggregator(Aggregator aggregator) {
+        this.aggregator = aggregator;
     }
 }
 

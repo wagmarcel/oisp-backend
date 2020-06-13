@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.datasources;
 
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Observation;
 
 import java.io.IOException;
@@ -26,10 +27,10 @@ public interface DataDao {
 
     boolean put(Observation[] o);
 
-    Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes, Long maxPoints);
+    Observation[] scan(TsdbQuery tsdbQuery);
 
-    Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributes,
-                       boolean forward, int limit);
+    Observation[] scan(String accountId, String componentId, String componentType, long start, long stop,
+                       Boolean gps, String[] attributes, boolean forward, int limit);
 
     Long count(String accountId, List<String> componentIds, List<String> componentTypes, long start, long stop, Boolean gps, String[] attributes);
 

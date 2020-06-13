@@ -68,7 +68,23 @@ public final class ObservationBuilder {
 
     private static SortedMap<Long, Observation> createBaseObservations(QueryResponse queryResponse, TsdbQuery tsdbQuery) {
 
-        SortedMap<Long, Observation> observationMap = new TreeMap<>();
+        // create comparator in case "desc" order is requested
+        Comparator<Long> comparator = null;
+        SortedMap<Long, Observation> observationMap = null;
+        if (tsdbQuery.getOrder() != null
+                && tsdbQuery.getOrder().equals(TsdbQuery.getTypeAsName(TsdbQuery.Order.DESCENDING))) {
+            comparator = new Comparator<Long>() {
+                @Override
+                public int compare(Long s1, Long s2) {
+                    return s2.compareTo(s1);
+                }
+            };
+            observationMap = new TreeMap<>(comparator);
+
+        } else {
+            observationMap = new TreeMap<>();
+
+        }
 
         for (Queries queries: queryResponse.getQueries()) {
             if (queries.getSampleSize() == 0) {
