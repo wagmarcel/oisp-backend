@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.datasources;
 
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.Aggregator;
 import com.oisp.databackend.datastructures.Observation;
 
@@ -27,8 +28,7 @@ public interface DataDao {
 
     boolean put(Observation[] o);
 
-    Observation[] scan(String accountId, String componentId, String componentType, long start, long stop,
-                       Boolean gps, String[] attributes, Long maxPoints, Aggregator aggregator, String order);
+    Observation[] scan(TsdbQuery tsdbQuery);
 
     Observation[] scan(String accountId, String componentId, String componentType, long start, long stop,
                        Boolean gps, String[] attributes, boolean forward, int limit);

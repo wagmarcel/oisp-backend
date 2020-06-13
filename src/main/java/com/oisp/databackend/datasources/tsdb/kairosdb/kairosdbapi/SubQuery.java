@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.oisp.databackend.datastructures.Aggregator;
-import jdk.internal.loader.AbstractClassLoaderValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;

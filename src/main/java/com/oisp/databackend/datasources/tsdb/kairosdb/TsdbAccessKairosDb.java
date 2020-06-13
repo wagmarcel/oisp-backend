@@ -21,17 +21,14 @@ import com.oisp.databackend.datasources.DataFormatter;
 import com.oisp.databackend.datasources.DataType;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
-//import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Aggregator;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Query;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.QueryResponse;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.RestApi;
-//import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.Sampling;
 import com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi.SubQuery;
 
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.datastructures.Aggregator;
 import com.oisp.databackend.datastructures.Sampling;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

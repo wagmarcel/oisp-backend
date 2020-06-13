@@ -18,6 +18,7 @@ package com.oisp.databackend.api.inquiry;
 
 import com.oisp.databackend.api.inquiry.advanced.filters.ObservationFilterSelector;
 import com.oisp.databackend.datasources.DataDao;
+import com.oisp.databackend.datasources.tsdb.TsdbQuery;
 import com.oisp.databackend.datastructures.ComponentDataType;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.IllegalDataInquiryArgumentException;
@@ -55,16 +56,18 @@ public class DataRetriever {
                 throw new IllegalDataInquiryArgumentException(errINVCOMPTYPE);
             }
 
-            Observation[] observations = hbase.scan(dataRetrieveParams.getAccountId(),
-                    component,
-                    dataRetrieveParams.getComponentsMetadata().get((String) component).getDataType(),
-                    dataRetrieveParams.getStartDate(),
-                    dataRetrieveParams.getEndDate(),
-                    dataRetrieveParams.isQueryMeasureLocation(),
-                    dataRetrieveParams.getComponentsAttributes(),
-                    dataRetrieveParams.getMaxPoints(),
-                    dataRetrieveParams.getComponentsMetadata().get((String) component).getAggregator(),
-                    dataRetrieveParams.getComponentsMetadata().get((String) component).getOrder());
+            TsdbQuery tsdbQuery = new TsdbQuery()
+                    .withAid(dataRetrieveParams.getAccountId())
+                    .withCid(component)
+                    .withComponentType(dataRetrieveParams.getComponentsMetadata().get((String) component).getDataType())
+                    .withLocationInfo(dataRetrieveParams.isQueryMeasureLocation())
+                    .withAttributes(dataRetrieveParams.getComponentsAttributes())
+                    .withStart(dataRetrieveParams.getStartDate())
+                    .withStop(dataRetrieveParams.getEndDate())
+                    .withMaxPoints(dataRetrieveParams.getMaxPoints())
+                    .withAggregator(dataRetrieveParams.getComponentsMetadata().get((String) component).getAggregator())
+                    .withOrder(dataRetrieveParams.getComponentsMetadata().get((String) component).getOrder());
+            Observation[] observations = hbase.scan(tsdbQuery);
             if (observations == null) {
                 logger.debug("No observations retrieved for component: {}", component);
                 continue;

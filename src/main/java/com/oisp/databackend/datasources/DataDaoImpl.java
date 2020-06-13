@@ -45,6 +45,10 @@ public class DataDaoImpl implements DataDao {
     private TsdbAccess tsdbAccess;
     private ObjectStoreAccess objectStoreAccess;
 
+    private Aggregator aggregator;
+    private Long maxPoints;
+    private String order;
+
     private List<DataType.Types> supportedTsdbTypes;
 
     @Autowired
@@ -119,24 +123,13 @@ public class DataDaoImpl implements DataDao {
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, String componentType, long start, long stop,
-                              Boolean gps, String[] attributeList, Long maxPoints, Aggregator aggregator, String order) {
-        logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
-        TsdbQuery tsdbQuery = new TsdbQuery()
-                .withAid(accountId)
-                .withCid(componentId)
-                .withComponentType(componentType)
-                .withLocationInfo(gps)
-                .withAttributes(attributeList)
-                .withStart(start)
-                .withStop(stop)
-                .withMaxPoints(maxPoints)
-                .withAggregator(aggregator)
-                .withOrder(order);
+    public Observation[] scan(TsdbQuery tsdbQuery) {
+        logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", tsdbQuery.getAid(),
+                tsdbQuery.getCid(), tsdbQuery.getStart(), tsdbQuery.getStop(), tsdbQuery.isLocationInfo());
         Observation[] observations = tsdbAccess.scan(tsdbQuery);
         if (observations != null && observations.length > 0) {
             //Check whether dataType is not supported by tsdb
-            DataType.Types type = DataType.getType(componentType);
+            DataType.Types type = DataType.getType(tsdbQuery.getComponentType());
             Boolean isUncovered = !DataType.getUncoveredDataTypes(supportedTsdbTypes)
                     .stream()
                     .filter(t -> t == type)
@@ -201,5 +194,20 @@ public class DataDaoImpl implements DataDao {
                 .withStop(stop)
                 .withAggregator(new Aggregator().withType(Aggregator.Type.COUNT));
         return tsdbAccess.count(tsdbQuery);
+    }
+
+    public DataDao withAggregator(Aggregator aggregator) {
+        this.aggregator = aggregator;
+        return this;
+    }
+
+    public DataDao withOrder(String order) {
+        this.order = order;
+        return this;
+    }
+
+    public DataDao withMaxPoints(Long maxPoints) {
+        this.maxPoints = maxPoints;
+        return this;
     }
 }

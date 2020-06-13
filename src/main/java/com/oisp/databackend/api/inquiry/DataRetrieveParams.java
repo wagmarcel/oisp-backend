@@ -16,7 +16,6 @@
 
 package com.oisp.databackend.api.inquiry;
 
-import com.oisp.databackend.datastructures.Aggregator;
 import com.oisp.databackend.datastructures.ComponentDataType;
 import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
 import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
