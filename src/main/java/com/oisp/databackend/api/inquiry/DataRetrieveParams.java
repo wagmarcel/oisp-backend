@@ -16,6 +16,7 @@
 
 package com.oisp.databackend.api.inquiry;
 
+import com.oisp.databackend.datastructures.Aggregator;
 import com.oisp.databackend.datastructures.ComponentDataType;
 import com.oisp.databackend.datastructures.requests.AdvDataInquiryRequest;
 import com.oisp.databackend.datastructures.requests.DataInquiryRequest;
@@ -93,5 +94,9 @@ public class DataRetrieveParams {
 
     public void setComponentsMetadata(Map<String, ComponentDataType> componentsMetadata) {
         this.componentsMetadata = componentsMetadata;
+    }
+
+    public Boolean getQueryMeasureLocation() {
+        return queryMeasureLocation;
     }
 }

@@ -1,8 +1,11 @@
 package com.oisp.databackend.datasources.tsdb.kairosdb.kairosdbapi;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.oisp.databackend.datastructures.Aggregator;
+import jdk.internal.loader.AbstractClassLoaderValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +22,8 @@ public class SubQuery {
     private Long limit;
     private Map<String, List<String>> tags;
     private List<GroupBy> groupBy;
+    private String order;
+
 
     @JsonProperty("group_by")
     public List<GroupBy> getGroupBy() {
@@ -41,6 +46,7 @@ public class SubQuery {
         tags = new HashMap<String, List<String>>();
         aggregators = new ArrayList<>();
         limit = MAX_NUMBER_OF_SAMPLES;
+        order = "desc";
         groupBy = new ArrayList<GroupBy>();
     }
 
@@ -96,5 +102,34 @@ public class SubQuery {
 
     public String getName() {
         return name;
+    }
+
+    public String getOrder() {
+        return order;
+    }
+
+    public void setOrder(String order) {
+        this.order = order;
+    }
+
+    public SubQuery withOrder(String order) {
+        setOrder(order);
+        return this;
+    }
+    @JsonIgnore
+    public Aggregator getAggregator() {
+        if (aggregators.size() != 0) {
+            return aggregators.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public void setAggregator(Aggregator aggregator) {
+        if (aggregators.size() != 0) {
+            this.aggregators.set(0, aggregator);
+        } else {
+            this.aggregators.add(aggregator);
+        }
     }
 }

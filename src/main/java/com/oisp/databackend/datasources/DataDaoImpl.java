@@ -20,7 +20,7 @@ package com.oisp.databackend.datasources;
 import com.oisp.databackend.config.oisp.OispConfig;
 import com.oisp.databackend.datasources.objectstore.ObjectStoreAccess;
 import com.oisp.databackend.datasources.tsdb.TsdbQuery;
-import com.oisp.databackend.datastructures.Aggregation;
+import com.oisp.databackend.datastructures.Aggregator;
 import com.oisp.databackend.datastructures.Observation;
 import com.oisp.databackend.exceptions.ConfigEnvironmentException;
 import com.oisp.databackend.datasources.tsdb.TsdbAccess;
@@ -119,7 +119,8 @@ public class DataDaoImpl implements DataDao {
     }
 
     @Override
-    public Observation[] scan(String accountId, String componentId, String componentType, long start, long stop, Boolean gps, String[] attributeList, Long maxPoints) {
+    public Observation[] scan(String accountId, String componentId, String componentType, long start, long stop,
+                              Boolean gps, String[] attributeList, Long maxPoints, Aggregator aggregator, String order) {
         logger.debug("Scanning TSDB: acc: {} cid: {} start: {} stop: {} gps: {}", accountId, componentId, start, stop, gps);
         TsdbQuery tsdbQuery = new TsdbQuery()
                 .withAid(accountId)
@@ -129,7 +130,9 @@ public class DataDaoImpl implements DataDao {
                 .withAttributes(attributeList)
                 .withStart(start)
                 .withStop(stop)
-                .withMaxPoints(maxPoints);
+                .withMaxPoints(maxPoints)
+                .withAggregator(aggregator)
+                .withOrder(order);
         Observation[] observations = tsdbAccess.scan(tsdbQuery);
         if (observations != null && observations.length > 0) {
             //Check whether dataType is not supported by tsdb
@@ -196,7 +199,7 @@ public class DataDaoImpl implements DataDao {
                 .withAttributes(attributes)
                 .withStart(start)
                 .withStop(stop)
-                .withAggregation(Aggregation.Type.COUNT);
+                .withAggregator(new Aggregator().withType(Aggregator.Type.COUNT));
         return tsdbAccess.count(tsdbQuery);
     }
 }

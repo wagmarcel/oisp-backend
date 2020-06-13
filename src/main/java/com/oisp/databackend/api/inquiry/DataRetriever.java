@@ -62,7 +62,9 @@ public class DataRetriever {
                     dataRetrieveParams.getEndDate(),
                     dataRetrieveParams.isQueryMeasureLocation(),
                     dataRetrieveParams.getComponentsAttributes(),
-                    dataRetrieveParams.getMaxPoints());
+                    dataRetrieveParams.getMaxPoints(),
+                    dataRetrieveParams.getComponentsMetadata().get((String) component).getAggregator(),
+                    dataRetrieveParams.getComponentsMetadata().get((String) component).getOrder());
             if (observations == null) {
                 logger.debug("No observations retrieved for component: {}", component);
                 continue;

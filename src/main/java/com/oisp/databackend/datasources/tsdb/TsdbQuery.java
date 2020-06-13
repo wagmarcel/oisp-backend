@@ -1,6 +1,6 @@
 package com.oisp.databackend.datasources.tsdb;
 
-import com.oisp.databackend.datastructures.Aggregation;
+import com.oisp.databackend.datastructures.Aggregator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,31 +12,34 @@ public class TsdbQuery {
     private List<String> cid;
     private List<String> componentTypes;
     private List<String>  attributes;
+    private List<Aggregator> aggregators;
+    private List<String> orders;
     private boolean locationInfo;
     private long start;
     private long stop;
     private Long maxPoints;
-    private Aggregation.Type aggregation;
 
     public TsdbQuery(String aid, String cid, List<String> attributes, boolean locationInfo, long start, long stop) {
         this.aid = aid;
         this.cid = Arrays.asList(cid);
         this.componentTypes = new ArrayList<>();
+        this.aggregators = new ArrayList<>();
+        this.orders = new ArrayList<>();
         this.attributes = attributes;
         this.locationInfo = locationInfo;
         this.start = start;
         this.stop = stop;
-        this.aggregation = Aggregation.Type.NONE;
     }
     public TsdbQuery(String aid, List<String> cids, List<String> attributes, boolean locationInfo, long start, long stop) {
         this.aid = aid;
         this.cid = cids;
         this.componentTypes = new ArrayList<>();
+        this.aggregators = new ArrayList<>();
+        this.orders = new ArrayList<>();
         this.attributes = attributes;
         this.locationInfo = locationInfo;
         this.start = start;
         this.stop = stop;
-        this.aggregation = Aggregation.Type.NONE;
     }
 
     public TsdbQuery() {
@@ -44,6 +47,8 @@ public class TsdbQuery {
         this.componentTypes = new ArrayList<>();
         this.attributes = new ArrayList<>();
         this.cid = new ArrayList<>();
+        this.aggregators = new ArrayList<>();
+        this.orders = new ArrayList<>();
     }
 
     public TsdbQuery withAid(String aid) {
@@ -105,11 +110,6 @@ public class TsdbQuery {
 
     public TsdbQuery withStop(long stop) {
         this.stop = stop;
-        return this;
-    }
-
-    public TsdbQuery withAggregation(Aggregation.Type aggr) {
-        this.aggregation = aggr;
         return this;
     }
 
@@ -186,11 +186,46 @@ public class TsdbQuery {
         this.componentTypes.add(componentType);
     }
 
-    public Aggregation.Type getAggregation() {
-        return aggregation;
+    public Aggregator getAggregator() {
+        if (aggregators.size() != 0) {
+            return aggregators.get(0);
+        } else {
+            return null;
+        }
     }
 
-    public void setAggregation(Aggregation.Type aggregation) {
-        this.aggregation = aggregation;
+    public void setAggregator(Aggregator aggregator) {
+        if (this.aggregators.size() == 0) {
+            this.aggregators.add(aggregator);
+        } else {
+            this.aggregators.set(0, aggregator);
+        }
+    }
+
+    public TsdbQuery withAggregator(Aggregator aggregator) {
+        setAggregator(aggregator);
+        return this;
+    }
+
+    public String getOrder() {
+        if (orders.size() != 0) {
+            return orders.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public void setOrder(String order) {
+        if (this.orders.size() == 0) {
+            this.orders.add(order);
+        } else {
+            this.orders.set(0, order);
+        }
+
+    }
+
+    public TsdbQuery withOrder(String order) {
+        setOrder(order);
+        return this;
     }
 }
