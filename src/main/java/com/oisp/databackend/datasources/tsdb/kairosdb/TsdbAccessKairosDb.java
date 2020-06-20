@@ -183,7 +183,7 @@ public class TsdbAccessKairosDb implements TsdbAccess {
         Query query = new Query().withStart(tsdbQuery.getStart()).withEnd(tsdbQuery.getStop());
         query.addQuery(subQuery);
 
-        Boolean isNoneOperator = false;
+        Boolean isNoneOperator = true;
         if (tsdbQuery.getAggregator() != null) {
             isNoneOperator =
                     tsdbQuery.getAggregator().getName().equals(Aggregator.getTypeAsName(Aggregator.Type.NONE));
