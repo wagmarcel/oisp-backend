@@ -8,6 +8,12 @@ import java.util.List;
 
 @SuppressWarnings("PMD.TooManyMethods")
 public class TsdbQuery {
+
+    public enum Order {
+        ASCENDING,
+        DESCENDING;
+    }
+
     private String aid;
     private List<String> cid;
     private List<String> componentTypes;
@@ -18,6 +24,7 @@ public class TsdbQuery {
     private long start;
     private long stop;
     private Long maxPoints;
+
 
     public TsdbQuery(String aid, String cid, List<String> attributes, boolean locationInfo, long start, long stop) {
         this.aid = aid;
@@ -49,6 +56,16 @@ public class TsdbQuery {
         this.cid = new ArrayList<>();
         this.aggregators = new ArrayList<>();
         this.orders = new ArrayList<>();
+    }
+
+    public static String getTypeAsName(Order type) {
+        switch (type) {
+            case DESCENDING:
+                return "desc";
+            case ASCENDING:
+            default:
+                return "asc";
+        }
     }
 
     public TsdbQuery withAid(String aid) {
